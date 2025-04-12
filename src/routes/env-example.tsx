@@ -11,10 +11,11 @@ const getDbPath = query(() => {
 }, "db-path");
 
 export default function EnvExample() {
-  // Use createResource with initialValue to avoid hydration mismatch
-  const [dbPathData] = createResource(() => true, () => getDbPath(), {
-    initialValue: null,
-    ssrLoadFrom: "initial"
+  // Use createResource with a simpler pattern to ensure loading works
+  const [dbPathData] = createResource(async () => {
+    return await getDbPath();
+  }, {
+    initialValue: null
   });
 
   return (
