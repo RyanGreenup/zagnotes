@@ -147,11 +147,12 @@ export default function TreeView(props: TreeViewProps) {
             index() === 0 ? (
               <TreeNodeComponent
                 node={node}
+                lazyMount={true}
                 indexPath={[index()]}
                 ref={(el) => (firstItemRef = el)}
               />
             ) : (
-              <TreeNodeComponent node={node} indexPath={[index()]} />
+              <TreeNodeComponent lazyMount={true} node={node} indexPath={[index()]} />
             )
           }
         </For>
