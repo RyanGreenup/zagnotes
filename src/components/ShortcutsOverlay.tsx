@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For, Show, onMount, onCleanup } from "solid-js";
 import { ShortcutDictionary } from "./KeyboardShortcuts";
 
 interface ShortcutsOverlayProps {
@@ -28,6 +28,20 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
       })
       .join(' + ');
   };
+
+  // Handle escape key to close the overlay
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && props.isOpen) {
+      props.onClose();
+    }
+  };
+
+  onMount(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    onCleanup(() => {
+      window.removeEventListener('keydown', handleKeyDown);
+    });
+  });
 
   return (
     <Show when={props.isOpen}>
