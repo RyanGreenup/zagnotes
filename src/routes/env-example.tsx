@@ -1,4 +1,4 @@
-import { createResource } from "solid-js";
+import { createResource, Show } from "solid-js";
 import { query } from "@solidjs/router";
 
 // Server function to fetch the DB_PATH environment variable
@@ -23,25 +23,23 @@ export default function EnvExample() {
         Environment Variables Example (Auto-Loading)
       </h1>
 
-      <div class="mb-6">
-        {dbPathData.loading && (
-          <div 
-            class="inline-block px-4 py-2 rounded"
-            style={{
-              backgroundColor: "var(--color-base-200)",
-              borderColor: "var(--color-base-300)",
-              borderWidth: "var(--border)",
-              borderRadius: "var(--radius-field)",
-            }}
-          >
-            Loading environment variables...
-          </div>
-        )}
-      </div>
+      <Show when={dbPathData.loading}>
+        <div 
+          class="inline-block px-4 py-2 rounded mb-6"
+          style={{
+            backgroundColor: "var(--color-base-200)",
+            borderColor: "var(--color-base-300)",
+            borderWidth: "var(--border)",
+            borderRadius: "var(--radius-field)",
+          }}
+        >
+          Loading environment variables...
+        </div>
+      </Show>
 
-      {dbPathData.error && (
+      <Show when={dbPathData.error}>
         <div
-          class="p-4 border animate-fadeIn"
+          class="p-4 border animate-fadeIn mb-6"
           style={{
             backgroundColor: "var(--color-error-100)",
             borderColor: "var(--color-error)",
@@ -55,39 +53,41 @@ export default function EnvExample() {
           >
             Error Loading Data
           </h2>
-          <p>{dbPathData.error ? dbPathData.error.toString() : "Unknown error occurred"}</p>
+          <p>An error occurred while fetching environment variables</p>
         </div>
-      )}
+      </Show>
 
-      {!dbPathData.loading && !dbPathData.error && dbPathData() && (
-        <div
-          class="p-4 border animate-fadeIn"
-          style={{
-            backgroundColor: "var(--color-base-200)",
-            borderColor: "var(--color-base-300)",
-            borderWidth: "var(--border)",
-            borderRadius: "var(--radius-box)",
-          }}
-        >
-          <h2
-            class="text-lg font-semibold mb-2"
-            style={{ color: "var(--color-secondary)" }}
+      <Show when={dbPathData()}>
+        {(data) => (
+          <div
+            class="p-4 border animate-fadeIn mb-6"
+            style={{
+              backgroundColor: "var(--color-base-200)",
+              borderColor: "var(--color-base-300)",
+              borderWidth: "var(--border)",
+              borderRadius: "var(--radius-box)",
+            }}
           >
-            Database Path Information
-          </h2>
-          <div class="grid grid-cols-[120px_1fr] gap-2">
-            <span class="font-medium" style={{ color: "var(--color-accent)" }}>
-              DB_PATH:
-            </span>
-            <span>{dbPathData().dbPath}</span>
+            <h2
+              class="text-lg font-semibold mb-2"
+              style={{ color: "var(--color-secondary)" }}
+            >
+              Database Path Information
+            </h2>
+            <div class="grid grid-cols-[120px_1fr] gap-2">
+              <span class="font-medium" style={{ color: "var(--color-accent)" }}>
+                DB_PATH:
+              </span>
+              <span>{data.dbPath}</span>
 
-            <span class="font-medium" style={{ color: "var(--color-accent)" }}>
-              Timestamp:
-            </span>
-            <span>{dbPathData().timestamp}</span>
+              <span class="font-medium" style={{ color: "var(--color-accent)" }}>
+                Timestamp:
+              </span>
+              <span>{data.timestamp}</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </Show>
 
       <div class="mt-8 text-sm" style={{ color: "var(--color-neutral)" }}>
         <p>
