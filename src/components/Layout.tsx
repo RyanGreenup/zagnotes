@@ -1,6 +1,7 @@
 import { createSignal, JSX, Show } from "solid-js";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
+import KeyboardShortcuts, { createKeyboardShortcuts } from "./KeyboardShortcuts";
 
 /**
  * Layout component for the Notetaking application
@@ -12,6 +13,29 @@ export default function Layout(props: { children: JSX.Element }) {
   const [sidebarOpen, setSidebarOpen] = createSignal(false);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen());
+  
+  // Create keyboard shortcuts
+  const keyboardManager = createKeyboardShortcuts();
+  
+  // Register global shortcuts
+  keyboardManager.register('/', () => {
+    // Focus the search input
+    const searchInput = document.querySelector('input[type="search"]');
+    if (searchInput instanceof HTMLInputElement) {
+      searchInput.focus();
+    }
+  }, { description: "Focus search" });
+  
+  keyboardManager.register('escape', () => {
+    // Close sidebar on mobile
+    if (sidebarOpen()) {
+      setSidebarOpen(false);
+    }
+  }, { description: "Close sidebar", allowInInputs: true });
+  
+  keyboardManager.register('ctrl+b', toggleSidebar, { 
+    description: "Toggle sidebar" 
+  });
 
   return (
     <div
@@ -68,6 +92,9 @@ export default function Layout(props: { children: JSX.Element }) {
           <div class="container mx-auto p-4">{props.children}</div>
         </div>
       </div>
+      
+      {/* Register global keyboard shortcuts */}
+      <KeyboardShortcuts shortcuts={keyboardManager.getShortcuts()} />
     </div>
   );
 }
