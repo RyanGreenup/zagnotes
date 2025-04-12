@@ -2,12 +2,12 @@ aider:
     aider --model sonnet --no-attribute-author --watch-files --cache-prompts --cache-keepalive-pings 2 --read CONVENTIONS.md
 
 run:
-    DB_PATH=/home/ryan/.config/joplin-desktop/database.sqlite \
+    DB_PATH=$HOME/.config/joplin-desktop/database.sqlite \
         pnpm run dev --host
 
 build:
     pnpm run build && \
-        DB_PATH=/home/ryan/.config/joplin-desktop/database.sqlite \
+        DB_PATH=$HOME/.config/joplin-desktop/database.sqlite \
             PORT=3002 node .output/server/index.mjs
 
 fmt:
