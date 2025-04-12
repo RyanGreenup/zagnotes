@@ -5,6 +5,7 @@ import SectionHeader from "./SectionHeader";
 import SubSectionHeader from "./SubSectionHeader";
 import AnimatedListItem from "./AnimatedListItem";
 import TreeView from "./TreeView";
+import NoteTreeView from "~/routes/note-tree-view";
 
 /**
  * Sidebar component for the Notetaking application
@@ -108,6 +109,7 @@ export default function Sidebar(props: {
         <div class="mt-8 animate-fadeIn">
           <SubSectionHeader>Wiki Content</SubSectionHeader>
           <div class="mt-2" aria-label="Wiki navigation tree">
+          <NoteTreeView />
             <TreeView
               data={wikiContent()}
               ref={(el) => {
