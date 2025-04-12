@@ -49,6 +49,14 @@ export default function Layout(props: { children: JSX.Element }) {
     toggleSidebar, 
     { description: "Toggle sidebar" }
   );
+  
+  // Register shortcut to show keyboard shortcuts overlay
+  keyboardManager.register(
+    'showShortcuts',
+    '?', 
+    () => keyboardManager.toggleOverlay(), 
+    { description: "Show keyboard shortcuts", allowInInputs: false }
+  );
 
   return (
     <div

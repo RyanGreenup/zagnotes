@@ -1,4 +1,5 @@
-import { createEffect, onCleanup } from "solid-js";
+import { createEffect, onCleanup, createSignal } from "solid-js";
+import ShortcutsOverlay from "./ShortcutsOverlay";
 
 /**
  * Interface for keyboard shortcut definition
@@ -33,6 +34,7 @@ interface KeyboardShortcutsProps {
  * @param props Component properties with shortcuts configuration
  */
 export default function KeyboardShortcuts(props: KeyboardShortcutsProps) {
+  const [showOverlay, setShowOverlay] = createSignal(false);
   /**
    * Parse a key string into its components (modifiers and key)
    */
@@ -92,8 +94,15 @@ export default function KeyboardShortcuts(props: KeyboardShortcutsProps) {
     });
   });
 
-  // This component doesn't render anything
-  return null;
+  return (
+    <>
+      <ShortcutsOverlay 
+        shortcuts={props.shortcuts} 
+        isOpen={showOverlay()} 
+        onClose={() => setShowOverlay(false)} 
+      />
+    </>
+  );
 }
 
 /**
@@ -102,6 +111,7 @@ export default function KeyboardShortcuts(props: KeyboardShortcutsProps) {
  */
 export function createKeyboardShortcuts() {
   const shortcuts: ShortcutDictionary = {};
+  const [showOverlay, setShowOverlay] = createSignal(false);
   
   return {
     /**
@@ -150,6 +160,21 @@ export function createKeyboardShortcuts() {
     /**
      * Get all registered shortcuts
      */
-    getShortcuts: () => shortcuts
+    getShortcuts: () => shortcuts,
+    
+    /**
+     * Toggle the shortcuts overlay visibility
+     */
+    toggleOverlay: () => setShowOverlay(!showOverlay()),
+    
+    /**
+     * Get the current overlay visibility state
+     */
+    isOverlayVisible: () => showOverlay,
+    
+    /**
+     * Set the overlay visibility
+     */
+    setOverlayVisible: (visible: boolean) => setShowOverlay(visible)
   };
 }
