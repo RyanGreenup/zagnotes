@@ -2,6 +2,7 @@ import { createSignal, JSX, Show } from "solid-js";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import KeyboardShortcuts, { createKeyboardShortcuts } from "./KeyboardShortcuts";
+import { getAppShortcuts } from "../shortcuts/appShortcuts";
 
 /**
  * Layout component for the Notetaking application
@@ -14,49 +15,43 @@ export default function Layout(props: { children: JSX.Element }) {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen());
 
-  // Create keyboard shortcuts
+  // Create keyboard shortcuts manager
   const keyboardManager = createKeyboardShortcuts();
-
-  // Register global shortcuts
-  keyboardManager.register(
-    'search',
-    '/',
-    () => {
-      // Focus the search input
-      const searchInput = document.querySelector('input[type="search"]');
-      if (searchInput instanceof HTMLInputElement) {
-        searchInput.focus();
-      }
-    },
-    { description: "Focus search" }
-  );
-
-  keyboardManager.register(
-    'escape',
-    'escape',
-    () => {
-      // Close sidebar on mobile
-      if (sidebarOpen()) {
-        setSidebarOpen(false);
-      }
-    },
-    { description: "Close sidebar", allowInInputs: true }
-  );
-
-  keyboardManager.register(
-    'toggleSidebar',
-    'ctrl+b',
+  
+  // Define callback functions for shortcuts
+  const focusSearch = () => {
+    const searchInput = document.querySelector('input[type="search"]');
+    if (searchInput instanceof HTMLInputElement) {
+      searchInput.focus();
+    }
+  };
+  
+  const closeSidebar = () => {
+    if (sidebarOpen()) {
+      setSidebarOpen(false);
+    }
+  };
+  
+  // Get application shortcuts with our callback functions
+  const appShortcuts = getAppShortcuts({
+    focusSearch,
+    closeSidebar,
     toggleSidebar,
-    { description: "Toggle sidebar" }
-  );
-
-  // Register shortcut to show keyboard shortcuts overlay
-  keyboardManager.register(
-    'showShortcuts',
-    'alt+h',
-    () => keyboardManager.toggleOverlay(),
-    { description: "Show keyboard shortcuts", allowInInputs: false }
-  );
+    toggleShortcutsOverlay: () => keyboardManager.toggleOverlay()
+  });
+  
+  // Register all shortcuts
+  Object.entries(appShortcuts).forEach(([id, shortcut]) => {
+    keyboardManager.register(
+      id,
+      shortcut.key,
+      shortcut.action,
+      { 
+        description: shortcut.description,
+        allowInInputs: shortcut.allowInInputs
+      }
+    );
+  });
 
   return (
     <div
