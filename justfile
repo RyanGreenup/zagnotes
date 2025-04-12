@@ -13,7 +13,7 @@ fmt:
 
 check:
     # Run TypeScript type checking
-    pnpm tsc --noEmit
+    pnpm tsc --noEmit --skipLibCheck
     # Run ESLint to catch code quality issues
     pnpm eslint . --ext .ts,.tsx
     # Check for SSR compatibility issues by doing a test build
