@@ -135,11 +135,12 @@ export default function TreeView(props: TreeViewProps) {
   };
 
   return (
-    <ArkTreeView.Root collection={collection}>
+    <ArkTreeView.Root collection={collection} lazyMount={true}>
       <ArkTreeView.Tree
         class="w-full"
         ref={handleRef}
         tabIndex={0} // Make it focusable
+        lazyMount={true}
       >
         <For each={props.data}>
           {(node, index) =>
