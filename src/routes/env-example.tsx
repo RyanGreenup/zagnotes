@@ -11,8 +11,13 @@ const getDbPath = query(() => {
 }, "db-path");
 
 export default function EnvExample() {
-  // Use createResource to automatically fetch data when component mounts
-  const [dbPathData] = createResource(getDbPath);
+  // Use createResource with an initialValue to prevent hydration mismatches
+  const [dbPathData] = createResource(getDbPath, {
+    initialValue: {
+      dbPath: "Loading...",
+      timestamp: "Loading..."
+    }
+  });
 
   return (
     <main class="p-8 max-w-3xl mx-auto">
@@ -23,72 +28,62 @@ export default function EnvExample() {
         Environment Variables
       </h1>
 
-      <Show when={dbPathData.loading}>
-        <div
-          class="p-4 animate-pulse"
-          style={{ backgroundColor: "var(--color-base-200)" }}
-        >
-          Loading environment data...
-        </div>
-      </Show>
-
-      <Show when={dbPathData.error}>
-        <div
-          class="p-4 border animate-fadeIn"
-          style={{
-            backgroundColor: "var(--color-error-100)",
-            borderColor: "var(--color-error)",
-            borderWidth: "var(--border)",
-            borderRadius: "var(--radius-box)",
-          }}
+      <div
+        class="p-4 border"
+        classList={{
+          "animate-pulse": dbPathData.loading && !dbPathData.error,
+          "animate-fadeIn": !dbPathData.loading && !dbPathData.error
+        }}
+        style={{
+          backgroundColor: dbPathData.error 
+            ? "var(--color-error-100)" 
+            : "var(--color-base-200)",
+          borderColor: dbPathData.error 
+            ? "var(--color-error)" 
+            : "var(--color-base-300)",
+          borderWidth: "var(--border)",
+          borderRadius: "var(--radius-box)",
+        }}
+      >
+        <Show
+          when={!dbPathData.error}
+          fallback={
+            <>
+              <h2
+                class="text-lg font-semibold mb-2"
+                style={{ color: "var(--color-error)" }}
+              >
+                Error Loading Data
+              </h2>
+              <p>{dbPathData.error?.message || "An unknown error occurred"}</p>
+            </>
+          }
         >
           <h2
             class="text-lg font-semibold mb-2"
-            style={{ color: "var(--color-error)" }}
+            style={{ color: "var(--color-secondary)" }}
           >
-            Error Loading Data
+            Database Path Information
           </h2>
-          <p>{dbPathData.error?.message || "An unknown error occurred"}</p>
-        </div>
-      </Show>
-
-      <Show when={!dbPathData.loading && !dbPathData.error} fallback={null}>
-        {dbPathData() && (
-          <div
-            class="p-4 border animate-fadeIn"
-            style={{
-              backgroundColor: "var(--color-base-200)",
-              borderColor: "var(--color-base-300)",
-              borderWidth: "var(--border)",
-              borderRadius: "var(--radius-box)",
-            }}
-          >
-            <h2
-              class="text-lg font-semibold mb-2"
-              style={{ color: "var(--color-secondary)" }}
+          <div class="grid grid-cols-[120px_1fr] gap-2">
+            <span
+              class="font-medium"
+              style={{ color: "var(--color-accent)" }}
             >
-              Database Path Information
-            </h2>
-            <div class="grid grid-cols-[120px_1fr] gap-2">
-              <span
-                class="font-medium"
-                style={{ color: "var(--color-accent)" }}
-              >
-                DB_PATH:
-              </span>
-              <span>{dbPathData()?.dbPath || ""}</span>
+              DB_PATH:
+            </span>
+            <span>{dbPathData()?.dbPath}</span>
 
-              <span
-                class="font-medium"
-                style={{ color: "var(--color-accent)" }}
-              >
-                Timestamp:
-              </span>
-              <span>{dbPathData()?.timestamp || ""}</span>
-            </div>
+            <span
+              class="font-medium"
+              style={{ color: "var(--color-accent)" }}
+            >
+              Timestamp:
+            </span>
+            <span>{dbPathData()?.timestamp}</span>
           </div>
-        )}
-      </Show>
+        </Show>
+      </div>
 
       <div class="mt-8 text-sm" style={{ color: "var(--color-neutral)" }}>
         <p>
