@@ -11,13 +11,20 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
   const [searchQuery, setSearchQuery] = createSignal("");
 
   return (
-    <nav class="bg-white border-b border-gray-200 fixed w-full z-10">
+    <nav class="fixed w-full z-10" style={{
+      "background-color": "var(--color-base-100)",
+      "border-bottom": "var(--border) solid var(--color-base-300)"
+    }}>
       <div class="px-4 py-3 flex items-center justify-between">
         {/* Left side - Logo and mobile menu button */}
         <div class="flex items-center">
           <button
             onClick={props.toggleSidebar}
-            class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
+            class="md:hidden p-2 rounded-md focus:outline-none"
+            style={{
+              "color": "var(--color-base-content)",
+              "border-radius": "var(--radius-field)"
+            }}
             aria-label="Toggle sidebar"
           >
             <svg
@@ -39,7 +46,8 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
           <A href="/" class="flex items-center ml-2 md:ml-0">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6 text-sky-700"
+              class="h-6 w-6"
+              style={{ "color": "var(--color-primary)" }}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -51,7 +59,7 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
               />
             </svg>
-            <span class="ml-2 text-xl font-semibold text-gray-800">
+            <span class="ml-2 text-xl font-semibold" style={{ "color": "var(--color-base-content)" }}>
               NoteKeeper
             </span>
           </A>
@@ -62,7 +70,8 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
-                class="h-5 w-5 text-gray-400"
+                class="h-5 w-5"
+                style={{ "color": "var(--color-neutral)" }}
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -77,7 +86,15 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
             <input
               type="text"
               placeholder="Search notes..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+              class="block w-full pl-10 pr-3 py-2 leading-5 sm:text-sm"
+              style={{
+                "background-color": "var(--color-base-200)",
+                "border": "var(--border) solid var(--color-base-300)",
+                "border-radius": "var(--radius-field)",
+                "color": "var(--color-base-content)",
+                "placeholder-color": "var(--color-neutral)",
+                "padding": "var(--size-field)"
+              }}
               value={searchQuery()}
               onInput={(e) => setSearchQuery(e.currentTarget.value)}
             />
@@ -86,7 +103,11 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
 
         {/* Right side - User menu */}
         <div class="flex items-center">
-          <button class="p-2 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none">
+          <button class="p-2 rounded-full focus:outline-none" 
+            style={{ 
+              "color": "var(--color-base-content)",
+              "border-radius": "var(--radius-selector)"
+            }}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
@@ -102,7 +123,11 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
               />
             </svg>
           </button>
-          <button class="ml-2 p-2 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none">
+          <button class="ml-2 p-2 rounded-full focus:outline-none"
+            style={{ 
+              "color": "var(--color-base-content)",
+              "border-radius": "var(--radius-selector)"
+            }}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
@@ -126,7 +151,8 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
         <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg
-              class="h-5 w-5 text-gray-400"
+              class="h-5 w-5" 
+              style={{ "color": "var(--color-neutral)" }}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -141,7 +167,15 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
           <input
             type="text"
             placeholder="Search notes..."
-            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+            class="block w-full pl-10 pr-3 py-2 leading-5 sm:text-sm"
+            style={{
+              "background-color": "var(--color-base-200)",
+              "border": "var(--border) solid var(--color-base-300)",
+              "border-radius": "var(--radius-field)",
+              "color": "var(--color-base-content)",
+              "placeholder-color": "var(--color-neutral)",
+              "padding": "var(--size-field)"
+            }}
             value={searchQuery()}
             onInput={(e) => setSearchQuery(e.currentTarget.value)}
           />
