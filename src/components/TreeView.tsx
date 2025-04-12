@@ -30,6 +30,7 @@ interface TreeViewProps {
 interface TreeNodeProps {
   node: TreeNode;
   indexPath: number[];
+  ref?: (el: HTMLElement) => void;
 }
 
 /**
@@ -46,7 +47,11 @@ function TreeNodeComponent(props: TreeNodeProps) {
       <Show
         when={hasChildren}
         fallback={
-          <ArkTreeView.Item class="select-none flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors">
+          <ArkTreeView.Item 
+            class="select-none flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors"
+            ref={props.ref}
+            tabIndex={0}
+          >
             <span class="w-5"></span>
             <IconWrapper icon={File} size="sm" class="text-neutral" />
             <ArkTreeView.ItemText class="ml-2 text-sm">
@@ -56,7 +61,11 @@ function TreeNodeComponent(props: TreeNodeProps) {
         }
       >
         <ArkTreeView.Branch class="select-none">
-          <ArkTreeView.BranchControl class="flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors">
+          <ArkTreeView.BranchControl 
+            class="flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors"
+            ref={props.ref}
+            tabIndex={0}
+          >
             <ArkTreeView.BranchIndicator class="mr-1">
               <IconWrapper icon={ChevronRight} size="sm" class="text-neutral" />
             </ArkTreeView.BranchIndicator>
@@ -101,16 +110,49 @@ export default function TreeView(props: TreeViewProps) {
     },
   });
 
+  // Create a reference to the first tree item for focusing
+  let firstItemRef: HTMLElement | undefined;
+  
+  // Function to focus the first item in the tree
+  const focusFirstItem = () => {
+    if (firstItemRef) {
+      firstItemRef.focus();
+    }
+  };
+  
+  // Expose the focus method through the ref
+  const handleRef = (el: HTMLElement) => {
+    if (props.ref) {
+      // Extend the element with a custom focus method
+      const originalFocus = el.focus;
+      el.focus = () => {
+        originalFocus.call(el);
+        // Focus the first item after focusing the tree
+        setTimeout(focusFirstItem, 0);
+      };
+      props.ref(el);
+    }
+  };
+
   return (
     <ArkTreeView.Root collection={collection}>
       <ArkTreeView.Tree 
         class="w-full" 
-        ref={props.ref}
+        ref={handleRef}
         tabIndex={0} // Make it focusable
       >
         <For each={props.data}>
           {(node, index) => (
-            <TreeNodeComponent node={node} indexPath={[index()]} />
+            index() === 0 ? 
+              <TreeNodeComponent 
+                node={node} 
+                indexPath={[index()]} 
+                ref={(el) => firstItemRef = el} 
+              /> :
+              <TreeNodeComponent 
+                node={node} 
+                indexPath={[index()]} 
+              />
           )}
         </For>
       </ArkTreeView.Tree>
