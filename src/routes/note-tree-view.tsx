@@ -88,7 +88,6 @@ export default function NoteTreeView() {
             }}>
               <TreeView 
                 data={treeData()?.tree?.children || []}
-                ref={undefined}
               />
             </div>
           </Show>
