@@ -14,37 +14,52 @@ export default function Sidebar() {
   ]);
 
   return (
-    <aside class="h-full bg-gray-50 border-r border-gray-200 w-64 flex-shrink-0">
+    <aside class="h-full w-64 flex-shrink-0" style={{
+      "background-color": "var(--color-base-200)",
+      "border-right": "var(--border) solid var(--color-base-300)"
+    }}>
       <div class="p-4">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Notes</h2>
+        <h2 class="text-xl font-semibold mb-4" style={{ "color": "var(--color-base-content)" }}>Notes</h2>
 
         <div class="space-y-2">
           <A
             href="/"
-            class="block p-2 rounded hover:bg-gray-200 text-gray-700 font-medium"
-            activeClass="bg-gray-200 text-sky-700"
+            class="block p-2 rounded font-medium"
+            style={{ 
+              "color": "var(--color-base-content)",
+              "border-radius": "var(--radius-field)"
+            }}
+            activeClass="active-link"
             end
           >
             All Notes
           </A>
           <A
             href="/favorites"
-            class="block p-2 rounded hover:bg-gray-200 text-gray-700 font-medium"
-            activeClass="bg-gray-200 text-sky-700"
+            class="block p-2 rounded font-medium"
+            style={{ 
+              "color": "var(--color-base-content)",
+              "border-radius": "var(--radius-field)"
+            }}
+            activeClass="active-link"
           >
             Favorites
           </A>
           <A
             href="/trash"
-            class="block p-2 rounded hover:bg-gray-200 text-gray-700 font-medium"
-            activeClass="bg-gray-200 text-sky-700"
+            class="block p-2 rounded font-medium"
+            style={{ 
+              "color": "var(--color-base-content)",
+              "border-radius": "var(--radius-field)"
+            }}
+            activeClass="active-link"
           >
             Trash
           </A>
         </div>
 
         <div class="mt-8">
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
+          <h3 class="text-sm font-semibold uppercase tracking-wider mb-2" style={{ "color": "var(--color-neutral)" }}>
             Recent Notes
           </h3>
           <ul class="space-y-1">
@@ -52,8 +67,12 @@ export default function Sidebar() {
               <li>
                 <A
                   href={`/note/${note.id}`}
-                  class="block p-2 rounded hover:bg-gray-200 text-gray-700 truncate"
-                  activeClass="bg-gray-200 text-sky-700"
+                  class="block p-2 rounded truncate"
+                  style={{ 
+                    "color": "var(--color-base-content)",
+                    "border-radius": "var(--radius-field)"
+                  }}
+                  activeClass="active-link"
                 >
                   {note.title}
                 </A>
