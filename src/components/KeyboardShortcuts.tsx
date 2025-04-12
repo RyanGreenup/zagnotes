@@ -34,7 +34,18 @@ interface KeyboardShortcutsProps {
  * @param props Component properties with shortcuts configuration
  */
 export default function KeyboardShortcuts(props: KeyboardShortcutsProps) {
+  // Find the internal overlay shortcut if it exists
+  const overlayShortcut = props.shortcuts['__internal_show_overlay'];
   const [showOverlay, setShowOverlay] = createSignal(false);
+  
+  // Use the overlay shortcut's action to control our local state
+  if (overlayShortcut) {
+    const originalAction = overlayShortcut.action;
+    overlayShortcut.action = () => {
+      originalAction();
+      setShowOverlay(true);
+    };
+  }
   /**
    * Parse a key string into its components (modifiers and key)
    */
@@ -113,6 +124,14 @@ export function createKeyboardShortcuts() {
   const shortcuts: ShortcutDictionary = {};
   const [showOverlay, setShowOverlay] = createSignal(false);
   
+  // Create a special shortcut for showing the overlay
+  shortcuts['__internal_show_overlay'] = {
+    key: 'alt+h',
+    action: () => setShowOverlay(true),
+    description: "Show keyboard shortcuts",
+    allowInInputs: false
+  };
+  
   return {
     /**
      * Register a new keyboard shortcut
@@ -127,6 +146,11 @@ export function createKeyboardShortcuts() {
       action: () => void, 
       options?: { description?: string; allowInInputs?: boolean }
     ) => {
+      // Skip registering the show overlay shortcut since we handle it internally
+      if (id === 'showShortcuts' && key === 'alt+h') {
+        return;
+      }
+      
       shortcuts[id] = {
         key,
         action,

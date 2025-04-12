@@ -53,7 +53,6 @@ export default function Layout(props: { children: JSX.Element }) {
   // Register shortcut to show keyboard shortcuts overlay
   keyboardManager.register(
     'showShortcuts',
-    // Nothing happens when the user presses this keybinding, Reason through the code and Explain Why AI!
     'alt+h',
     () => keyboardManager.toggleOverlay(),
     { description: "Show keyboard shortcuts", allowInInputs: false }
