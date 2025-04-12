@@ -18,24 +18,37 @@ export default function Layout(props: { children: JSX.Element }) {
   const keyboardManager = createKeyboardShortcuts();
   
   // Register global shortcuts
-  keyboardManager.register('/', () => {
-    // Focus the search input
-    const searchInput = document.querySelector('input[type="search"]');
-    if (searchInput instanceof HTMLInputElement) {
-      searchInput.focus();
-    }
-  }, { description: "Focus search" });
+  keyboardManager.register(
+    'search',
+    '/', 
+    () => {
+      // Focus the search input
+      const searchInput = document.querySelector('input[type="search"]');
+      if (searchInput instanceof HTMLInputElement) {
+        searchInput.focus();
+      }
+    }, 
+    { description: "Focus search" }
+  );
   
-  keyboardManager.register('escape', () => {
-    // Close sidebar on mobile
-    if (sidebarOpen()) {
-      setSidebarOpen(false);
-    }
-  }, { description: "Close sidebar", allowInInputs: true });
+  keyboardManager.register(
+    'escape',
+    'escape', 
+    () => {
+      // Close sidebar on mobile
+      if (sidebarOpen()) {
+        setSidebarOpen(false);
+      }
+    }, 
+    { description: "Close sidebar", allowInInputs: true }
+  );
   
-  keyboardManager.register('ctrl+b', toggleSidebar, { 
-    description: "Toggle sidebar" 
-  });
+  keyboardManager.register(
+    'toggleSidebar',
+    'ctrl+b', 
+    toggleSidebar, 
+    { description: "Toggle sidebar" }
+  );
 
   return (
     <div

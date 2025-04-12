@@ -3,7 +3,7 @@ import { createEffect, onCleanup } from "solid-js";
 /**
  * Interface for keyboard shortcut definition
  */
-interface KeyboardShortcut {
+export interface KeyboardShortcut {
   /** Key or key combination (e.g., 'g', 'ctrl+s') */
   key: string;
   /** Function to execute when shortcut is triggered */
@@ -15,11 +15,17 @@ interface KeyboardShortcut {
 }
 
 /**
+ * Type for keyboard shortcut dictionary
+ * Keys are shortcut identifiers, values are shortcut definitions
+ */
+export type ShortcutDictionary = Record<string, KeyboardShortcut>;
+
+/**
  * Props for the KeyboardShortcuts component
  */
 interface KeyboardShortcutsProps {
-  /** Array of keyboard shortcuts to register */
-  shortcuts: KeyboardShortcut[];
+  /** Dictionary of keyboard shortcuts to register */
+  shortcuts: ShortcutDictionary;
 }
 
 /**
@@ -51,7 +57,8 @@ export default function KeyboardShortcuts(props: KeyboardShortcutsProps) {
       event.target instanceof HTMLTextAreaElement ||
       (event.target instanceof HTMLElement && event.target.isContentEditable);
 
-    for (const shortcut of props.shortcuts) {
+    for (const id in props.shortcuts) {
+      const shortcut = props.shortcuts[id];
       const { key, ctrl, shift, alt, meta } = parseKeyString(shortcut.key);
       
       // Check if the shortcut matches the event
@@ -94,26 +101,50 @@ export default function KeyboardShortcuts(props: KeyboardShortcutsProps) {
  * @returns A utility object for working with keyboard shortcuts
  */
 export function createKeyboardShortcuts() {
-  const shortcuts: KeyboardShortcut[] = [];
+  const shortcuts: ShortcutDictionary = {};
   
   return {
     /**
      * Register a new keyboard shortcut
+     * @param id Unique identifier for the shortcut
      * @param key Key or key combination (e.g., 'g', 'ctrl+s')
      * @param action Function to execute when shortcut is triggered
      * @param options Additional options for the shortcut
      */
     register: (
+      id: string,
       key: string, 
       action: () => void, 
       options?: { description?: string; allowInInputs?: boolean }
     ) => {
-      shortcuts.push({
+      shortcuts[id] = {
         key,
         action,
         description: options?.description,
         allowInInputs: options?.allowInInputs
-      });
+      };
+    },
+    
+    /**
+     * Update an existing shortcut
+     * @param id Identifier of the shortcut to update
+     * @param updates Partial shortcut definition to update
+     */
+    updateShortcut: (
+      id: string,
+      updates: Partial<KeyboardShortcut>
+    ) => {
+      if (shortcuts[id]) {
+        shortcuts[id] = { ...shortcuts[id], ...updates };
+      }
+    },
+    
+    /**
+     * Remove a shortcut by its identifier
+     * @param id Identifier of the shortcut to remove
+     */
+    removeShortcut: (id: string) => {
+      delete shortcuts[id];
     },
     
     /**
