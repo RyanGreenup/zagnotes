@@ -33,7 +33,8 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape' && props.isOpen) {
       props.onClose();
-      // block the key going any further AI!
+      event.preventDefault();
+      event.stopPropagation();
     }
   };
 
