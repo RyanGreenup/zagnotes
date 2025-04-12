@@ -14,6 +14,13 @@ export default function Layout(props: { children: JSX.Element }) {
   const [sidebarOpen, setSidebarOpen] = createSignal(false);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen());
+  
+  // Function to open the sidebar if it's closed (does nothing if already open)
+  const openSidebar = () => {
+    if (!sidebarOpen()) {
+      setSidebarOpen(true);
+    }
+  };
 
   // Create keyboard shortcuts manager
   const keyboardManager = createKeyboardShortcuts();
