@@ -18,13 +18,12 @@ function SearchBar(props: {
       <input
         type="text"
         placeholder="Search notes..."
-        class="block w-full pl-10 pr-3 py-2 leading-5 sm:text-sm"
+        class="block w-full pl-10 pr-3 py-2 leading-5 sm:text-sm placeholder-neutral"
         style={{
           "background-color": "var(--color-base-200)",
           border: "var(--border) solid var(--color-base-300)",
           "border-radius": "var(--radius-field)",
           color: "var(--color-base-content)",
-          "placeholder-color": "var(--color-neutral)",
           padding: "var(--size-field)",
         }}
         value={props.value}
