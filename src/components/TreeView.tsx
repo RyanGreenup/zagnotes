@@ -42,29 +42,27 @@ function TreeNodeComponent(props: TreeNodeProps) {
       <Show
         when={hasChildren}
         fallback={
-          <ArkTreeView.Item class="select-none">
-            <div class="flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors">
-              <span class="w-5"></span>
-              <IconWrapper 
-                icon={File} 
-                size="sm"
-                class="text-neutral"
-              />
-              <span class="ml-2 text-sm">{node.name}</span>
-            </div>
+          <ArkTreeView.Item class="select-none flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors">
+            <span class="w-5"></span>
+            <IconWrapper 
+              icon={File} 
+              size="sm"
+              class="text-neutral"
+            />
+            <ArkTreeView.ItemText class="ml-2 text-sm">
+              {node.name}
+            </ArkTreeView.ItemText>
           </ArkTreeView.Item>
         }
       >
         <ArkTreeView.Branch class="select-none">
           <ArkTreeView.BranchControl class="flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors">
             <ArkTreeView.BranchIndicator class="mr-1">
-              {(api) => (
-                <IconWrapper 
-                  icon={api().isOpen ? ChevronDown : ChevronRight} 
-                  size="sm"
-                  class="text-neutral"
-                />
-              )}
+              <IconWrapper 
+                icon={ChevronRight} 
+                size="sm"
+                class="text-neutral"
+              />
             </ArkTreeView.BranchIndicator>
             <IconWrapper 
               icon={Folder} 
@@ -101,20 +99,18 @@ function TreeNodeComponent(props: TreeNodeProps) {
  */
 export default function TreeView(props: TreeViewProps) {
   // Create a tree collection from the data
-  const collection = createMemo(() => 
-    createTreeCollection<TreeNode>({
-      nodeToValue: (node) => node.id,
-      nodeToString: (node) => node.name,
-      rootNode: {
-        id: "ROOT",
-        name: "",
-        children: props.data
-      }
-    })
-  );
+  const collection = createTreeCollection<TreeNode>({
+    nodeToValue: (node) => node.id,
+    nodeToString: (node) => node.name,
+    rootNode: {
+      id: "ROOT",
+      name: "",
+      children: props.data
+    }
+  });
 
   return (
-    <ArkTreeView.Root collection={collection()}>
+    <ArkTreeView.Root collection={collection}>
       <ArkTreeView.Tree class="w-full">
         <For each={props.data}>
           {(node, index) => (
