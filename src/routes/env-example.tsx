@@ -12,7 +12,7 @@ const getDbPath = query(() => {
 
 export default function EnvExample() {
   // Use createResource with initialValue to avoid hydration mismatch
-  const [dbPathData] = createResource(getDbPath, {
+  const [dbPathData] = createResource(() => true, () => getDbPath(), {
     initialValue: null,
     ssrLoadFrom: "initial"
   });
