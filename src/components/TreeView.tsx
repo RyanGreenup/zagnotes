@@ -42,9 +42,8 @@ function TreeNodeComponent(props: TreeNodeProps) {
   const isFolder = node.type === "folder";
   const hasChildren = isFolder && node.children && node.children.length > 0;
   
-  // Get access to the tree context to check if this node is expanded
-  const treeContext = ArkTreeView.useTreeContext();
-  const isExpanded = treeContext.isExpanded(node.id);
+  // We'll use the branch state directly from the component props
+  // This will be determined by the TreeView component's internal state
 
   return (
     <ArkTreeView.NodeProvider node={node} indexPath={indexPath}>
@@ -78,9 +77,7 @@ function TreeNodeComponent(props: TreeNodeProps) {
               {node.name}
             </ArkTreeView.BranchText>
           </ArkTreeView.BranchControl>
-          {/* Only render branch content if the node is expanded */}
-          <Show when={isExpanded}>
-            <ArkTreeView.BranchContent class="ml-2">
+          <ArkTreeView.BranchContent class="ml-2">
               <For each={node.children}>
                 {(child, index) => (
                   <TreeNodeComponent
@@ -90,7 +87,6 @@ function TreeNodeComponent(props: TreeNodeProps) {
                 )}
               </For>
             </ArkTreeView.BranchContent>
-          </Show>
         </ArkTreeView.Branch>
       </Show>
     </ArkTreeView.NodeProvider>
@@ -146,6 +142,7 @@ export default function TreeView(props: TreeViewProps) {
       collection={collection} 
       lazyMount={true} 
       unmountOnExit={true}
+      expandOnClick={true}
     >
       <ArkTreeView.Tree
         class="w-full"
