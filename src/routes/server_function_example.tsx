@@ -18,14 +18,22 @@ export default function ServerTime() {
   const [serverData, { refetch }] = createResource(fetchServerTime);
 
   return (
-    <div class="p-4 border rounded-md">
-      <h2 class="text-lg font-bold mb-2">Server Time Example</h2>
+    <div style={{
+      padding: "1rem",
+      border: "var(--border) solid var(--color-base-300)",
+      "border-radius": "var(--radius-box)"
+    }}>
+      <h2 style={{
+        "font-size": "1.125rem",
+        "font-weight": "600",
+        "margin-bottom": "0.5rem"
+      }}>Server Time Example</h2>
 
       {/* Wrap the data display in Suspense to handle async state during hydration */}
       <Suspense fallback={<p>Loading server time...</p>}>
         {/* Show error state if there is one */}
         <Show when={serverData.error}>
-          <p class="text-red-500">Error: {serverData.error.message}</p>
+          <p style={{ color: "var(--color-error)" }}>Error: {serverData.error.message}</p>
         </Show>
         
         {/* Show the data when it's available */}
@@ -39,7 +47,13 @@ export default function ServerTime() {
 
       {/* Button to manually refetch the data */}
       <button
-        class="mt-4 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+        style={{
+          "margin-top": "1rem",
+          padding: "0.25rem 0.75rem",
+          "background-color": "var(--color-primary)",
+          color: "var(--color-primary-content)",
+          "border-radius": "var(--radius-field)",
+        }}
         onClick={() => refetch()}
       >
         Refresh Server Time
