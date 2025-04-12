@@ -33,6 +33,7 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape' && props.isOpen) {
       props.onClose();
+      // block the key going any further AI!
     }
   };
 
@@ -45,11 +46,11 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
 
   return (
     <Show when={props.isOpen}>
-      <div 
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
         onClick={() => props.onClose()}
       >
-        <div 
+        <div
           class="bg-base-200 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-auto m-4"
           onClick={(e) => e.stopPropagation()}
           style={{
@@ -62,7 +63,7 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
               <h2 class="text-xl font-semibold" style={{ color: "var(--color-base-content)" }}>
                 Keyboard Shortcuts
               </h2>
-              <button 
+              <button
                 class="p-2 rounded-full hover:bg-base-300 transition-colors"
                 onClick={() => props.onClose()}
                 aria-label="Close shortcuts overlay"
@@ -71,7 +72,7 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
                 ✕
               </button>
             </div>
-            
+
             <div class="grid gap-4">
               <For each={Object.entries(props.shortcuts)}>
                 {([id, shortcut]) => (
@@ -79,11 +80,11 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
                     <div style={{ color: "var(--color-base-content)" }}>
                       {shortcut.description || id}
                     </div>
-                    <div 
+                    <div
                       class="px-2 py-1 rounded bg-base-300 font-mono text-sm"
-                      style={{ 
+                      style={{
                         "background-color": "var(--color-base-300)",
-                        color: "var(--color-base-content)" 
+                        color: "var(--color-base-content)"
                       }}
                     >
                       {formatKeyForDisplay(shortcut.key)}
@@ -92,7 +93,7 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
                 )}
               </For>
             </div>
-            
+
             <div class="mt-6 text-sm text-center opacity-70" style={{ color: "var(--color-base-content)" }}>
               Press <kbd class="px-1 py-0.5 rounded bg-base-300">?</kbd> to toggle this overlay
             </div>
