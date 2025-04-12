@@ -18,5 +18,9 @@ When writing code, you MUST follow these principles:
 - Use DaisyUI for CSS design but favour Typescript and Solid JS for anything that would promote accessibility or performance
     - e.g. a Drawer might be fine in CSS, however, pagination will be clearer, simpler and faster in SolidJS
 - Implement Responsive design with Tailwind so that the application will work on phones, tablets, laptops and desktops.
+- **Interfaces vs Type Aliases**: Prefer interfaces for object types, especially when they can be extended. Use type aliases for utility types and unions.
+- **JSX**: Use JSX syntax for rendering components. Keep markup clean and avoid inline styles in favor of Tailwind CSS classes.
+- **Props**: Define prop interfaces for components and destructure props in the component signature.
+- **Component Structure**: Use function components for defining SolidJS components. Components should be small, reusable, and focused.
 
 
