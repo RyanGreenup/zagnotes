@@ -46,34 +46,39 @@ export default function EnvExample() {
         </div>
       </Show>
 
-      <Show when={dbPathData() && !dbPathData.loading && !dbPathData.error}>
-        <div
-          class="p-4 border animate-fadeIn"
-          style={{
-            backgroundColor: "var(--color-base-200)",
-            borderColor: "var(--color-base-300)",
-            borderWidth: "var(--border)",
-            borderRadius: "var(--radius-box)",
-          }}
-        >
-          <h2
-            class="text-lg font-semibold mb-2"
-            style={{ color: "var(--color-secondary)" }}
+      <Show 
+        when={!dbPathData.loading && !dbPathData.error}
+        fallback={null}
+      >
+        {dbPathData() && (
+          <div
+            class="p-4 border animate-fadeIn"
+            style={{
+              backgroundColor: "var(--color-base-200)",
+              borderColor: "var(--color-base-300)",
+              borderWidth: "var(--border)",
+              borderRadius: "var(--radius-box)",
+            }}
           >
-            Database Path Information
-          </h2>
-          <div class="grid grid-cols-[120px_1fr] gap-2">
-            <span class="font-medium" style={{ color: "var(--color-accent)" }}>
-              DB_PATH:
-            </span>
-            <span>{dbPathData()?.dbPath}</span>
+            <h2
+              class="text-lg font-semibold mb-2"
+              style={{ color: "var(--color-secondary)" }}
+            >
+              Database Path Information
+            </h2>
+            <div class="grid grid-cols-[120px_1fr] gap-2">
+              <span class="font-medium" style={{ color: "var(--color-accent)" }}>
+                DB_PATH:
+              </span>
+              <span>{dbPathData()?.dbPath || ""}</span>
 
-            <span class="font-medium" style={{ color: "var(--color-accent)" }}>
-              Timestamp:
-            </span>
-            <span>{dbPathData()?.timestamp}</span>
+              <span class="font-medium" style={{ color: "var(--color-accent)" }}>
+                Timestamp:
+              </span>
+              <span>{dbPathData()?.timestamp || ""}</span>
+            </div>
           </div>
-        </div>
+        )}
       </Show>
 
       <div class="mt-8 text-sm" style={{ color: "var(--color-neutral)" }}>
