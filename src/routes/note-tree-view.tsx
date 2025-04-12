@@ -1,5 +1,5 @@
 import { createResource, Show, Suspense } from "solid-js";
-import { TreeView } from "../components/TreeView";
+import TreeView from "../components/TreeView";
 
 // Server function that fetches the note tree
 async function fetchNoteTree() {
@@ -87,7 +87,8 @@ export default function NoteTreeView() {
               "padding": "0.5rem"
             }}>
               <TreeView 
-                data={treeData()?.tree?.children || []} 
+                data={treeData()?.tree?.children || []}
+                ref={undefined}
               />
             </div>
           </Show>
