@@ -13,48 +13,49 @@ export default function Layout(props: { children: JSX.Element }) {
   const [sidebarOpen, setSidebarOpen] = createSignal(false);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen());
-  
+
   // Create keyboard shortcuts
   const keyboardManager = createKeyboardShortcuts();
-  
+
   // Register global shortcuts
   keyboardManager.register(
     'search',
-    '/', 
+    '/',
     () => {
       // Focus the search input
       const searchInput = document.querySelector('input[type="search"]');
       if (searchInput instanceof HTMLInputElement) {
         searchInput.focus();
       }
-    }, 
+    },
     { description: "Focus search" }
   );
-  
+
   keyboardManager.register(
     'escape',
-    'escape', 
+    'escape',
     () => {
       // Close sidebar on mobile
       if (sidebarOpen()) {
         setSidebarOpen(false);
       }
-    }, 
+    },
     { description: "Close sidebar", allowInInputs: true }
   );
-  
+
   keyboardManager.register(
     'toggleSidebar',
-    'ctrl+b', 
-    toggleSidebar, 
+    'ctrl+b',
+    toggleSidebar,
     { description: "Toggle sidebar" }
   );
-  
+
   // Register shortcut to show keyboard shortcuts overlay
   keyboardManager.register(
     'showShortcuts',
-    '?', 
-    () => keyboardManager.toggleOverlay(), 
+    // Nothing happens when the user presses this keybinding, Reason through the code and Explain Why AI!
+    'alt+h',
+    () => keyboardManager.toggleOverlay(),
     { description: "Show keyboard shortcuts", allowInInputs: false }
   );
 
@@ -113,7 +114,7 @@ export default function Layout(props: { children: JSX.Element }) {
           <div class="container mx-auto p-4">{props.children}</div>
         </div>
       </div>
-      
+
       {/* Register global keyboard shortcuts */}
       <KeyboardShortcuts shortcuts={keyboardManager.getShortcuts()} />
     </div>
