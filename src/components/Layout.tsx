@@ -21,7 +21,7 @@ export default function Layout(props: { children: JSX.Element }) {
         {/* Mobile sidebar overlay */}
         <Show when={sidebarOpen()}>
           <div
-            class="fixed inset-0 z-20 bg-gray-800 bg-opacity-30 backdrop-blur-sm md:hidden"
+            class="fixed inset-0 z-20   backdrop-blur-sm md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         </Show>
