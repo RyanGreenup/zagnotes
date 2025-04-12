@@ -21,7 +21,7 @@ export default function Layout(props: { children: JSX.Element }) {
         {/* Mobile sidebar overlay */}
         <Show when={sidebarOpen()}>
           <div
-            class="fixed inset-0 z-20 bg-gray-600 bg-opacity-75 md:hidden"
+            class="fixed inset-0 z-20 bg-gray-800 bg-opacity-50 backdrop-blur-sm md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         </Show>
@@ -36,7 +36,9 @@ export default function Layout(props: { children: JSX.Element }) {
         </div>
 
         {/* Desktop sidebar */}
-        <Sidebar />
+        <div class="hidden md:block">
+          <Sidebar />
+        </div>
 
         {/* Main content */}
         <div class="flex-1 overflow-auto">

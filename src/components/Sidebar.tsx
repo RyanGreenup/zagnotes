@@ -14,7 +14,7 @@ export default function Sidebar() {
   ]);
 
   return (
-    <aside class="h-full bg-gray-50 border-r border-gray-200 w-64 flex-shrink-0 hidden md:block">
+    <aside class="h-full bg-gray-50 border-r border-gray-200 w-64 flex-shrink-0">
       <div class="p-4">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Notes</h2>
 
