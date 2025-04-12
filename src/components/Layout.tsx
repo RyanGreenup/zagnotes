@@ -14,10 +14,13 @@ export default function Layout(props: { children: JSX.Element }) {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen());
 
   return (
-    <div class="flex flex-col h-screen" style={{
-      "background-color": "var(--color-base-100)",
-      "color": "var(--color-base-content)"
-    }}>
+    <div
+      class="flex flex-col h-screen"
+      style={{
+        "background-color": "var(--color-base-100)",
+        color: "var(--color-base-content)",
+      }}
+    >
       <Navbar toggleSidebar={toggleSidebar} />
 
       <div class="flex flex-1 pt-16">
@@ -25,7 +28,10 @@ export default function Layout(props: { children: JSX.Element }) {
         <Show when={sidebarOpen()}>
           <div
             class="fixed inset-0 z-20 backdrop-blur-sm md:hidden"
-            style={{ "background-color": "var(--color-base-200)", "opacity": "0.7" }}
+            style={{
+              "background-color": "var(--color-base-200)",
+              opacity: "0.7",
+            }}
             onClick={() => setSidebarOpen(false)}
           />
         </Show>
@@ -35,24 +41,30 @@ export default function Layout(props: { children: JSX.Element }) {
           class={`fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform md:hidden ${
             sidebarOpen() ? "translate-x-0" : "-translate-x-full"
           }`}
-          style={{ 
+          style={{
             "background-color": "var(--color-base-200)",
-            "border-right": "var(--border) solid var(--color-base-300)"
+            "border-right": "var(--border) solid var(--color-base-300)",
           }}
         >
           <Sidebar />
         </div>
 
         {/* Desktop sidebar */}
-        <div class="hidden md:block" style={{ 
-          "background-color": "var(--color-base-200)",
-          "border-right": "var(--border) solid var(--color-base-300)"
-        }}>
+        <div
+          class="hidden md:block"
+          style={{
+            "background-color": "var(--color-base-200)",
+            "border-right": "var(--border) solid var(--color-base-300)",
+          }}
+        >
           <Sidebar />
         </div>
 
         {/* Main content */}
-        <div class="flex-1 overflow-auto" style={{ "background-color": "var(--color-base-100)" }}>
+        <div
+          class="flex-1 overflow-auto"
+          style={{ "background-color": "var(--color-base-100)" }}
+        >
           <div class="container mx-auto p-4">{props.children}</div>
         </div>
       </div>

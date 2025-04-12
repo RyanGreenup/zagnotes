@@ -1,5 +1,86 @@
 import { createSignal } from "solid-js";
 import { A } from "@solidjs/router";
+import { Menu, Search, MoreVertical, Users, FileEdit } from "lucide-solid";
+import IconWrapper from "./IconWrapper";
+
+/**
+ * SearchBar component for searching notes
+ */
+function SearchBar(props: {
+  value: string;
+  onInput: (e: InputEvent & { currentTarget: HTMLInputElement }) => void;
+}) {
+  return (
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <IconWrapper icon={Search} size="md" color="var(--color-neutral)" />
+      </div>
+      <input
+        type="text"
+        placeholder="Search notes..."
+        class="block w-full pl-10 pr-3 py-2 leading-5 sm:text-sm"
+        style={{
+          "background-color": "var(--color-base-200)",
+          border: "var(--border) solid var(--color-base-300)",
+          "border-radius": "var(--radius-field)",
+          color: "var(--color-base-content)",
+          "placeholder-color": "var(--color-neutral)",
+          padding: "var(--size-field)",
+        }}
+        value={props.value}
+        onInput={props.onInput}
+      />
+    </div>
+  );
+}
+
+/**
+ * NavButton component for consistent button styling
+ */
+function NavButton(props: {
+  onClick?: () => void;
+  icon: (props: JSX.SvgSVGAttributes<SVGSVGElement>) => JSX.Element;
+  size?: "sm" | "md" | "lg";
+  ariaLabel?: string;
+  class?: string;
+  rounded?: "md" | "full";
+}) {
+  const roundedClass = props.rounded === "full" ? "rounded-full" : "rounded-md";
+
+  return (
+    <button
+      onClick={props.onClick}
+      class={`p-2 focus:outline-none ${roundedClass} ${props.class || ""}`}
+      style={{
+        color: "var(--color-base-content)",
+        "border-radius":
+          props.rounded === "full"
+            ? "var(--radius-selector)"
+            : "var(--radius-field)",
+      }}
+      aria-label={props.ariaLabel}
+    >
+      <IconWrapper icon={props.icon} size={props.size || "lg"} />
+    </button>
+  );
+}
+
+/**
+ * AppLogo component for the application logo
+ */
+function AppLogo() {
+  return (
+    <A href="/" class="flex items-center ml-2 md:ml-0">
+      <IconWrapper icon={FileEdit} size="lg" color="var(--color-primary)" />
+      <span
+        class="ml-2 text-xl font-semibold"
+        style={{ color: "var(--color-base-content)" }}
+      >
+        NoteKeeper
+      </span>
+    </A>
+  );
+}
 
 /**
  * Navbar component for the Notetaking application
@@ -10,176 +91,49 @@ import { A } from "@solidjs/router";
 export default function Navbar(props: { toggleSidebar: () => void }) {
   const [searchQuery, setSearchQuery] = createSignal("");
 
+  const handleSearchInput = (
+    e: InputEvent & { currentTarget: HTMLInputElement },
+  ) => {
+    setSearchQuery(e.currentTarget.value);
+  };
+
   return (
-    <nav class="fixed w-full z-10" style={{
-      "background-color": "var(--color-base-100)",
-      "border-bottom": "var(--border) solid var(--color-base-300)"
-    }}>
+    <nav
+      class="fixed w-full z-10"
+      style={{
+        "background-color": "var(--color-base-100)",
+        "border-bottom": "var(--border) solid var(--color-base-300)",
+      }}
+    >
       <div class="px-4 py-3 flex items-center justify-between">
         {/* Left side - Logo and mobile menu button */}
         <div class="flex items-center">
-          <button
+          <NavButton
             onClick={props.toggleSidebar}
-            class="md:hidden p-2 rounded-md focus:outline-none"
-            style={{
-              "color": "var(--color-base-content)",
-              "border-radius": "var(--radius-field)"
-            }}
-            aria-label="Toggle sidebar"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-
-          <A href="/" class="flex items-center ml-2 md:ml-0">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              style={{ "color": "var(--color-primary)" }}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-            <span class="ml-2 text-xl font-semibold" style={{ "color": "var(--color-base-content)" }}>
-              NoteKeeper
-            </span>
-          </A>
+            icon={Menu}
+            size="lg"
+            rounded="md"
+            ariaLabel="Toggle sidebar"
+            class="md:hidden"
+          />
+          <AppLogo />
         </div>
 
         {/* Center - Search bar */}
         <div class="hidden md:block flex-1 max-w-md mx-4">
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg
-                class="h-5 w-5"
-                style={{ "color": "var(--color-neutral)" }}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
-            <input
-              type="text"
-              placeholder="Search notes..."
-              class="block w-full pl-10 pr-3 py-2 leading-5 sm:text-sm"
-              style={{
-                "background-color": "var(--color-base-200)",
-                "border": "var(--border) solid var(--color-base-300)",
-                "border-radius": "var(--radius-field)",
-                "color": "var(--color-base-content)",
-                "placeholder-color": "var(--color-neutral)",
-                "padding": "var(--size-field)"
-              }}
-              value={searchQuery()}
-              onInput={(e) => setSearchQuery(e.currentTarget.value)}
-            />
-          </div>
+          <SearchBar value={searchQuery()} onInput={handleSearchInput} />
         </div>
 
         {/* Right side - User menu */}
         <div class="flex items-center">
-          <button class="p-2 rounded-full focus:outline-none" 
-            style={{ 
-              "color": "var(--color-base-content)",
-              "border-radius": "var(--radius-selector)"
-            }}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-              />
-            </svg>
-          </button>
-          <button class="ml-2 p-2 rounded-full focus:outline-none"
-            style={{ 
-              "color": "var(--color-base-content)",
-              "border-radius": "var(--radius-selector)"
-            }}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-          </button>
+          <NavButton icon={MoreVertical} rounded="full" />
+          <NavButton icon={Users} rounded="full" class="ml-2" />
         </div>
       </div>
 
       {/* Mobile search bar */}
       <div class="px-4 py-2 md:hidden">
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg
-              class="h-5 w-5" 
-              style={{ "color": "var(--color-neutral)" }}
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <input
-            type="text"
-            placeholder="Search notes..."
-            class="block w-full pl-10 pr-3 py-2 leading-5 sm:text-sm"
-            style={{
-              "background-color": "var(--color-base-200)",
-              "border": "var(--border) solid var(--color-base-300)",
-              "border-radius": "var(--radius-field)",
-              "color": "var(--color-base-content)",
-              "placeholder-color": "var(--color-neutral)",
-              "padding": "var(--size-field)"
-            }}
-            value={searchQuery()}
-            onInput={(e) => setSearchQuery(e.currentTarget.value)}
-          />
-        </div>
+        <SearchBar value={searchQuery()} onInput={handleSearchInput} />
       </div>
     </nav>
   );

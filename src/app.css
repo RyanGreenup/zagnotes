@@ -1,5 +1,21 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: all;
+}
+
+
+
+
+
+
+
+
+
+
+
+/*
+My Component Styling
+*/
 
 @keyframes fadeSlideIn {
   0% {
@@ -24,6 +40,11 @@
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out forwards;
 }
+
+
+/*
+My Themes for later migration away from Daisy UI
+*/
 
 :root {
   /* Light theme (default) */
