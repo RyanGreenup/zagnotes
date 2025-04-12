@@ -3,7 +3,7 @@
  * @returns A new UUID string
  */
 export function generateUUID(): string {
-  return require('crypto').randomUUID()
+  return crypto.randomUUID()
 }
 
 /**
