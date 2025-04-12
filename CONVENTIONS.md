@@ -17,6 +17,6 @@ When writing code, you MUST follow these principles:
 - Utilize Tailwind CSS for styling, maximizing its utility-first CSS classes to keep styles declarative and componentized.
 - Use DaisyUI for CSS design but favour Typescript and Solid JS for anything that would promote accessibility or performance
     - e.g. a Drawer might be fine in CSS, however, pagination will be clearer, simpler and faster in SolidJS
-
+- Implement Responsive design with Tailwind so that the application will work on phones, tablets, laptops and desktops.
 
 
