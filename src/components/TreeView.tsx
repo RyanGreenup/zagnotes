@@ -1,4 +1,5 @@
-import { createSignal, For, Show } from "solid-js";
+import { TreeView as ArkTreeView, createTreeCollection } from "@ark-ui/solid/tree-view";
+import { createMemo, For, Show } from "solid-js";
 import IconWrapper from "./IconWrapper";
 import { ChevronRight, ChevronDown, File, Folder } from "lucide-solid";
 
@@ -20,72 +21,110 @@ interface TreeViewProps {
 }
 
 /**
- * Props for the TreeItem component
+ * Props for the TreeNodeComponent
  */
-interface TreeItemProps {
+interface TreeNodeProps {
   node: TreeNode;
-  level: number;
+  indexPath: number[];
 }
 
 /**
- * Individual tree item component that can be a file or folder
+ * Individual tree node component that can be a file or folder
  * Folders can be expanded to show their children
  */
-function TreeItem(props: TreeItemProps) {
-  const [expanded, setExpanded] = createSignal(false);
-  const toggleExpand = () => setExpanded(!expanded());
-  
-  const isFolder = props.node.type === "folder";
-  const hasChildren = isFolder && props.node.children && props.node.children.length > 0;
-  
+function TreeNodeComponent(props: TreeNodeProps) {
+  const { node, indexPath } = props;
+  const isFolder = node.type === "folder";
+  const hasChildren = isFolder && node.children && node.children.length > 0;
+
   return (
-    <li class="select-none">
-      <div 
-        class="flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors"
-        style={{ "padding-left": `${props.level * 12}px` }}
-        onClick={hasChildren ? toggleExpand : undefined}
+    <ArkTreeView.NodeProvider node={node} indexPath={indexPath}>
+      <Show
+        when={hasChildren}
+        fallback={
+          <ArkTreeView.Item class="select-none">
+            <div class="flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors">
+              <span class="w-5"></span>
+              <IconWrapper 
+                icon={File} 
+                size="sm"
+                class="text-neutral"
+              />
+              <span class="ml-2 text-sm">{node.name}</span>
+            </div>
+          </ArkTreeView.Item>
+        }
       >
-        {hasChildren ? (
-          <span class="mr-1">
+        <ArkTreeView.Branch class="select-none">
+          <ArkTreeView.BranchControl class="flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors">
+            <ArkTreeView.BranchIndicator class="mr-1">
+              {(api) => (
+                <IconWrapper 
+                  icon={api().isOpen ? ChevronDown : ChevronRight} 
+                  size="sm"
+                  class="text-neutral"
+                />
+              )}
+            </ArkTreeView.BranchIndicator>
             <IconWrapper 
-              icon={expanded() ? ChevronDown : ChevronRight} 
+              icon={Folder} 
               size="sm"
-              class="text-neutral"
+              class="text-primary"
             />
-          </span>
-        ) : (
-          <span class="w-5"></span>
-        )}
-        
-        <IconWrapper 
-          icon={isFolder ? Folder : File} 
-          size="sm"
-          class={isFolder ? "text-primary" : "text-neutral"}
-        />
-        
-        <span class="ml-2 text-sm">{props.node.name}</span>
-      </div>
-      
-      <Show when={expanded() && hasChildren}>
-        <ul class="ml-2">
-          <For each={props.node.children}>
-            {(child) => <TreeItem node={child} level={props.level + 1} />}
-          </For>
-        </ul>
+            <ArkTreeView.BranchText class="ml-2 text-sm">
+              {node.name}
+            </ArkTreeView.BranchText>
+          </ArkTreeView.BranchControl>
+          <ArkTreeView.BranchContent class="ml-2">
+            <For each={node.children}>
+              {(child, index) => (
+                <TreeNodeComponent 
+                  node={child} 
+                  indexPath={[...indexPath, index()]} 
+                />
+              )}
+            </For>
+          </ArkTreeView.BranchContent>
+        </ArkTreeView.Branch>
       </Show>
-    </li>
+    </ArkTreeView.NodeProvider>
   );
 }
 
 /**
- * TreeView component that displays hierarchical data
+ * TreeView component that displays hierarchical data with keyboard navigation
+ * Supports keyboard navigation for accessibility:
+ * - Arrow keys to navigate between nodes
+ * - Enter/Space to select or expand/collapse nodes
+ * - Home/End to jump to first/last node
+ * - Type characters to search for nodes
  */
 export default function TreeView(props: TreeViewProps) {
+  // Create a tree collection from the data
+  const collection = createMemo(() => 
+    createTreeCollection<TreeNode>({
+      nodeToValue: (node) => node.id,
+      nodeToString: (node) => node.name,
+      rootNode: {
+        id: "ROOT",
+        name: "",
+        children: props.data
+      }
+    })
+  );
+
   return (
-    <ul class="w-full">
-      <For each={props.data}>
-        {(node) => <TreeItem node={node} level={0} />}
-      </For>
-    </ul>
+    <ArkTreeView.Root collection={collection()}>
+      <ArkTreeView.Tree class="w-full">
+        <For each={props.data}>
+          {(node, index) => (
+            <TreeNodeComponent 
+              node={node} 
+              indexPath={[index()]} 
+            />
+          )}
+        </For>
+      </ArkTreeView.Tree>
+    </ArkTreeView.Root>
   );
 }

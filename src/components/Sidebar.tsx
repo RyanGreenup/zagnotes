@@ -103,7 +103,7 @@ export default function Sidebar() {
 
         <div class="mt-8 animate-fadeIn">
           <SubSectionHeader>Wiki Content</SubSectionHeader>
-          <div class="mt-2">
+          <div class="mt-2" aria-label="Wiki navigation tree">
             <TreeView data={wikiContent()} />
           </div>
         </div>
