@@ -1,7 +1,9 @@
 import { createSignal, JSX, Show } from "solid-js";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
-import KeyboardShortcuts, { createKeyboardShortcuts } from "./KeyboardShortcuts";
+import KeyboardShortcuts, {
+  createKeyboardShortcuts,
+} from "./KeyboardShortcuts";
 import { getAppShortcuts } from "../shortcuts/appShortcuts";
 
 /**
@@ -14,7 +16,7 @@ export default function Layout(props: { children: JSX.Element }) {
   const [sidebarOpen, setSidebarOpen] = createSignal(false);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen());
-  
+
   // Function to open the sidebar if it's closed (does nothing if already open)
   const openSidebar = () => {
     if (!sidebarOpen()) {
@@ -24,7 +26,7 @@ export default function Layout(props: { children: JSX.Element }) {
 
   // Create keyboard shortcuts manager
   const keyboardManager = createKeyboardShortcuts();
-  
+
   // Define callback functions for shortcuts
   const focusSearch = () => {
     const searchInput = document.querySelector('input[type="search"]');
@@ -32,32 +34,27 @@ export default function Layout(props: { children: JSX.Element }) {
       searchInput.focus();
     }
   };
-  
+
   const closeSidebar = () => {
     if (sidebarOpen()) {
       setSidebarOpen(false);
     }
   };
-  
+
   // Get application shortcuts with our callback functions
   const appShortcuts = getAppShortcuts({
     focusSearch,
     closeSidebar,
     toggleSidebar,
-    toggleShortcutsOverlay: () => keyboardManager.toggleOverlay()
+    toggleShortcutsOverlay: () => keyboardManager.toggleOverlay(),
   });
-  
+
   // Register all shortcuts
   Object.entries(appShortcuts).forEach(([id, shortcut]) => {
-    keyboardManager.register(
-      id,
-      shortcut.key,
-      shortcut.action,
-      { 
-        description: shortcut.description,
-        allowInInputs: shortcut.allowInInputs
-      }
-    );
+    keyboardManager.register(id, shortcut.key, shortcut.action, {
+      description: shortcut.description,
+      allowInInputs: shortcut.allowInInputs,
+    });
   });
 
   return (

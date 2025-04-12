@@ -1,4 +1,7 @@
-import { TreeView as ArkTreeView, createTreeCollection } from "@ark-ui/solid/tree-view";
+import {
+  TreeView as ArkTreeView,
+  createTreeCollection,
+} from "@ark-ui/solid/tree-view";
 import { createMemo, For, Show } from "solid-js";
 import IconWrapper from "./IconWrapper";
 import { ChevronRight, ChevronDown, File, Folder } from "lucide-solid";
@@ -44,11 +47,7 @@ function TreeNodeComponent(props: TreeNodeProps) {
         fallback={
           <ArkTreeView.Item class="select-none flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors">
             <span class="w-5"></span>
-            <IconWrapper 
-              icon={File} 
-              size="sm"
-              class="text-neutral"
-            />
+            <IconWrapper icon={File} size="sm" class="text-neutral" />
             <ArkTreeView.ItemText class="ml-2 text-sm">
               {node.name}
             </ArkTreeView.ItemText>
@@ -58,17 +57,9 @@ function TreeNodeComponent(props: TreeNodeProps) {
         <ArkTreeView.Branch class="select-none">
           <ArkTreeView.BranchControl class="flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors">
             <ArkTreeView.BranchIndicator class="mr-1">
-              <IconWrapper 
-                icon={ChevronRight} 
-                size="sm"
-                class="text-neutral"
-              />
+              <IconWrapper icon={ChevronRight} size="sm" class="text-neutral" />
             </ArkTreeView.BranchIndicator>
-            <IconWrapper 
-              icon={Folder} 
-              size="sm"
-              class="text-primary"
-            />
+            <IconWrapper icon={Folder} size="sm" class="text-primary" />
             <ArkTreeView.BranchText class="ml-2 text-sm">
               {node.name}
             </ArkTreeView.BranchText>
@@ -76,9 +67,9 @@ function TreeNodeComponent(props: TreeNodeProps) {
           <ArkTreeView.BranchContent class="ml-2">
             <For each={node.children}>
               {(child, index) => (
-                <TreeNodeComponent 
-                  node={child} 
-                  indexPath={[...indexPath, index()]} 
+                <TreeNodeComponent
+                  node={child}
+                  indexPath={[...indexPath, index()]}
                 />
               )}
             </For>
@@ -105,8 +96,8 @@ export default function TreeView(props: TreeViewProps) {
     rootNode: {
       id: "ROOT",
       name: "",
-      children: props.data
-    }
+      children: props.data,
+    },
   });
 
   return (
@@ -114,10 +105,7 @@ export default function TreeView(props: TreeViewProps) {
       <ArkTreeView.Tree class="w-full">
         <For each={props.data}>
           {(node, index) => (
-            <TreeNodeComponent 
-              node={node} 
-              indexPath={[index()]} 
-            />
+            <TreeNodeComponent node={node} indexPath={[index()]} />
           )}
         </For>
       </ArkTreeView.Tree>

@@ -33,10 +33,10 @@ export default function Sidebar() {
           type: "folder",
           children: [
             { id: "1-3-1", name: "Beginner Guide", type: "file" },
-            { id: "1-3-2", name: "Advanced Topics", type: "file" }
-          ]
-        }
-      ]
+            { id: "1-3-2", name: "Advanced Topics", type: "file" },
+          ],
+        },
+      ],
     },
     {
       id: "2",
@@ -44,8 +44,8 @@ export default function Sidebar() {
       type: "folder",
       children: [
         { id: "2-1", name: "Project Alpha", type: "file" },
-        { id: "2-2", name: "Project Beta", type: "file" }
-      ]
+        { id: "2-2", name: "Project Beta", type: "file" },
+      ],
     },
     {
       id: "3",
@@ -53,10 +53,10 @@ export default function Sidebar() {
       type: "folder",
       children: [
         { id: "3-1", name: "Members", type: "file" },
-        { id: "3-2", name: "Roles", type: "file" }
-      ]
+        { id: "3-2", name: "Roles", type: "file" },
+      ],
     },
-    { id: "4", name: "FAQ", type: "file" }
+    { id: "4", name: "FAQ", type: "file" },
   ]);
 
   const [isVisible, setIsVisible] = createSignal(false);

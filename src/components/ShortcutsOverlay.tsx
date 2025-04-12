@@ -16,22 +16,23 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
    */
   const formatKeyForDisplay = (keyString: string) => {
     return keyString
-      .split('+')
-      .map(part => {
+      .split("+")
+      .map((part) => {
         const trimmed = part.trim();
-        if (trimmed === 'ctrl' || trimmed === 'control') return 'Ctrl';
-        if (trimmed === 'alt') return 'Alt';
-        if (trimmed === 'shift') return 'Shift';
-        if (trimmed === 'meta' || trimmed === 'cmd' || trimmed === 'command') return '⌘';
-        if (trimmed === 'escape') return 'Esc';
+        if (trimmed === "ctrl" || trimmed === "control") return "Ctrl";
+        if (trimmed === "alt") return "Alt";
+        if (trimmed === "shift") return "Shift";
+        if (trimmed === "meta" || trimmed === "cmd" || trimmed === "command")
+          return "⌘";
+        if (trimmed === "escape") return "Esc";
         return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
       })
-      .join(' + ');
+      .join(" + ");
   };
 
   // Handle escape key to close the overlay
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && props.isOpen) {
+    if (event.key === "Escape" && props.isOpen) {
       props.onClose();
       event.preventDefault();
       event.stopPropagation();
@@ -39,9 +40,9 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
   };
 
   onMount(() => {
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     onCleanup(() => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     });
   });
 
@@ -56,12 +57,15 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
           onClick={(e) => e.stopPropagation()}
           style={{
             "background-color": "var(--color-base-200)",
-            "border": "var(--border) solid var(--color-base-300)",
+            border: "var(--border) solid var(--color-base-300)",
           }}
         >
           <div class="p-6">
             <div class="flex justify-between items-center mb-4">
-              <h2 class="text-xl font-semibold" style={{ color: "var(--color-base-content)" }}>
+              <h2
+                class="text-xl font-semibold"
+                style={{ color: "var(--color-base-content)" }}
+              >
                 Keyboard Shortcuts
               </h2>
               <button
@@ -85,7 +89,7 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
                       class="px-2 py-1 rounded bg-base-300 font-mono text-sm"
                       style={{
                         "background-color": "var(--color-base-300)",
-                        color: "var(--color-base-content)"
+                        color: "var(--color-base-content)",
                       }}
                     >
                       {formatKeyForDisplay(shortcut.key)}
@@ -95,8 +99,12 @@ export default function ShortcutsOverlay(props: ShortcutsOverlayProps) {
               </For>
             </div>
 
-            <div class="mt-6 text-sm text-center opacity-70" style={{ color: "var(--color-base-content)" }}>
-              Press <kbd class="px-1 py-0.5 rounded bg-base-300">?</kbd> to toggle this overlay
+            <div
+              class="mt-6 text-sm text-center opacity-70"
+              style={{ color: "var(--color-base-content)" }}
+            >
+              Press <kbd class="px-1 py-0.5 rounded bg-base-300">?</kbd> to
+              toggle this overlay
             </div>
           </div>
         </div>
