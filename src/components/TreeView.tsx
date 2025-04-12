@@ -58,13 +58,11 @@ function TreeNodeComponent(props: TreeNodeProps) {
         <ArkTreeView.Branch class="select-none">
           <ArkTreeView.BranchControl class="flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors">
             <ArkTreeView.BranchIndicator class="mr-1">
-              {({ isExpanded }) => (
-                <IconWrapper 
-                  icon={isExpanded() ? ChevronDown : ChevronRight} 
-                  size="sm"
-                  class="text-neutral"
-                />
-              )}
+              <IconWrapper 
+                icon={ChevronRight} 
+                size="sm"
+                class="text-neutral"
+              />
             </ArkTreeView.BranchIndicator>
             <IconWrapper 
               icon={Folder} 
