@@ -11,8 +11,11 @@ const getDbPath = query(() => {
 }, "db-path");
 
 export default function EnvExample() {
-  // Use createResource to fetch data immediately when component loads
-  const [dbPathData] = createResource(getDbPath);
+  // Use createResource with initialValue to avoid hydration mismatch
+  const [dbPathData] = createResource(getDbPath, {
+    initialValue: null,
+    ssrLoadFrom: "initial"
+  });
 
   return (
     <main class="p-8 max-w-3xl mx-auto">
@@ -23,7 +26,7 @@ export default function EnvExample() {
         Environment Variables Example (Auto-Loading)
       </h1>
 
-      <Show when={dbPathData.loading}>
+      <Show when={dbPathData.loading && !dbPathData()}>
         <div 
           class="inline-block px-4 py-2 rounded mb-6"
           style={{
