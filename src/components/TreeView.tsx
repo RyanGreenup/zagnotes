@@ -140,19 +140,17 @@ export default function TreeView(props: TreeViewProps) {
         class="w-full"
         ref={handleRef}
         tabIndex={0} // Make it focusable
-        lazyMount={true}
       >
         <For each={props.data}>
           {(node, index) =>
             index() === 0 ? (
               <TreeNodeComponent
                 node={node}
-                lazyMount={true}
                 indexPath={[index()]}
                 ref={(el) => (firstItemRef = el)}
               />
             ) : (
-              <TreeNodeComponent lazyMount={true} node={node} indexPath={[index()]} />
+              <TreeNodeComponent node={node} indexPath={[index()]} />
             )
           }
         </For>
