@@ -1,4 +1,4 @@
-import { createResource, Show } from "solid-js";
+import { createResource, Show, Suspense } from "solid-js";
 
 // Simple async function that fetches data from the server
 async function fetchServerTime() {
@@ -21,23 +21,21 @@ export default function ServerTime() {
     <div class="p-4 border rounded-md">
       <h2 class="text-lg font-bold mb-2">Server Time Example</h2>
 
-      {/* Show loading state */}
-      <Show when={serverData.loading}>
-        <p>Loading server time...</p>
-      </Show>
-
-      {/* Show error state if there is one */}
-      <Show when={serverData.error}>
-        <p class="text-red-500">Error: {serverData.error.message}</p>
-      </Show>
-
-      {/* Show the data when it's available */}
-      <Show when={!serverData.loading && serverData()}>
-        <div>
-          <p>Server message: {serverData()?.message}</p>
-          <p>Server time: {serverData()?.time}</p>
-        </div>
-      </Show>
+      {/* Wrap the data display in Suspense to handle async state during hydration */}
+      <Suspense fallback={<p>Loading server time...</p>}>
+        {/* Show error state if there is one */}
+        <Show when={serverData.error}>
+          <p class="text-red-500">Error: {serverData.error.message}</p>
+        </Show>
+        
+        {/* Show the data when it's available */}
+        <Show when={serverData()}>
+          <div>
+            <p>Server message: {serverData()?.message}</p>
+            <p>Server time: {serverData()?.time}</p>
+          </div>
+        </Show>
+      </Suspense>
 
       {/* Button to manually refetch the data */}
       <button
