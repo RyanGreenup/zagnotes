@@ -55,11 +55,11 @@ export default function EnvExample() {
           >
             Error Loading Data
           </h2>
-          <p>{dbPathData.error.toString()}</p>
+          <p>{dbPathData.error ? dbPathData.error.toString() : "Unknown error occurred"}</p>
         </div>
       )}
 
-      {dbPathData() && (
+      {!dbPathData.loading && !dbPathData.error && dbPathData() && (
         <div
           class="p-4 border animate-fadeIn"
           style={{
