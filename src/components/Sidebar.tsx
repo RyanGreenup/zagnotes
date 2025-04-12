@@ -22,7 +22,11 @@ export default function Sidebar() {
 
   return (
     <aside 
-      class={`h-full w-64 flex-shrink-0 transition-all duration-500 ease-in-out ${isVisible() ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'}`} 
+      class="h-full w-64 flex-shrink-0 transition-all duration-500 ease-in-out"
+      classList={{
+        "translate-x-0 opacity-100": isVisible(),
+        "-translate-x-full opacity-0": !isVisible()
+      }}
       style={{
         "background-color": "var(--color-base-200)",
         "border-right": "var(--border) solid var(--color-base-300)"
