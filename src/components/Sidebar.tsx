@@ -4,6 +4,7 @@ import NavLink from "./NavLink";
 import SectionHeader from "./SectionHeader";
 import SubSectionHeader from "./SubSectionHeader";
 import AnimatedListItem from "./AnimatedListItem";
+import TreeView from "./TreeView";
 
 /**
  * Sidebar component for the Notetaking application
@@ -15,6 +16,47 @@ export default function Sidebar() {
     { id: 1, title: "Meeting Notes" },
     { id: 2, title: "Project Ideas" },
     { id: 3, title: "Shopping List" },
+  ]);
+
+  // Dummy data for the wiki tree view
+  const [wikiContent] = createSignal([
+    {
+      id: "1",
+      name: "Documentation",
+      type: "folder",
+      children: [
+        { id: "1-1", name: "Getting Started", type: "file" },
+        { id: "1-2", name: "API Reference", type: "file" },
+        {
+          id: "1-3",
+          name: "Tutorials",
+          type: "folder",
+          children: [
+            { id: "1-3-1", name: "Beginner Guide", type: "file" },
+            { id: "1-3-2", name: "Advanced Topics", type: "file" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "2",
+      name: "Projects",
+      type: "folder",
+      children: [
+        { id: "2-1", name: "Project Alpha", type: "file" },
+        { id: "2-2", name: "Project Beta", type: "file" }
+      ]
+    },
+    {
+      id: "3",
+      name: "Team",
+      type: "folder",
+      children: [
+        { id: "3-1", name: "Members", type: "file" },
+        { id: "3-2", name: "Roles", type: "file" }
+      ]
+    },
+    { id: "4", name: "FAQ", type: "file" }
   ]);
 
   const [isVisible, setIsVisible] = createSignal(false);
@@ -57,6 +99,13 @@ export default function Sidebar() {
               </AnimatedListItem>
             ))}
           </ul>
+        </div>
+
+        <div class="mt-8 animate-fadeIn">
+          <SubSectionHeader>Wiki Content</SubSectionHeader>
+          <div class="mt-2">
+            <TreeView data={wikiContent()} />
+          </div>
         </div>
       </div>
     </aside>
