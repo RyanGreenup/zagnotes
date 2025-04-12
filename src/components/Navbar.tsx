@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, JSX } from "solid-js";
 import { A } from "@solidjs/router";
 import { Menu, Search, MoreVertical, Users, FileEdit } from "lucide-solid";
 import IconWrapper from "./IconWrapper";
