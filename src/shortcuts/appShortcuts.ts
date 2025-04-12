@@ -8,6 +8,7 @@ export function getAppShortcuts(callbacks: {
   closeSidebar: () => void;
   toggleSidebar: () => void;
   toggleShortcutsOverlay: () => void;
+  focusTree: () => void;
 }): ShortcutDictionary {
   return {
     'search': {
@@ -31,6 +32,11 @@ export function getAppShortcuts(callbacks: {
       action: callbacks.toggleShortcutsOverlay,
       description: "Show keyboard shortcuts",
       allowInInputs: false
+    },
+    'focusTree': {
+      key: 'g t',
+      action: callbacks.focusTree,
+      description: "Focus navigation tree"
     }
   };
 }

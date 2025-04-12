@@ -26,6 +26,9 @@ export default function Layout(props: { children: JSX.Element }) {
 
   // Create keyboard shortcuts manager
   const keyboardManager = createKeyboardShortcuts();
+  
+  // Reference to the tree element
+  let treeRef: HTMLElement | undefined;
 
   // Define callback functions for shortcuts
   const focusSearch = () => {
@@ -41,12 +44,24 @@ export default function Layout(props: { children: JSX.Element }) {
     }
   };
 
+  // Function to focus the tree navigation
+  const focusTree = () => {
+    if (treeRef) {
+      treeRef.focus();
+      // Also open the sidebar if it's closed
+      if (!sidebarOpen()) {
+        setSidebarOpen(true);
+      }
+    }
+  };
+
   // Get application shortcuts with our callback functions
   const appShortcuts = getAppShortcuts({
     focusSearch,
     closeSidebar,
     toggleSidebar,
     toggleShortcutsOverlay: () => keyboardManager.toggleOverlay(),
+    focusTree,
   });
 
   // Register all shortcuts
@@ -90,7 +105,7 @@ export default function Layout(props: { children: JSX.Element }) {
             "border-right": "var(--border) solid var(--color-base-300)",
           }}
         >
-          <Sidebar />
+          <Sidebar onTreeRef={(el) => treeRef = el} />
         </div>
 
         {/* Desktop sidebar */}
@@ -101,7 +116,7 @@ export default function Layout(props: { children: JSX.Element }) {
             "border-right": "var(--border) solid var(--color-base-300)",
           }}
         >
-          <Sidebar />
+          <Sidebar onTreeRef={(el) => treeRef = el} />
         </div>
 
         {/* Main content */}

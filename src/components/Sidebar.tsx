@@ -9,9 +9,11 @@ import TreeView from "./TreeView";
 /**
  * Sidebar component for the Notetaking application
  * Displays navigation links and recent notes
+ * @param props Component properties with optional tree reference callback
  * @returns Sidebar component
  */
-export default function Sidebar() {
+export default function Sidebar(props: { onTreeRef?: (ref: HTMLElement) => void }) {
+  let treeRef: HTMLElement | undefined;
   const [recentNotes] = createSignal([
     { id: 1, title: "Meeting Notes" },
     { id: 2, title: "Project Ideas" },
@@ -104,7 +106,13 @@ export default function Sidebar() {
         <div class="mt-8 animate-fadeIn">
           <SubSectionHeader>Wiki Content</SubSectionHeader>
           <div class="mt-2" aria-label="Wiki navigation tree">
-            <TreeView data={wikiContent()} />
+            <TreeView 
+              data={wikiContent()} 
+              ref={(el) => {
+                treeRef = el;
+                if (props.onTreeRef) props.onTreeRef(el);
+              }}
+            />
           </div>
         </div>
       </div>

@@ -21,6 +21,7 @@ interface TreeNode {
  */
 interface TreeViewProps {
   data: TreeNode[];
+  ref?: (el: HTMLElement) => void;
 }
 
 /**
@@ -102,7 +103,11 @@ export default function TreeView(props: TreeViewProps) {
 
   return (
     <ArkTreeView.Root collection={collection}>
-      <ArkTreeView.Tree class="w-full">
+      <ArkTreeView.Tree 
+        class="w-full" 
+        ref={props.ref}
+        tabIndex={0} // Make it focusable
+      >
         <For each={props.data}>
           {(node, index) => (
             <TreeNodeComponent node={node} indexPath={[index()]} />
