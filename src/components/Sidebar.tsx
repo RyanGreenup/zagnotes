@@ -17,25 +17,25 @@ export default function Sidebar() {
     <aside class="h-full bg-gray-50 border-r border-gray-200 w-64 flex-shrink-0 hidden md:block">
       <div class="p-4">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Notes</h2>
-        
+
         <div class="space-y-2">
-          <A 
-            href="/" 
+          <A
+            href="/"
             class="block p-2 rounded hover:bg-gray-200 text-gray-700 font-medium"
             activeClass="bg-gray-200 text-sky-700"
             end
           >
             All Notes
           </A>
-          <A 
-            href="/favorites" 
+          <A
+            href="/favorites"
             class="block p-2 rounded hover:bg-gray-200 text-gray-700 font-medium"
             activeClass="bg-gray-200 text-sky-700"
           >
             Favorites
           </A>
-          <A 
-            href="/trash" 
+          <A
+            href="/trash"
             class="block p-2 rounded hover:bg-gray-200 text-gray-700 font-medium"
             activeClass="bg-gray-200 text-sky-700"
           >
@@ -48,10 +48,10 @@ export default function Sidebar() {
             Recent Notes
           </h3>
           <ul class="space-y-1">
-            {recentNotes().map(note => (
+            {recentNotes().map((note) => (
               <li>
-                <A 
-                  href={`/note/${note.id}`} 
+                <A
+                  href={`/note/${note.id}`}
                   class="block p-2 rounded hover:bg-gray-200 text-gray-700 truncate"
                   activeClass="bg-gray-200 text-sky-700"
                 >
