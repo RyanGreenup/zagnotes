@@ -1,6 +1,5 @@
 import { createResource, Show, Suspense } from "solid-js";
 import { TreeView } from "../components/TreeView";
-import { DatabaseService } from "../database/DatabaseService";
 
 // Server function that fetches the note tree
 async function fetchNoteTree() {
@@ -14,11 +13,24 @@ async function fetchNoteTree() {
       throw new Error("Database path not configured. Set DB_PATH environment variable.");
     }
     
-    // Get database service instance
-    const dbService = DatabaseService.getInstance(dbPath);
+    // Import the database service dynamically to ensure it only runs on the server
+    const { default: BetterSqlite3 } = await import('better-sqlite3');
     
-    // Build and return the note tree
-    const noteTree = dbService.buildNoteTree();
+    // Check if database file exists
+    const { existsSync } = await import('fs');
+    if (!existsSync(dbPath)) {
+      throw new Error(`Database file not found: ${dbPath}`);
+    }
+    
+    // Connect to the database directly
+    const db = new BetterSqlite3(dbPath, { readonly: true });
+    
+    // Build the note tree directly
+    const folderService = new (await import('../database/services/FolderService')).FolderService(db);
+    const noteTree = folderService.buildNoteTree();
+    
+    // Close the database connection
+    db.close();
     
     return {
       success: true,
