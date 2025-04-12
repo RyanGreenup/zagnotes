@@ -41,7 +41,7 @@ function TreeNodeComponent(props: TreeNodeProps) {
   const { node, indexPath } = props;
   const isFolder = node.type === "folder";
   const hasChildren = isFolder && node.children && node.children.length > 0;
-  
+
   // We'll use the branch state directly from the component props
   // This will be determined by the TreeView component's internal state
 
@@ -78,15 +78,15 @@ function TreeNodeComponent(props: TreeNodeProps) {
             </ArkTreeView.BranchText>
           </ArkTreeView.BranchControl>
           <ArkTreeView.BranchContent class="ml-2">
-              <For each={node.children}>
-                {(child, index) => (
-                  <TreeNodeComponent
-                    node={child}
-                    indexPath={[...indexPath, index()]}
-                  />
-                )}
-              </For>
-            </ArkTreeView.BranchContent>
+            <For each={node.children}>
+              {(child, index) => (
+                <TreeNodeComponent
+                  node={child}
+                  indexPath={[...indexPath, index()]}
+                />
+              )}
+            </For>
+          </ArkTreeView.BranchContent>
         </ArkTreeView.Branch>
       </Show>
     </ArkTreeView.NodeProvider>
@@ -138,9 +138,9 @@ export default function TreeView(props: TreeViewProps) {
   };
 
   return (
-    <ArkTreeView.Root 
-      collection={collection} 
-      lazyMount={true} 
+    <ArkTreeView.Root
+      collection={collection}
+      lazyMount={true}
       unmountOnExit={true}
       expandOnClick={true}
     >
