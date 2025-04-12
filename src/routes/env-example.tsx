@@ -15,7 +15,9 @@ export default function EnvExample() {
   const [dbPathData] = createResource(async () => {
     return await getDbPath();
   }, {
-    initialValue: null
+    initialValue: null,
+    // Add this option to ensure consistent hydration
+    ssrLoadFrom: "initial"
   });
 
   return (
@@ -27,18 +29,51 @@ export default function EnvExample() {
         Environment Variables Example (Auto-Loading)
       </h1>
 
-      <Show when={dbPathData.loading && !dbPathData()}>
-        <div 
-          class="inline-block px-4 py-2 rounded mb-6"
-          style={{
-            backgroundColor: "var(--color-base-200)",
-            borderColor: "var(--color-base-300)",
-            borderWidth: "var(--border)",
-            borderRadius: "var(--radius-field)",
-          }}
-        >
-          Loading environment variables...
-        </div>
+      <Show 
+        when={!dbPathData.loading || dbPathData()} 
+        fallback={
+          <div 
+            class="inline-block px-4 py-2 rounded mb-6"
+            style={{
+              backgroundColor: "var(--color-base-200)",
+              borderColor: "var(--color-base-300)",
+              borderWidth: "var(--border)",
+              borderRadius: "var(--radius-field)",
+            }}
+          >
+            Loading environment variables...
+          </div>
+        }
+      >
+        {dbPathData() && (
+          <div
+            class="p-4 border animate-fadeIn mb-6"
+            style={{
+              backgroundColor: "var(--color-base-200)",
+              borderColor: "var(--color-base-300)",
+              borderWidth: "var(--border)",
+              borderRadius: "var(--radius-box)",
+            }}
+          >
+            <h2
+              class="text-lg font-semibold mb-2"
+              style={{ color: "var(--color-secondary)" }}
+            >
+              Database Path Information
+            </h2>
+            <div class="grid grid-cols-[120px_1fr] gap-2">
+              <span class="font-medium" style={{ color: "var(--color-accent)" }}>
+                DB_PATH:
+              </span>
+              <span>{dbPathData().dbPath}</span>
+
+              <span class="font-medium" style={{ color: "var(--color-accent)" }}>
+                Timestamp:
+              </span>
+              <span>{dbPathData().timestamp}</span>
+            </div>
+          </div>
+        )}
       </Show>
 
       <Show when={dbPathData.error}>
@@ -59,38 +94,6 @@ export default function EnvExample() {
           </h2>
           <p>An error occurred while fetching environment variables</p>
         </div>
-      </Show>
-
-      <Show when={dbPathData()}>
-        {(data) => (
-          <div
-            class="p-4 border animate-fadeIn mb-6"
-            style={{
-              backgroundColor: "var(--color-base-200)",
-              borderColor: "var(--color-base-300)",
-              borderWidth: "var(--border)",
-              borderRadius: "var(--radius-box)",
-            }}
-          >
-            <h2
-              class="text-lg font-semibold mb-2"
-              style={{ color: "var(--color-secondary)" }}
-            >
-              Database Path Information
-            </h2>
-            <div class="grid grid-cols-[120px_1fr] gap-2">
-              <span class="font-medium" style={{ color: "var(--color-accent)" }}>
-                DB_PATH:
-              </span>
-              <span>{data.dbPath}</span>
-
-              <span class="font-medium" style={{ color: "var(--color-accent)" }}>
-                Timestamp:
-              </span>
-              <span>{data.timestamp}</span>
-            </div>
-          </div>
-        )}
       </Show>
 
       <div class="mt-8 text-sm" style={{ color: "var(--color-neutral)" }}>
