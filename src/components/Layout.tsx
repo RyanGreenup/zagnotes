@@ -26,7 +26,7 @@ export default function Layout(props: { children: JSX.Element }) {
 
   // Create keyboard shortcuts manager
   const keyboardManager = createKeyboardShortcuts();
-  
+
   // Reference to the tree element
   let treeRef: HTMLElement | undefined;
 
@@ -105,7 +105,7 @@ export default function Layout(props: { children: JSX.Element }) {
             "border-right": "var(--border) solid var(--color-base-300)",
           }}
         >
-          <Sidebar onTreeRef={(el) => treeRef = el} />
+          <Sidebar onTreeRef={(el) => (treeRef = el)} />
         </div>
 
         {/* Desktop sidebar */}
@@ -116,7 +116,7 @@ export default function Layout(props: { children: JSX.Element }) {
             "border-right": "var(--border) solid var(--color-base-300)",
           }}
         >
-          <Sidebar onTreeRef={(el) => treeRef = el} />
+          <Sidebar onTreeRef={(el) => (treeRef = el)} />
         </div>
 
         {/* Main content */}

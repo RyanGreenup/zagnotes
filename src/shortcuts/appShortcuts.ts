@@ -34,7 +34,7 @@ export function getAppShortcuts(callbacks: {
       allowInInputs: false
     },
     'focusTree': {
-      key: 'g t',
+      key: 'alt+g',
       action: callbacks.focusTree,
       description: "Focus navigation tree"
     }

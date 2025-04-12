@@ -12,7 +12,9 @@ import TreeView from "./TreeView";
  * @param props Component properties with optional tree reference callback
  * @returns Sidebar component
  */
-export default function Sidebar(props: { onTreeRef?: (ref: HTMLElement) => void }) {
+export default function Sidebar(props: {
+  onTreeRef?: (ref: HTMLElement) => void;
+}) {
   let treeRef: HTMLElement | undefined;
   const [recentNotes] = createSignal([
     { id: 1, title: "Meeting Notes" },
@@ -106,8 +108,8 @@ export default function Sidebar(props: { onTreeRef?: (ref: HTMLElement) => void 
         <div class="mt-8 animate-fadeIn">
           <SubSectionHeader>Wiki Content</SubSectionHeader>
           <div class="mt-2" aria-label="Wiki navigation tree">
-            <TreeView 
-              data={wikiContent()} 
+            <TreeView
+              data={wikiContent()}
               ref={(el) => {
                 treeRef = el;
                 if (props.onTreeRef) props.onTreeRef(el);

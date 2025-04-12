@@ -47,7 +47,7 @@ function TreeNodeComponent(props: TreeNodeProps) {
       <Show
         when={hasChildren}
         fallback={
-          <ArkTreeView.Item 
+          <ArkTreeView.Item
             class="select-none flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors"
             ref={props.ref}
             tabIndex={0}
@@ -61,7 +61,7 @@ function TreeNodeComponent(props: TreeNodeProps) {
         }
       >
         <ArkTreeView.Branch class="select-none">
-          <ArkTreeView.BranchControl 
+          <ArkTreeView.BranchControl
             class="flex items-center py-1 px-1 hover:bg-base-300 rounded cursor-pointer transition-colors"
             ref={props.ref}
             tabIndex={0}
@@ -112,14 +112,14 @@ export default function TreeView(props: TreeViewProps) {
 
   // Create a reference to the first tree item for focusing
   let firstItemRef: HTMLElement | undefined;
-  
+
   // Function to focus the first item in the tree
   const focusFirstItem = () => {
     if (firstItemRef) {
       firstItemRef.focus();
     }
   };
-  
+
   // Expose the focus method through the ref
   const handleRef = (el: HTMLElement) => {
     if (props.ref) {
@@ -136,24 +136,23 @@ export default function TreeView(props: TreeViewProps) {
 
   return (
     <ArkTreeView.Root collection={collection}>
-      <ArkTreeView.Tree 
-        class="w-full" 
+      <ArkTreeView.Tree
+        class="w-full"
         ref={handleRef}
         tabIndex={0} // Make it focusable
       >
         <For each={props.data}>
-          {(node, index) => (
-            index() === 0 ? 
-              <TreeNodeComponent 
-                node={node} 
-                indexPath={[index()]} 
-                ref={(el) => firstItemRef = el} 
-              /> :
-              <TreeNodeComponent 
-                node={node} 
-                indexPath={[index()]} 
+          {(node, index) =>
+            index() === 0 ? (
+              <TreeNodeComponent
+                node={node}
+                indexPath={[index()]}
+                ref={(el) => (firstItemRef = el)}
               />
-          )}
+            ) : (
+              <TreeNodeComponent node={node} indexPath={[index()]} />
+            )
+          }
         </For>
       </ArkTreeView.Tree>
     </ArkTreeView.Root>
