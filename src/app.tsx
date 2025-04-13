@@ -1,6 +1,7 @@
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
+import ServerTime from "~/components/ServerTime";
 import Layout from "~/components/Layout";
 import "./app.css";
 
@@ -14,7 +15,10 @@ export default function App() {
       root={props => (
         <Layout>
           <Suspense>
-          {props.children}
+            <div style={{ margin: "1rem" }}>
+              <ServerTime />
+            </div>
+            {props.children}
           </Suspense>
         </Layout>
       )}
