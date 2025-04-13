@@ -87,18 +87,18 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
         }
       >
         <TreeView.Branch class="animate-fadeIn">
-          <TreeView.BranchControl class="py-1.5 px-3 hover:bg-opacity-80 flex items-center justify-between w-full cursor-pointer transition-all duration-200" style={{ 
+          <TreeView.BranchControl class="py-1.5 px-3 hover:bg-opacity-80 flex items-center w-full cursor-pointer transition-all duration-200" style={{ 
             "background-color": "var(--color-base-200)",
             "border-radius": "var(--radius-field)",
             "color": "var(--color-base-content)"
           }}>
+            <TreeView.BranchIndicator class="transition-transform duration-200 transform mr-1">
+              <ChevronRightIcon class="h-4 w-4 opacity-70" />
+            </TreeView.BranchIndicator>
             <TreeView.BranchText class="flex items-center gap-2 font-medium">
               <FolderIcon class="h-4 w-4" style={{ color: "var(--color-primary)" }} /> 
               <span class="text-sm">{node.name}</span>
             </TreeView.BranchText>
-            <TreeView.BranchIndicator class="transition-transform duration-200 transform">
-              <ChevronRightIcon class="h-4 w-4 opacity-70" />
-            </TreeView.BranchIndicator>
           </TreeView.BranchControl>
           <TreeView.BranchContent class="pl-4 mt-1">
             <TreeView.BranchIndentGuide class="border-l-2 border-opacity-30 ml-2 pl-2" style={{ "border-color": "var(--color-base-300)" }} />
