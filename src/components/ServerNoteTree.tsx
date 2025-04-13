@@ -4,6 +4,7 @@ import { fetchTreeData, createCollection } from "./treeCollection";
 import Card from "./Card";
 import SectionHeader from "./SectionHeader";
 import Button from "./Button";
+import { RefreshCwIcon } from "lucide-solid";
 
 /**
  * Component that fetches tree data from the server and renders a tree view
@@ -16,7 +17,7 @@ export default function ServerNoteTree() {
   return (
     <Card variant="bordered" padding="md">
       <SectionHeader>File Explorer</SectionHeader>
-      
+
       {/* Wrap the tree view in Suspense to handle async loading state */}
       <Suspense fallback={<p>Loading file structure...</p>}>
         {/* Show error state if there is one */}
@@ -36,12 +37,12 @@ export default function ServerNoteTree() {
       </Suspense>
 
       {/* Button to manually refresh the tree data */}
-      <Button 
-        variant="secondary" 
-        class="mt-4" 
+      <Button
+        variant="secondary"
+        class="mt-4"
         onClick={() => refetch()}
       >
-        Refresh Files
+      <RefreshCwIcon/>
       </Button>
     </Card>
   );
