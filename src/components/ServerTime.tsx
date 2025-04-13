@@ -1,5 +1,6 @@
 import { createResource, Show, Suspense } from "solid-js";
 import Button from "~/components/Button";
+import Card from "~/components/Card";
 import SectionHeader from "./SectionHeader";
 
 /**
@@ -28,13 +29,7 @@ export default function ServerTime() {
   const [serverData, { refetch }] = createResource(fetchServerTime);
 
   return (
-    <div
-      style={{
-        padding: "1rem",
-        border: "var(--border) solid var(--color-base-300)",
-        "border-radius": "var(--radius-box)",
-      }}
-    >
+    <Card variant="bordered" padding="md">
       <SectionHeader>Server Time Example</SectionHeader>
 
       {/* Wrap the data display in Suspense to handle async state during hydration */}
@@ -64,6 +59,6 @@ export default function ServerTime() {
       <Button variant="primary" class="mt-4" onClick={() => refetch()}>
         Refresh Server Time
       </Button>
-    </div>
+    </Card>
   );
 }
