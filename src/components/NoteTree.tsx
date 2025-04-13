@@ -64,7 +64,7 @@ export const RootProvider = () => {
     collection,
     onSelectionChange: (details) => {
       // Get the selected node ID
-      const selectedId = details.value[0];
+      const selectedId = details.selectedValue[0];
       if (selectedId) {
         // Navigate to the page based on the ID
         // Remove any folder prefixes for navigation
