@@ -1,3 +1,5 @@
+"use server";
+
 import { createTreeCollection } from "@ark-ui/solid/tree-view";
 
 /**
@@ -10,12 +12,14 @@ export interface Node {
 }
 
 /**
- * Default collection of nodes for the tree view
+ * Fetch the collection data from the server
+ * In the future, this will query from a SQLite database
+ * @returns The root node with all children
  */
-export const defaultCollection = createTreeCollection<Node>({
-  nodeToValue: (node) => node.id,
-  nodeToString: (node) => node.name,
-  rootNode: {
+export async function fetchTreeData(): Promise<Node> {
+  // This function runs on the server due to the "use server" directive
+  // In the future, replace this with actual database queries
+  return {
     id: "ROOT",
     name: "",
     children: [
@@ -48,6 +52,20 @@ export const defaultCollection = createTreeCollection<Node>({
       { id: "renovate.json", name: "renovate.json" },
       { id: "readme.md", name: "README.md" },
     ],
+  };
+}
+
+/**
+ * Default collection of nodes for the tree view
+ * @deprecated Use fetchTreeData() and createCollection() instead
+ */
+export const defaultCollection = createTreeCollection<Node>({
+  nodeToValue: (node) => node.id,
+  nodeToString: (node) => node.name,
+  rootNode: {
+    id: "ROOT",
+    name: "",
+    children: [], // Empty by default, should be populated from fetchTreeData
   },
 });
 
