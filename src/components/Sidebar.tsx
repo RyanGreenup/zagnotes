@@ -41,7 +41,27 @@ export default function Sidebar() {
       <div class="p-4 overflow-y-auto flex-1 hover:pr-2 transition-all duration-300">
         <SectionHeader>Tree</SectionHeader>
         <div class="space-y-2">
+
+
+
+
+
+
+
           <RootProvider collection={defaultCollection}/>
+
+
+
+
+
+
+
+
+
+
+
+
+
         </div>
         <SectionHeader>Notes</SectionHeader>
 
