@@ -52,8 +52,12 @@ export const RootProvider = () => {
 
   return (
     <TreeView.RootProvider value={treeView}>
-      <TreeView.Label>Tree</TreeView.Label>
-      <TreeView.Tree>
+      <TreeView.Label class="text-sm font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--color-neutral)" }}>Tree</TreeView.Label>
+      <TreeView.Tree class="rounded-lg overflow-hidden" style={{ 
+        "background-color": "var(--color-base-200)",
+        "border": "var(--border) solid var(--color-base-300)",
+        "border-radius": "var(--radius-box)"
+      }}>
         <For each={collection.rootNode.children}>{(node, index) => <TreeNode node={node} indexPath={[index()]} />}</For>
       </TreeView.Tree>
     </TreeView.RootProvider>
@@ -67,28 +71,37 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
       <Show
         when={node.children}
         fallback={
-          <TreeView.Item>
-            <TreeView.ItemIndicator>
-              <CheckSquareIcon />
+          <TreeView.Item class="py-1.5 px-3 hover:bg-opacity-70 transition-all duration-200 flex items-center gap-2 cursor-pointer" style={{ 
+            "background-color": "var(--color-base-200)",
+            "border-radius": "var(--radius-field)",
+            "color": "var(--color-base-content)"
+          }}>
+            <TreeView.ItemIndicator class="text-xs opacity-80" style={{ color: "var(--color-primary)" }}>
+              <CheckSquareIcon class="h-4 w-4" />
             </TreeView.ItemIndicator>
-            <TreeView.ItemText>
-              <FileIcon />
-              {node.name}
+            <TreeView.ItemText class="flex items-center gap-2 font-medium">
+              <FileIcon class="h-4 w-4 opacity-70" style={{ color: "var(--color-secondary)" }} />
+              <span class="text-sm">{node.name}</span>
             </TreeView.ItemText>
           </TreeView.Item>
         }
       >
-        <TreeView.Branch>
-          <TreeView.BranchControl>
-            <TreeView.BranchText>
-              <FolderIcon /> {node.name}
+        <TreeView.Branch class="animate-fadeIn">
+          <TreeView.BranchControl class="py-1.5 px-3 hover:bg-opacity-80 flex items-center justify-between w-full cursor-pointer transition-all duration-200" style={{ 
+            "background-color": "var(--color-base-200)",
+            "border-radius": "var(--radius-field)",
+            "color": "var(--color-base-content)"
+          }}>
+            <TreeView.BranchText class="flex items-center gap-2 font-medium">
+              <FolderIcon class="h-4 w-4" style={{ color: "var(--color-primary)" }} /> 
+              <span class="text-sm">{node.name}</span>
             </TreeView.BranchText>
-            <TreeView.BranchIndicator>
-              <ChevronRightIcon />
+            <TreeView.BranchIndicator class="transition-transform duration-200 transform">
+              <ChevronRightIcon class="h-4 w-4 opacity-70" />
             </TreeView.BranchIndicator>
           </TreeView.BranchControl>
-          <TreeView.BranchContent>
-            <TreeView.BranchIndentGuide />
+          <TreeView.BranchContent class="pl-4 mt-1">
+            <TreeView.BranchIndentGuide class="border-l-2 border-opacity-30 ml-2 pl-2" style={{ "border-color": "var(--color-base-300)" }} />
             <For each={node.children}>
               {(child, index) => <TreeNode node={child} indexPath={[...indexPath, index()]} />}
             </For>
