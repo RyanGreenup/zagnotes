@@ -22,20 +22,16 @@ async function getNoteBody(id: string) {
 export default function DynamicIdPage() {
   const params = useParams();
   const [noteBody] = createResource(() => params.id, getNoteBody);
-  
+
   return (
     <main class="p-4">
-      <Card 
-        title="URL Parameter Debug"
-        variant="bordered"
-        padding="md"
-      >
+      <Card title="URL Parameter Debug" variant="bordered" padding="md">
         <div class="flex flex-col">
           <p class="text-lg font-medium">ID Parameter:</p>
           <code class="bg-base-200 p-2 rounded mt-2 text-primary font-mono">
             {params.id}
           </code>
-          
+
           <p class="text-lg font-medium mt-4">Note Body:</p>
           <div class="bg-base-200 p-2 rounded mt-2">
             {noteBody.loading ? (

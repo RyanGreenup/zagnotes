@@ -92,9 +92,14 @@ export default function Button(props: ButtonProps) {
       disabled={local.disabled}
       aria-label={local.ariaLabel}
       style={{
-        "background-color": variant !== "ghost" ? `var(--color-${variant})` : "transparent",
-        "color": variant !== "ghost" ? `var(--color-${variant}-content)` : "var(--color-base-content)",
-        "border-radius": rounded === "full" ? "9999px" : `var(--radius-${rounded})`,
+        "background-color":
+          variant !== "ghost" ? `var(--color-${variant})` : "transparent",
+        color:
+          variant !== "ghost"
+            ? `var(--color-${variant}-content)`
+            : "var(--color-base-content)",
+        "border-radius":
+          rounded === "full" ? "9999px" : `var(--radius-${rounded})`,
       }}
       {...others}
     >

@@ -37,12 +37,8 @@ export default function ServerNoteTree() {
       </Suspense>
 
       {/* Button to manually refresh the tree data */}
-      <Button
-        variant="secondary"
-        class="mt-4"
-        onClick={() => refetch()}
-      >
-      <RefreshCwIcon/>
+      <Button variant="secondary" class="mt-4" onClick={() => refetch()}>
+        <RefreshCwIcon />
       </Button>
     </Card>
   );

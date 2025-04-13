@@ -14,12 +14,13 @@ import {
 } from "lucide-solid";
 import { For, Show, Component } from "solid-js";
 
-
 /**
  * A tree view component that renders a collection of nodes
  * @param props.collection The tree collection to render
  */
-export const RootProvider = (props: { collection: ReturnType<typeof createTreeCollection<Node>> }) => {
+export const RootProvider = (props: {
+  collection: ReturnType<typeof createTreeCollection<Node>>;
+}) => {
   const navigate = useNavigate();
   const { collection } = props;
 

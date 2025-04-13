@@ -56,7 +56,8 @@ export default function Card(props: CardProps) {
     elevated: {
       backgroundColor: "var(--color-base-100)",
       border: "none",
-      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+      boxShadow:
+        "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
     },
   };
 
@@ -66,26 +67,27 @@ export default function Card(props: CardProps) {
       onClick={local.onClick}
       style={{
         "background-color": variantStyles[variant].backgroundColor,
-        "border": variantStyles[variant].border,
+        border: variantStyles[variant].border,
         "box-shadow": variantStyles[variant].boxShadow,
         "border-radius": "var(--radius-box)",
-        "color": "var(--color-base-content)",
+        color: "var(--color-base-content)",
       }}
       {...others}
     >
       {local.title && (
         <div class="mb-2">
           <h3 class="text-lg font-semibold">{local.title}</h3>
-          {local.subtitle && (
-            <p class="text-sm opacity-70">{local.subtitle}</p>
-          )}
+          {local.subtitle && <p class="text-sm opacity-70">{local.subtitle}</p>}
         </div>
       )}
-      
+
       <div>{local.children}</div>
-      
+
       {local.footer && (
-        <div class="mt-4 pt-3 border-t" style={{ "border-color": "var(--color-base-300)" }}>
+        <div
+          class="mt-4 pt-3 border-t"
+          style={{ "border-color": "var(--color-base-300)" }}
+        >
           {local.footer}
         </div>
       )}

@@ -8,7 +8,7 @@ import SectionHeader from "./SectionHeader";
  * @returns Server time, message, and environment variables
  */
 async function fetchServerTime() {
-    "use server"
+  "use server";
   // Simulate a server delay
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
