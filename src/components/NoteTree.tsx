@@ -3,6 +3,7 @@ import {
   createTreeCollection,
   useTreeView,
 } from "@ark-ui/solid/tree-view";
+import { useNavigate } from "@solidjs/router";
 import {
   CheckSquareIcon,
   ChevronRightIcon,
@@ -57,7 +58,21 @@ const collection = createTreeCollection<Node>({
 });
 
 export const RootProvider = () => {
-  const treeView = useTreeView({ collection });
+  const navigate = useNavigate();
+  
+  const treeView = useTreeView({ 
+    collection,
+    onSelectionChange: (details) => {
+      // Get the selected node ID
+      const selectedId = details.value[0];
+      if (selectedId) {
+        // Navigate to the page based on the ID
+        // Remove any folder prefixes for navigation
+        const path = selectedId.replace(/^(node_modules|src)\//, '/');
+        navigate(path);
+      }
+    }
+  });
 
   return (
     <TreeView.RootProvider value={treeView}>
