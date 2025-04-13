@@ -27,7 +27,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      class="h-full w-64 flex-shrink-0 transition-all duration-500 ease-in-out"
+      class="h-full w-64 flex-shrink-0 transition-all duration-500 ease-in-out flex flex-col"
       classList={{
         "translate-x-0 opacity-100": isVisible(),
         "-translate-x-full opacity-0": !isVisible(),
@@ -37,7 +37,7 @@ export default function Sidebar() {
         "border-right": "var(--border) solid var(--color-base-300)",
       }}
     >
-      <div class="p-4">
+      <div class="p-4 overflow-y-auto flex-1">
         <SectionHeader>Tree</SectionHeader>
         <div class="space-y-2">
           <RootProvider />

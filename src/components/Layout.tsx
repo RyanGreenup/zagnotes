@@ -38,7 +38,7 @@ export default function Layout(props: { children: JSX.Element }) {
 
         {/* Mobile sidebar */}
         <div
-          class={`fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform md:hidden ${
+          class={`fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform md:hidden h-full ${
             sidebarOpen() ? "translate-x-0" : "-translate-x-full"
           }`}
           style={{
@@ -51,7 +51,7 @@ export default function Layout(props: { children: JSX.Element }) {
 
         {/* Desktop sidebar */}
         <div
-          class="hidden md:block"
+          class="hidden md:block h-screen fixed"
           style={{
             "background-color": "var(--color-base-200)",
             "border-right": "var(--border) solid var(--color-base-300)",
@@ -62,7 +62,7 @@ export default function Layout(props: { children: JSX.Element }) {
 
         {/* Main content */}
         <div
-          class="flex-1 overflow-auto"
+          class="flex-1 overflow-auto md:ml-64"
           style={{ "background-color": "var(--color-base-100)" }}
         >
           <div class="container mx-auto p-4">{props.children}</div>
