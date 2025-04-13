@@ -1,4 +1,5 @@
 import { createResource, Show, Suspense } from "solid-js";
+import Button from "~/components/Button";
 
 /**
  * Simple async function that fetches data from the server
@@ -67,18 +68,13 @@ export default function ServerTime() {
       </Suspense>
 
       {/* Button to manually refetch the data */}
-      <button
-        style={{
-          "margin-top": "1rem",
-          padding: "0.25rem 0.75rem",
-          "background-color": "var(--color-primary)",
-          color: "var(--color-primary-content)",
-          "border-radius": "var(--radius-field)",
-        }}
+      <Button
+        variant="primary"
+        class="mt-4"
         onClick={() => refetch()}
       >
         Refresh Server Time
-      </button>
+      </Button>
     </div>
   );
 }
