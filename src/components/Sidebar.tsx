@@ -37,7 +37,7 @@ export default function Sidebar() {
         "border-right": "var(--border) solid var(--color-base-300)",
       }}
     >
-      <div class="p-4 overflow-y-auto flex-1">
+      <div class="p-4 overflow-y-auto flex-1 hover:pr-2 transition-all duration-300">
         <SectionHeader>Tree</SectionHeader>
         <div class="space-y-2">
           <RootProvider />
