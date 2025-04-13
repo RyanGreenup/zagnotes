@@ -1,4 +1,3 @@
-"use server";
 
 import { createTreeCollection } from "@ark-ui/solid/tree-view";
 
@@ -17,6 +16,7 @@ export interface Node {
  * @returns The root node with all children
  */
 export async function fetchTreeData(): Promise<Node> {
+    "use server";
   // This function runs on the server due to the "use server" directive
   // In the future, replace this with actual database queries
   return {
