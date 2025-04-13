@@ -1,9 +1,10 @@
 import {
   TreeView,
   TreeViewSelectionChangeDetails,
-  createTreeCollection,
   useTreeView,
+  createTreeCollection,
 } from "@ark-ui/solid/tree-view";
+import { Node, defaultCollection } from "./treeCollection";
 import { useNavigate } from "@solidjs/router";
 import {
   CheckSquareIcon,
@@ -13,53 +14,14 @@ import {
 } from "lucide-solid";
 import { For, Show, Component } from "solid-js";
 
-interface Node {
-  id: string;
-  name: string;
-  children?: Node[];
-}
 
-const collection = createTreeCollection<Node>({
-  nodeToValue: (node) => node.id,
-  nodeToString: (node) => node.name,
-  rootNode: {
-    id: "ROOT",
-    name: "",
-    children: [
-      {
-        id: "node_modules",
-        name: "node_modules",
-        children: [
-          { id: "node_modules/zag-js", name: "zag-js" },
-          { id: "node_modules/pandacss", name: "panda" },
-          {
-            id: "node_modules/@types",
-            name: "@types",
-            children: [
-              { id: "node_modules/@types/react", name: "react" },
-              { id: "node_modules/@types/react-dom", name: "react-dom" },
-            ],
-          },
-        ],
-      },
-      {
-        id: "src",
-        name: "src",
-        children: [
-          { id: "src/app.tsx", name: "app.tsx" },
-          { id: "src/index.ts", name: "index.ts" },
-        ],
-      },
-      { id: "panda.config", name: "panda.config.ts" },
-      { id: "package.json", name: "package.json" },
-      { id: "renovate.json", name: "renovate.json" },
-      { id: "readme.md", name: "README.md" },
-    ],
-  },
-});
-
-export const RootProvider = () => {
+/**
+ * A tree view component that renders a collection of nodes
+ * @param props.collection The tree collection to render
+ */
+export const RootProvider = (props: { collection: ReturnType<typeof createTreeCollection<Node>> }) => {
   const navigate = useNavigate();
+  const { collection } = props;
 
   const treeView = useTreeView({
     collection,

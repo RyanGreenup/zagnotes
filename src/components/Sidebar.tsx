@@ -5,6 +5,7 @@ import SectionHeader from "./SectionHeader";
 import SubSectionHeader from "./SubSectionHeader";
 import AnimatedListItem from "./AnimatedListItem";
 import { RootProvider } from "./NoteTree";
+import { defaultCollection } from "./treeCollection";
 
 /**
  * Sidebar component for the Notetaking application
@@ -40,7 +41,7 @@ export default function Sidebar() {
       <div class="p-4 overflow-y-auto flex-1 hover:pr-2 transition-all duration-300">
         <SectionHeader>Tree</SectionHeader>
         <div class="space-y-2">
-          <RootProvider />
+          <RootProvider collection={defaultCollection}/>
         </div>
         <SectionHeader>Notes</SectionHeader>
 
