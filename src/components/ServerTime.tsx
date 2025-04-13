@@ -1,5 +1,6 @@
 import { createResource, Show, Suspense } from "solid-js";
 import Button from "~/components/Button";
+import SectionHeader from "./SectionHeader";
 
 /**
  * Simple async function that fetches data from the server
@@ -34,15 +35,7 @@ export default function ServerTime() {
         "border-radius": "var(--radius-box)",
       }}
     >
-      <h2
-        style={{
-          "font-size": "1.125rem",
-          "font-weight": "600",
-          "margin-bottom": "0.5rem",
-        }}
-      >
-        Server Time Example
-      </h2>
+      <SectionHeader>Server Time Example</SectionHeader>
 
       {/* Wrap the data display in Suspense to handle async state during hydration */}
       <Suspense fallback={<p>Loading server time...</p>}>
@@ -68,11 +61,7 @@ export default function ServerTime() {
       </Suspense>
 
       {/* Button to manually refetch the data */}
-      <Button
-        variant="primary"
-        class="mt-4"
-        onClick={() => refetch()}
-      >
+      <Button variant="primary" class="mt-4" onClick={() => refetch()}>
         Refresh Server Time
       </Button>
     </div>
