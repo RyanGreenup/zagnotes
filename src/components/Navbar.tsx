@@ -1,7 +1,14 @@
-import { createSignal } from "solid-js";
+import { createSignal, JSX } from "solid-js";
 import { A } from "@solidjs/router";
 import { Menu, Search, MoreVertical, Users, FileEdit } from "lucide-solid";
 import IconWrapper from "./IconWrapper";
+
+// Add CSS for placeholder styling
+const styles = `
+  .search-input::placeholder {
+    color: var(--color-neutral);
+  }
+`;
 
 /**
  * SearchBar component for searching notes
@@ -24,7 +31,7 @@ function SearchBar(props: {
           border: "var(--border) solid var(--color-base-300)",
           "border-radius": "var(--radius-field)",
           color: "var(--color-base-content)",
-          "placeholder-color": "var(--color-neutral)",
+          // Use CSS custom properties for styling
           padding: "var(--size-field)",
         }}
         value={props.value}
@@ -105,6 +112,7 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
         "border-bottom": "var(--border) solid var(--color-base-300)",
       }}
     >
+      <style>{styles}</style>
       <div class="px-4 py-3 flex items-center justify-between">
         {/* Left side - Logo and mobile menu button */}
         <div class="flex items-center">
