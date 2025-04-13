@@ -43,13 +43,13 @@ export default function Button(props: ButtonProps) {
     "ariaLabel",
   ]);
 
-  // Variant classes
+  // Variant classes using CSS variables
   const variantClasses = {
-    primary: "bg-primary text-primary-content hover:bg-primary-focus",
-    secondary: "bg-secondary text-secondary-content hover:bg-secondary-focus",
-    neutral: "bg-neutral text-neutral-content hover:bg-neutral-focus",
-    accent: "bg-accent text-accent-content hover:bg-accent-focus",
-    ghost: "bg-transparent hover:bg-base-200 text-base-content",
+    primary: "hover:opacity-90",
+    secondary: "hover:opacity-90",
+    neutral: "hover:opacity-90",
+    accent: "hover:opacity-90",
+    ghost: "bg-transparent hover:bg-opacity-10",
   };
 
   // Size classes
@@ -59,12 +59,12 @@ export default function Button(props: ButtonProps) {
     lg: "px-4 py-2 text-lg",
   };
 
-  // Rounded classes
+  // Rounded classes using CSS variables
   const roundedClasses = {
-    sm: "rounded",
-    md: "rounded-md",
-    lg: "rounded-lg",
-    full: "rounded-full",
+    sm: "",
+    md: "",
+    lg: "",
+    full: "",
   };
 
   // Default values
@@ -91,6 +91,11 @@ export default function Button(props: ButtonProps) {
       type={type}
       disabled={local.disabled}
       aria-label={local.ariaLabel}
+      style={{
+        "background-color": variant !== "ghost" ? `var(--color-${variant})` : "transparent",
+        "color": variant !== "ghost" ? `var(--color-${variant}-content)` : "var(--color-base-content)",
+        "border-radius": rounded === "full" ? "9999px" : `var(--radius-${rounded})`,
+      }}
       {...others}
     >
       {local.children}
