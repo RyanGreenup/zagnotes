@@ -1,5 +1,6 @@
 import {
   TreeView,
+  TreeViewSelectionChangeDetails,
   createTreeCollection,
   useTreeView,
 } from "@ark-ui/solid/tree-view";
@@ -10,7 +11,7 @@ import {
   FileIcon,
   FolderIcon,
 } from "lucide-solid";
-import { For, Show } from "solid-js";
+import { For, Show, Component } from "solid-js";
 
 interface Node {
   id: string;
@@ -59,35 +60,26 @@ const collection = createTreeCollection<Node>({
 
 export const RootProvider = () => {
   const navigate = useNavigate();
-  
-  const treeView = useTreeView({ 
+
+  const treeView = useTreeView({
     collection,
-    onSelectionChange: (details) => {
+    onSelectionChange: (details: TreeViewSelectionChangeDetails) => {
       // Get the selected node ID
       const selectedId = details.selectedValue[0];
       if (selectedId) {
         // Navigate to the page based on the ID
         // Remove any folder prefixes for navigation
-        const path = selectedId.replace(/^(node_modules|src)\//, '/');
-        navigate(path);
+        navigate(selectedId);
       }
-    }
+    },
   });
 
   return (
     <TreeView.RootProvider value={treeView}>
-      <TreeView.Label
-        class="text-sm font-semibold uppercase tracking-wider mb-2"
-        style={{ color: "var(--color-neutral)" }}
-      >
-        Tree
-      </TreeView.Label>
       <TreeView.Tree
         class="rounded-lg overflow-hidden"
         style={{
           "background-color": "var(--color-base-200)",
-          border: "var(--border) solid var(--color-base-300)",
-          "border-radius": "var(--radius-box)",
         }}
       >
         <For each={collection.rootNode.children}>
@@ -95,6 +87,20 @@ export const RootProvider = () => {
         </For>
       </TreeView.Tree>
     </TreeView.RootProvider>
+  );
+};
+
+/*
+This can be used for a tight heading, I haven't used it though
+*/
+const TreeLabelComponent: Component<{ label: string }> = ({ label }) => {
+  return (
+    <TreeView.Label
+      class="text-sm font-semibold uppercase tracking-wider mb-2"
+      style={{ color: "var(--color-neutral)" }}
+    >
+      {label}
+    </TreeView.Label>
   );
 };
 

@@ -4,6 +4,7 @@ import NavLink from "./NavLink";
 import SectionHeader from "./SectionHeader";
 import SubSectionHeader from "./SubSectionHeader";
 import AnimatedListItem from "./AnimatedListItem";
+import { RootProvider } from "./NoteTree";
 
 /**
  * Sidebar component for the Notetaking application
@@ -37,6 +38,10 @@ export default function Sidebar() {
       }}
     >
       <div class="p-4">
+        <SectionHeader>Tree</SectionHeader>
+        <div class="space-y-2">
+          <RootProvider />
+        </div>
         <SectionHeader>Notes</SectionHeader>
 
         <div class="space-y-2">

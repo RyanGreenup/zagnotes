@@ -13,7 +13,9 @@ export default function App() {
     <Router
       root={props => (
         <Layout>
-          <Suspense>{props.children}</Suspense>
+          <Suspense>
+          {props.children}
+          </Suspense>
         </Layout>
       )}
     >
