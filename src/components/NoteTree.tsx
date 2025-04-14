@@ -17,6 +17,8 @@ import { For, Show, Component } from "solid-js";
 /**
  * A tree view component that renders a collection of nodes
  * @param props.collection The tree collection to render
+ * I'm trying to keep this generic for both tags and folders
+ * However, this may change.
  */
 export const RootProvider = (props: {
   collection: ReturnType<typeof createTreeCollection<Node>>;

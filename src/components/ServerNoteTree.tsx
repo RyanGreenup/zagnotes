@@ -1,5 +1,5 @@
 import { createResource, Show, Suspense } from "solid-js";
-import { RootProvider } from "./NoteTree";
+import { RootProvider as GenericTreeView } from "./NoteTree";
 import { fetchTreeData, createCollection } from "./treeCollection";
 import Card from "./Card";
 import SectionHeader from "./SectionHeader";
@@ -31,7 +31,7 @@ export default function ServerNoteTree() {
         <Show when={treeData()}>
           <div class="mt-2 mb-4">
             {/* Create a collection from the fetched data and pass to RootProvider */}
-            <RootProvider collection={createCollection(treeData()!)} />
+            <GenericTreeView collection={createCollection(treeData()!)} />
           </div>
         </Show>
       </Suspense>
