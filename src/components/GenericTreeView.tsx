@@ -2,7 +2,7 @@ import { For, Show } from "solid-js";
 import { Node, NodeType } from "./treeCollection";
 import { ChevronDown, ChevronRight, FileText, Folder, Tag } from "lucide-solid";
 import { createSignal } from "solid-js";
-import { createStore } from "solid-js/store/types/server.js";
+import { createStore } from "solid-js/store";
 
 interface GenericTreeViewProps {
   collection: {
@@ -23,13 +23,17 @@ interface TreeNodeProps {
   level: number;
 }
 
-interface navMap {
-    id: string;
+interface NavigationTargets {
     up: string;
     parent: string;
     down: string;
     end: string;
     home: string;
+}
+
+interface navMap {
+    id: string;
+    targets: NavigationTargets;
 }
 
 function TreeNode(props: TreeNodeProps) {
