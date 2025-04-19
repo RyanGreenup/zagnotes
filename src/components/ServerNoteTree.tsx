@@ -1,6 +1,6 @@
-import { createResource, Show, Suspense } from "solid-js";
-import { RootProvider as GenericTreeView } from "./NoteTree";
-import { fetchTreeData, createCollection } from "./treeCollection";
+import { createResource, Show, Suspense, Index } from "solid-js";
+import { RootProvider as OriginalGenericTreeView } from "./NoteTree";
+import { Node, fetchTreeData, createCollection } from "./treeCollection";
 import Card from "./Card";
 import SectionHeader from "./SectionHeader";
 import Button from "./Button";
@@ -31,7 +31,10 @@ export default function ServerNoteTree() {
         {/* Show the tree view when data is available */}
         <Show when={treeData()}>
           <div class="mt-2 mb-4">
+          {/*This was our first attempt at a tree widget / component*/}
             {/* Create a collection from the fetched data and pass to RootProvider */}
+            <OriginalGenericTreeView collection={createCollection(treeData()!)} />
+          {/*Here we have written another tree component*/}
             <GenericTreeView collection={createCollection(treeData()!)} />
             {/* Display the tree data as JSON for debugging */}
             <DisplayTreeData treedata={treeData()}/>
@@ -50,15 +53,35 @@ export default function ServerNoteTree() {
 
 // Define the interface for DisplayTreeData props
 interface DisplayTreeDataProps {
-    treedata: any; // Using 'any' for now, but ideally this would be the Node type from treeCollection
+    treedata: Node | undefined; // Using 'any' for now, but ideally this would be the Node type from treeCollection
 }
 
 function DisplayTreeData(props: DisplayTreeDataProps) {
     return (
         <>
             <pre class="mt-4 p-2 bg-base-200 rounded text-sm overflow-auto max-h-60">
+              <Show when={props.treedata} fallback={<p> No Data </p>}>
               {JSON.stringify(props.treedata, null, 2)}
+              </Show>
+
             </pre>
+        </>
+    );
+}
+
+
+interface GenericTreeViewProps {
+    treedata: Node;
+}
+
+function GenericTreeView(props: GenericTreeViewProps) {
+    return (
+        <>
+        <Index each={props.treedata != undefined}>
+        {(item, index) => (
+            item
+        )}
+        </Index>
         </>
     );
 }
