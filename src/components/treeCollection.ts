@@ -2,12 +2,21 @@
 import { createTreeCollection } from "@ark-ui/solid/tree-view";
 
 /**
+ * Enum representing the possible node types in the tree
+ */
+export enum NodeType {
+  NOTE = "note",
+  FOLDER = "folder",
+  TAG = "tag"
+}
+
+/**
  * Node interface for the tree collection
  */
 export interface Node {
   id: string;
   name: string;
-  type: string,
+  type: NodeType;
   children?: Node[];
 }
 
@@ -22,23 +31,23 @@ export async function fetchTreeData(): Promise<Node> {
   // In the future, replace this with actual database queries
   return {
     id: "ROOT",
-    type: "folder",
+    type: NodeType.FOLDER,
     name: "",
     children: [
       {
         id: "node_modules",
         name: "node_modules",
-        type: "folder",
+        type: NodeType.FOLDER,
         children: [
-          { id: "node_modules/zag-js", name: "zag-js", type: "note" },
-          { id: "node_modules/pandacss", name: "panda", type: "note" },
+          { id: "node_modules/zag-js", name: "zag-js", type: NodeType.NOTE },
+          { id: "node_modules/pandacss", name: "panda", type: NodeType.NOTE },
           {
             id: "node_modules/@types",
             name: "@types",
-            type: "folder"
+            type: NodeType.FOLDER,
             children: [
-              { id: "node_modules/@types/react", name: "react", type: "folder" },
-              { id: "node_modules/@types/react-dom", name: "react-dom", type: "folder" },
+              { id: "node_modules/@types/react", name: "react", type: NodeType.FOLDER },
+              { id: "node_modules/@types/react-dom", name: "react-dom", type: NodeType.FOLDER },
             ],
           },
         ],
@@ -46,15 +55,16 @@ export async function fetchTreeData(): Promise<Node> {
       {
         id: "src",
         name: "src",
+        type: NodeType.FOLDER,
         children: [
-          { id: "src/app.tsx", name: "app.tsx", type: "folder" },
-          { id: "src/index.ts", name: "index.ts", type: "folder" },
+          { id: "src/app.tsx", name: "app.tsx", type: NodeType.FOLDER },
+          { id: "src/index.ts", name: "index.ts", type: NodeType.FOLDER },
         ],
       },
-      { id: "panda.config", name: "panda.config.ts", type: "folder" },
-      { id: "package.json", name: "package.json", type: "folder" },
-      { id: "renovate.json", name: "renovate.json", type: "folder" },
-      { id: "readme.md", name: "README.md", type: "folder" },
+      { id: "panda.config", name: "panda.config.ts", type: NodeType.FOLDER },
+      { id: "package.json", name: "package.json", type: NodeType.FOLDER },
+      { id: "renovate.json", name: "renovate.json", type: NodeType.FOLDER },
+      { id: "readme.md", name: "README.md", type: NodeType.FOLDER },
     ],
   };
 }
@@ -69,6 +79,7 @@ export const defaultCollection = createTreeCollection<Node>({
   rootNode: {
     id: "ROOT",
     name: "",
+    type: NodeType.FOLDER,
     children: [], // Empty by default, should be populated from fetchTreeData
   },
 });
