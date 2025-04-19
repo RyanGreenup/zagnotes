@@ -1,8 +1,8 @@
-import { For, Show } from "solid-js";
+import { For, Show, createEffect } from "solid-js";
 import { Node, NodeType } from "./treeCollection";
 import { ChevronDown, ChevronRight, FileText, Folder, Tag } from "lucide-solid";
 import { createSignal } from "solid-js";
-import { createStore, SetStoreFunction } from "solid-js/store";
+import { createStore, SetStoreFunction, produce } from "solid-js/store";
 
 interface GenericTreeViewProps {
   collection: {
@@ -11,9 +11,19 @@ interface GenericTreeViewProps {
 }
 
 export default function GenericTreeView(props: GenericTreeViewProps) {
+  const [navMap, setNavMap] = createStore<Record<string, NavigationTargets>>({});
+  
   return (
     <div class="tree-view">
-      <TreeNode node={props.collection.rootNode} level={0} />
+      <TreeNode 
+        node={props.collection.rootNode} 
+        level={0} 
+        navMap={navMap}
+        setNavMap={setNavMap}
+        parentId={null}
+        siblingIds={[]}
+        index={0}
+      />
     </div>
   );
 }
@@ -21,19 +31,19 @@ export default function GenericTreeView(props: GenericTreeViewProps) {
 interface TreeNodeProps {
   node: Node;
   level: number;
+  navMap: Record<string, NavigationTargets>;
+  setNavMap: SetStoreFunction<Record<string, NavigationTargets>>;
+  parentId: string | null;
+  siblingIds: string[];
+  index: number;
 }
 
 interface NavigationTargets {
-    up: string;
-    parent: string;
-    down: string;
-    end: string;
-    home: string;
-}
-
-interface navMap {
-    id: string;
-    targets: NavigationTargets;
+    up: string | null;
+    parent: string | null;
+    down: string | null;
+    end: string | null;
+    home: string | null;
 }
 
 interface TreeNodeItemProps {
@@ -41,7 +51,11 @@ interface TreeNodeItemProps {
   isExpanded: boolean;
   toggleExpand: (e: MouseEvent) => void;
   level: number;
-  navMapSetter: SetStoreFunction<navMap>;
+  navMap: Record<string, NavigationTargets>;
+  setNavMap: SetStoreFunction<Record<string, NavigationTargets>>;
+  parentId: string | null;
+  siblingIds: string[];
+  index: number;
 }
 
 function TreeNodeItem(props: TreeNodeItemProps) {
@@ -61,6 +75,40 @@ function TreeNodeItem(props: TreeNodeItemProps) {
   };
 
   const NodeIcon = getNodeIcon();
+  
+  // Update navigation map when component mounts or relevant props change
+  createEffect(() => {
+    const currentId = props.node.id;
+    const prevSibling = props.index > 0 ? props.siblingIds[props.index - 1] : null;
+    const nextSibling = props.index < props.siblingIds.length - 1 ? props.siblingIds[props.index + 1] : null;
+    
+    // Find the last descendant (for "end" navigation)
+    const findLastDescendant = (node: Node): string => {
+      if (!node.children || node.children.length === 0) {
+        return node.id;
+      }
+      return findLastDescendant(node.children[node.children.length - 1]);
+    };
+    
+    // Find the first node in the tree (for "home" navigation)
+    const findFirstNode = (rootNode: Node): string => {
+      return rootNode.id;
+    };
+    
+    // Calculate navigation targets
+    const targets: NavigationTargets = {
+      up: prevSibling,
+      parent: props.parentId,
+      down: nextSibling || (hasChildren() && props.isExpanded ? props.node.children![0].id : null),
+      end: hasChildren() && props.isExpanded ? findLastDescendant(props.node) : null,
+      home: props.level === 0 ? currentId : null // Root node is home
+    };
+    
+    // Update the navigation map
+    props.setNavMap(produce(state => {
+      state[currentId] = targets;
+    }));
+  });
 
   return (
     <div
@@ -91,12 +139,15 @@ function TreeNodeItem(props: TreeNodeItemProps) {
 function TreeNode(props: TreeNodeProps) {
   const [isExpanded, setIsExpanded] = createSignal(props.level < 1);
   const hasChildren = () => props.node.children && props.node.children.length > 0;
-  const [navMap, setNavMap] = createStore<navMap>({});
 
   const toggleExpand = (e: MouseEvent) => {
     e.stopPropagation();
     setIsExpanded(!isExpanded());
   };
+  
+  // Get sibling IDs for children to use in their navigation
+  const childrenIds = () => 
+    props.node.children ? props.node.children.map(child => child.id) : [];
 
   return (
     <div class="tree-node">
@@ -105,13 +156,27 @@ function TreeNode(props: TreeNodeProps) {
         isExpanded={isExpanded()}
         toggleExpand={toggleExpand}
         level={props.level}
-        navMapSetter={props.navMapSetter}
+        navMap={props.navMap}
+        setNavMap={props.setNavMap}
+        parentId={props.parentId}
+        siblingIds={props.siblingIds}
+        index={props.index}
       />
 
       <Show when={isExpanded() && hasChildren()}>
         <div class="tree-node-children">
           <For each={props.node.children}>
-            {(child) => <TreeNode node={child} level={props.level + 1} />}
+            {(child, index) => (
+              <TreeNode 
+                node={child} 
+                level={props.level + 1} 
+                navMap={props.navMap}
+                setNavMap={props.setNavMap}
+                parentId={props.node.id}
+                siblingIds={childrenIds()}
+                index={index()}
+              />
+            )}
           </For>
         </div>
       </Show>
