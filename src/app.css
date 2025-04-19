@@ -232,7 +232,8 @@ a[href]:hover {
 
 
  [data-focus] {
-   @apply bg-blue-500;
+   background-color: var(--color-primary);
+   color: var(--color-primary-content);
    /*
    Due to tabindex, there may be an outline.
    */
