@@ -1,0 +1,70 @@
+/*
+ * Focused items in the Ark UI Tabs
+ */
+
+/* Professional focus styling with animations for tabs */
+[role="tab"][data-focus] {
+  background-color: var(--color-primary);
+  color: var(--color-primary-content);
+  outline: none;
+  position: relative;
+  box-shadow: 0 0 0 1px var(--color-primary);
+  transform: translateY(-2px);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: var(--radius-field);
+}
+
+/* Subtle pulse animation for focused tabs */
+@keyframes tabFocusPulse {
+  0% {
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
+}
+
+/* Bottom border accent for focused tabs */
+[role="tab"][data-focus]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background-color: var(--color-accent);
+  animation: slideInHorizontal 0.2s ease forwards;
+}
+
+@keyframes slideInHorizontal {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* Apply pulse animation after a short delay */
+[role="tab"][data-focus]:not(:active) {
+  animation: tabFocusPulse 2s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+/* Scale text slightly for emphasis */
+[role="tab"][data-focus] span {
+  transform: scale(1.05);
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+
+/* Improve icon visibility in focused state */
+[role="tab"][data-focus] svg {
+  color: var(--color-primary-content);
+  filter: drop-shadow(0 0 1px var(--color-primary-content));
+}

@@ -14,6 +14,7 @@ import {
   Search,
   Trees,
 } from "lucide-solid";
+import "./TabFocus.css";
 
 /**
  * Sidebar component for the Notetaking application
