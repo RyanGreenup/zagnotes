@@ -32,6 +32,11 @@ export default function ServerNoteTree() {
           <div class="mt-2 mb-4">
             {/* Create a collection from the fetched data and pass to RootProvider */}
             <GenericTreeView collection={createCollection(treeData()!)} />
+            {/*
+                I want to display the content of the treeData() here but it merely prints undefined, fix this
+                */}
+
+            <pre> {treeData()} </pre>
           </div>
         </Show>
       </Suspense>
