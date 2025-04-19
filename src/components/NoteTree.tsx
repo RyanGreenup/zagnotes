@@ -43,7 +43,7 @@ export const RootProvider = (props: {
     <TreeView.RootProvider value={treeView}>
       <TreeView.Tree class="rounded-lg overflow-hidden">
         <For each={collection.rootNode.children}>
-          {(node, index) => (<TreeNode node={node} indexPath={[index()]} />)}
+          {(node, index) => <TreeNode node={node} indexPath={[index()]} />}
         </For>
       </TreeView.Tree>
     </TreeView.RootProvider>
@@ -69,8 +69,11 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
       <Show
         when={node.children}
         fallback={
-          <TreeView.Item class="py-1.5 px-3 hover:bg-opacity-70 transition-all duration-200 flex items-center gap-2 cursor-pointer" 
-            data-focus-visible-within:bg-primary-content data-focus:bg-primary-content>
+          <TreeView.Item
+            class="py-1.5 px-3 hover:bg-opacity-70 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+            data-focus-visible-within:bg-primary-content
+            data-focus:bg-primary-content
+          >
             <TreeView.ItemIndicator class="text-xs opacity-80">
               <CheckSquareIcon class="h-4 w-4" />
             </TreeView.ItemIndicator>
@@ -82,8 +85,11 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
         }
       >
         <TreeView.Branch class="animate-fadeIn">
-          <TreeView.BranchControl class="py-1.5 px-3 hover:bg-opacity-80 flex items-center w-full cursor-pointer transition-all duration-200"
-            data-focus-visible-within:bg-primary-content data-focus:bg-primary-content>
+          <TreeView.BranchControl
+            class="py-1.5 px-3 hover:bg-opacity-80 flex items-center w-full cursor-pointer transition-all duration-200"
+            data-focus-visible-within:bg-primary-content
+            data-focus:bg-primary-content
+          >
             <TreeView.BranchIndicator class="transition-transform duration-200 transform mr-1">
               <ChevronRightIcon class="h-4 w-4 opacity-70" />
             </TreeView.BranchIndicator>
