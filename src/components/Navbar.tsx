@@ -12,6 +12,7 @@ const styles = `
 
 /**
  * SearchBar component for searching notes
+ * This searches titles using a trigram search
  */
 function SearchBar(props: {
   value: string;
@@ -24,7 +25,7 @@ function SearchBar(props: {
       </div>
       <input
         type="text"
-        placeholder="Search notes..."
+        placeholder="fzf notes..."
         class="block w-full pl-10 pr-3 py-2 leading-5 sm:text-sm search-input"
         style={{
           "background-color": "var(--color-base-200)",
