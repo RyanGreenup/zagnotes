@@ -231,12 +231,57 @@ a[href]:hover {
 }
 
 
- [data-focus] {
-   background-color: var(--color-primary);
-   color: var(--color-primary-content);
-   /*
-   Due to tabindex, there may be an outline.
-   */
-   outline: none;
- }
+/* Professional focus styling with animations */
+[data-focus] {
+  background-color: var(--color-primary);
+  color: var(--color-primary-content);
+  outline: none;
+  position: relative;
+  box-shadow: 0 0 0 1px var(--color-primary);
+  transform: translateX(2px);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Subtle pulse animation for focused items */
+@keyframes focusPulse {
+  0% { box-shadow: 0 0 0 1px var(--color-primary); }
+  50% { box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.4); }
+  100% { box-shadow: 0 0 0 1px var(--color-primary); }
+}
+
+/* Left border accent for focused items */
+[data-focus]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background-color: var(--color-accent);
+  animation: slideIn 0.2s ease forwards;
+}
+
+@keyframes slideIn {
+  from { transform: scaleY(0); opacity: 0; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+/* Apply pulse animation after a short delay */
+[data-focus]:not(:active) {
+  animation: focusPulse 2s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+/* Scale text slightly for emphasis */
+[data-focus] span {
+  transform: scale(1.02);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+
+/* Improve icon visibility in focused state */
+[data-focus] svg {
+  color: var(--color-primary-content);
+  filter: drop-shadow(0 0 1px var(--color-primary-content));
+}
 
