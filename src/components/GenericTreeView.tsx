@@ -2,6 +2,7 @@ import { For, Show } from "solid-js";
 import { Node, NodeType } from "./treeCollection";
 import { ChevronDown, ChevronRight, FileText, Folder, Tag } from "lucide-solid";
 import { createSignal } from "solid-js";
+import { createStore } from "solid-js/store/types/server.js";
 
 interface GenericTreeViewProps {
   collection: {
@@ -22,15 +23,26 @@ interface TreeNodeProps {
   level: number;
 }
 
+interface navMap {
+    id: string;
+    up: string;
+    parent: string;
+    down: string;
+    end: string;
+    home: string;
+}
+
 function TreeNode(props: TreeNodeProps) {
   const [isExpanded, setIsExpanded] = createSignal(props.level < 1);
   const hasChildren = () => props.node.children && props.node.children.length > 0;
-  
+  const [navMap, setNavMap] = createStore<navMap>({})
+
+
   const toggleExpand = (e: MouseEvent) => {
     e.stopPropagation();
     setIsExpanded(!isExpanded());
   };
-  
+
   const getNodeIcon = () => {
     switch (props.node.type) {
       case NodeType.FOLDER:
@@ -43,18 +55,18 @@ function TreeNode(props: TreeNodeProps) {
         return FileText;
     }
   };
-  
+
   const NodeIcon = getNodeIcon();
-  
+
   return (
     <div class="tree-node">
-      <div 
+      <div
         class="tree-node-content flex items-center py-1 px-2 rounded hover:bg-gray-100 cursor-pointer"
         style={{ "padding-left": `${props.level * 16 + 4}px` }}
         onClick={toggleExpand}
       >
         <Show when={hasChildren()}>
-          <button 
+          <button
             class="mr-1 p-1 rounded hover:bg-gray-200"
             onClick={toggleExpand}
             aria-label={isExpanded() ? "Collapse" : "Expand"}
@@ -62,15 +74,15 @@ function TreeNode(props: TreeNodeProps) {
             {isExpanded() ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           </button>
         </Show>
-        
+
         <Show when={!hasChildren()}>
           <span class="w-6"></span>
         </Show>
-        
+
         <NodeIcon size={16} class="mr-2" />
         <span class="text-sm">{props.node.name}</span>
       </div>
-      
+
       <Show when={isExpanded() && hasChildren()}>
         <div class="tree-node-children">
           <For each={props.node.children}>
