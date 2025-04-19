@@ -11,6 +11,7 @@ import {
   Link2,
   ExternalLink,
   Search,
+  Pin,
 } from "lucide-solid";
 import "./TabFocus.css";
 import Card from "./Card";
@@ -141,6 +142,30 @@ function ForwardLinks() {
   );
 }
 
+function PinnedNotes() {
+  const [pinnedNotes] = createSignal([
+    { id: 101, title: "Important Tasks" },
+    { id: 102, title: "Research Paper" },
+    { id: 103, title: "Project Roadmap" },
+  ]);
+
+  return (
+    <div>
+      <SubSectionHeader>Pinned Notes</SubSectionHeader>
+      <ul class="space-y-0.5 mt-1">
+        {pinnedNotes().map((note, index) => (
+          <AnimatedListItem index={index}>
+            <div class="flex items-center">
+              <Pin class="h-3 w-3 mr-1 text-primary" />
+              <NavLink href={`/note/${note.id}`}>{note.title}</NavLink>
+            </div>
+          </AnimatedListItem>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function NoteTree() {
   const [recentNotes] = createSignal([
     { id: 1, title: "Meeting Notes" },
@@ -167,6 +192,10 @@ function NoteTree() {
             Trash
           </NavLink>
         </div>
+      </div>
+      
+      <div class="mt-3 animate-fadeIn">
+        <PinnedNotes />
       </div>
 
       <div class="mt-3 animate-fadeIn">
