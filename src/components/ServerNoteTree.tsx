@@ -5,6 +5,7 @@ import Card from "./Card";
 import SectionHeader from "./SectionHeader";
 import Button from "./Button";
 import { RefreshCwIcon } from "lucide-solid";
+import { JSX } from "solid-js/h/jsx-runtime";
 
 /**
  * Component that fetches tree data from the server and renders a tree view
@@ -33,9 +34,7 @@ export default function ServerNoteTree() {
             {/* Create a collection from the fetched data and pass to RootProvider */}
             <GenericTreeView collection={createCollection(treeData()!)} />
             {/* Display the tree data as JSON for debugging */}
-            <pre class="mt-4 p-2 bg-base-200 rounded text-sm overflow-auto max-h-60">
-              {JSON.stringify(treeData(), null, 2)}
-            </pre>
+            <DisplayTreeData treedata={treeData()}/>
           </div>
         </Show>
       </Suspense>
@@ -46,4 +45,15 @@ export default function ServerNoteTree() {
       </Button>
     </Card>
   );
+}
+
+
+function DisplayTreeData(props) {
+    return (
+        <>
+            <pre class="mt-4 p-2 bg-base-200 rounded text-sm overflow-auto max-h-60">
+              {JSON.stringify(props.treedata, null, 2)}
+            </pre>
+        </>
+    );
 }
