@@ -43,7 +43,7 @@ export const RootProvider = (props: {
     <TreeView.RootProvider value={treeView}>
       <TreeView.Tree class="rounded-lg overflow-hidden">
         <For each={collection.rootNode.children}>
-          {(node, index) => <TreeNode node={node} indexPath={[index()]} />}
+          {(node, index) => (<TreeNode node={node} indexPath={[index()]} />)}
         </For>
       </TreeView.Tree>
     </TreeView.RootProvider>
@@ -63,7 +63,6 @@ const TreeLabelComponent: Component<{ label: string }> = ({ label }) => {
 
 const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
   const { node, indexPath } = props;
-  const treeViewContext = TreeView.useTreeViewContext();
   // Get the focused value
   return (
     <TreeView.NodeProvider node={node} indexPath={indexPath}>
