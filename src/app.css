@@ -3,16 +3,6 @@
   themes: all;
 }
 
-
-
-
-
-
-
-
-
-
-
 /*
 My Component Styling
 */
@@ -40,7 +30,6 @@ My Component Styling
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out forwards;
 }
-
 
 /*
 My Themes for later migration away from Daisy UI
@@ -230,6 +219,9 @@ a[href]:hover {
   transition: background-color 0.2s ease;
 }
 
+/*
+ * Focused items in the Ark UI Tree
+ */
 
 /* Professional focus styling with animations */
 [data-focus] {
@@ -242,11 +234,21 @@ a[href]:hover {
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/*
+ * Additional Styling and Animations
+*/
+
 /* Subtle pulse animation for focused items */
 @keyframes focusPulse {
-  0% { box-shadow: 0 0 0 1px var(--color-primary); }
-  50% { box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.4); }
-  100% { box-shadow: 0 0 0 1px var(--color-primary); }
+  0% {
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
 }
 
 /* Left border accent for focused items */
@@ -262,8 +264,14 @@ a[href]:hover {
 }
 
 @keyframes slideIn {
-  from { transform: scaleY(0); opacity: 0; }
-  to { transform: scaleY(1); opacity: 1; }
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
 }
 
 /* Apply pulse animation after a short delay */
@@ -284,4 +292,3 @@ a[href]:hover {
   color: var(--color-primary-content);
   filter: drop-shadow(0 0 1px var(--color-primary-content));
 }
-
