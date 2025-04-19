@@ -229,3 +229,13 @@ a[href]:hover {
   background-color: var(--color-base-300);
   transition: background-color 0.2s ease;
 }
+
+
+ [data-focus] {
+   @apply bg-blue-500;
+   /*
+   Due to tabindex, there may be an outline.
+   */
+   outline: none;
+ }
+
