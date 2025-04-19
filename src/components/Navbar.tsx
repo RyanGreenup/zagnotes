@@ -20,13 +20,13 @@ function SearchBar(props: {
 }) {
   return (
     <div class="relative">
-      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <IconWrapper icon={Search} size="md" color="var(--color-neutral)" />
+      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+        <IconWrapper icon={Search} size="sm" color="var(--color-neutral)" />
       </div>
       <input
         type="text"
         placeholder="fzf notes..."
-        class="block w-full pl-10 pr-3 py-2 leading-5 sm:text-sm search-input"
+        class="block w-full pl-11 pr-3 py-2 leading-5 sm:text-sm search-input"
         style={{
           "background-color": "var(--color-base-200)",
           border: "var(--border) solid var(--color-base-300)",
