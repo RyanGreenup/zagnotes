@@ -41,12 +41,7 @@ export const RootProvider = (props: {
 
   return (
     <TreeView.RootProvider value={treeView}>
-      <TreeView.Tree
-        class="rounded-lg overflow-hidden"
-        style={{
-          "background-color": "var(--color-base-200)",
-        }}
-      >
+      <TreeView.Tree class="rounded-lg overflow-hidden">
         <For each={collection.rootNode.children}>
           {(node, index) => <TreeNode node={node} indexPath={[index()]} />}
         </For>
@@ -60,10 +55,7 @@ This can be used for a tight heading, I haven't used it though
 */
 const TreeLabelComponent: Component<{ label: string }> = ({ label }) => {
   return (
-    <TreeView.Label
-      class="text-sm font-semibold uppercase tracking-wider mb-2"
-      style={{ color: "var(--color-neutral)" }}
-    >
+    <TreeView.Label class="text-sm font-semibold uppercase tracking-wider mb-2">
       {label}
     </TreeView.Label>
   );
@@ -71,60 +63,36 @@ const TreeLabelComponent: Component<{ label: string }> = ({ label }) => {
 
 const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
   const { node, indexPath } = props;
+  const treeViewContext = TreeView.useTreeViewContext();
+  // Get the focused value
   return (
     <TreeView.NodeProvider node={node} indexPath={indexPath}>
       <Show
         when={node.children}
         fallback={
-          <TreeView.Item
-            class="py-1.5 px-3 hover:bg-opacity-70 transition-all duration-200 flex items-center gap-2 cursor-pointer"
-            style={{
-              "background-color": "var(--color-base-200)",
-              "border-radius": "var(--radius-field)",
-              color: "var(--color-base-content)",
-            }}
-          >
-            <TreeView.ItemIndicator
-              class="text-xs opacity-80"
-              style={{ color: "var(--color-primary)" }}
-            >
+          <TreeView.Item class="py-1.5 px-3 hover:bg-opacity-70 transition-all duration-200 flex items-center gap-2 cursor-pointer">
+            <TreeView.ItemIndicator class="text-xs opacity-80">
               <CheckSquareIcon class="h-4 w-4" />
             </TreeView.ItemIndicator>
             <TreeView.ItemText class="flex items-center gap-2 font-medium">
-              <FileIcon
-                class="h-4 w-4 opacity-70"
-                style={{ color: "var(--color-secondary)" }}
-              />
+              <FileIcon class="h-4 w-4 opacity-70" />
               <span class="text-sm">{node.name}</span>
             </TreeView.ItemText>
           </TreeView.Item>
         }
       >
         <TreeView.Branch class="animate-fadeIn">
-          <TreeView.BranchControl
-            class="py-1.5 px-3 hover:bg-opacity-80 flex items-center w-full cursor-pointer transition-all duration-200"
-            style={{
-              "background-color": "var(--color-base-200)",
-              "border-radius": "var(--radius-field)",
-              color: "var(--color-base-content)",
-            }}
-          >
+          <TreeView.BranchControl class="py-1.5 px-3 hover:bg-opacity-80 flex items-center w-full cursor-pointer transition-all duration-200">
             <TreeView.BranchIndicator class="transition-transform duration-200 transform mr-1">
               <ChevronRightIcon class="h-4 w-4 opacity-70" />
             </TreeView.BranchIndicator>
             <TreeView.BranchText class="flex items-center gap-2 font-medium">
-              <FolderIcon
-                class="h-4 w-4"
-                style={{ color: "var(--color-primary)" }}
-              />
+              <FolderIcon class="h-4 w-4" />
               <span class="text-sm">{node.name}</span>
             </TreeView.BranchText>
           </TreeView.BranchControl>
           <TreeView.BranchContent class="pl-4 mt-1">
-            <TreeView.BranchIndentGuide
-              class="border-l-2 border-opacity-30 ml-2 pl-2"
-              style={{ "border-color": "var(--color-base-300)" }}
-            />
+            <TreeView.BranchIndentGuide class="border-l-2 border-opacity-30 ml-2 pl-2" />
             <For each={node.children}>
               {(child, index) => (
                 <TreeNode node={child} indexPath={[...indexPath, index()]} />
