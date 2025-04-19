@@ -27,17 +27,6 @@
   }
 }
 
-/* Bottom border accent for focused tabs */
-[role="tab"][data-focus]::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 3px;
-  width: 100%;
-  background-color: var(--color-accent);
-  animation: slideInHorizontal 0.2s ease forwards;
-}
 
 @keyframes slideInHorizontal {
   from {

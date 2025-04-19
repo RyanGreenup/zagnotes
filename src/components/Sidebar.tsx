@@ -15,6 +15,7 @@ import {
   Trees,
 } from "lucide-solid";
 import "./TabFocus.css";
+import Card from "./Card";
 
 /**
  * Sidebar component for the Notetaking application
@@ -41,7 +42,8 @@ export default function Sidebar() {
         "border-right": "var(--border) solid var(--color-base-300)",
       }}
     >
-      <Tabs.Root>
+      <Tabs.Root defaultValue="note_tree">
+        {/* Tabs List -- Buttons showing the tabs*/}
         <Tabs.List>
           <Tabs.Trigger value="note_tree">
             {" "}
@@ -64,15 +66,57 @@ export default function Sidebar() {
             <Clock />{" "}
           </Tabs.Trigger>
         </Tabs.List>
+
+        {/* Tab Content, what's shown when tab is selected*/}
         <Tabs.Content value="note_tree">
           <NoteTree />
         </Tabs.Content>
-        <Tabs.Content value="backlinks">Backlinks </Tabs.Content>
-        <Tabs.Content value="forward_links">Forward Links</Tabs.Content>
-        <Tabs.Content value="search">Search Bar</Tabs.Content>
-        <Tabs.Content value="recent">Recent Items</Tabs.Content>
+        <Tabs.Content value="backlinks">
+          <Backlinks></Backlinks>
+        </Tabs.Content>
+        <Tabs.Content value="forward_links">
+          <ForwardLinks />
+        </Tabs.Content>
+        <Tabs.Content value="search">
+          <SearchBar />
+        </Tabs.Content>
+        <Tabs.Content value="recent">
+          <RecentNotes />
+        </Tabs.Content>
       </Tabs.Root>
     </aside>
+  );
+}
+
+function RecentNotes() {
+  return (
+    <Card variant="bordered" padding="md">
+      <SectionHeader>Recent Items</SectionHeader>
+    </Card>
+  );
+}
+
+function SearchBar() {
+  return (
+    <Card variant="bordered" padding="md">
+      <SectionHeader>Search Bar</SectionHeader>
+    </Card>
+  );
+}
+
+function Backlinks() {
+  return (
+    <Card variant="bordered" padding="md">
+      <SectionHeader>Backlinks One Day</SectionHeader>
+    </Card>
+  );
+}
+
+function ForwardLinks() {
+  return (
+    <Card variant="bordered" padding="md">
+      <SectionHeader>Forward LInks</SectionHeader>
+    </Card>
   );
 }
 

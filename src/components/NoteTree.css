@@ -27,17 +27,6 @@
   }
 }
 
-/* Left border accent for focused items */
-[data-focus][data-scope="tree-view"]::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 3px;
-  background-color: var(--color-accent);
-  animation: slideIn 0.2s ease forwards;
-}
 
 @keyframes slideIn {
   from {
