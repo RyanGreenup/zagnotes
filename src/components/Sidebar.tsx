@@ -102,7 +102,10 @@ function RecentNotes() {
   return (
     <div class="p-2">
       <SectionHeader>Recent Notes</SectionHeader>
-      <p class="text-xs text-neutral mt-1" style={{ color: "var(--color-neutral)" }}>
+      <p
+        class="text-xs text-neutral mt-1"
+        style={{ color: "var(--color-neutral)" }}
+      >
         Your recently accessed notes will appear here.
       </p>
     </div>
@@ -113,13 +116,16 @@ function SearchBar() {
   return (
     <div class="p-2">
       <SectionHeader>Search</SectionHeader>
-      <div class="mt-2 rounded-md" style={{ 
-        border: "var(--border) solid var(--color-base-300)",
-        backgroundColor: "var(--color-base-100)" 
-      }}>
-        <input 
-          type="text" 
-          placeholder="Search notes..." 
+      <div
+        class="mt-2 rounded-md"
+        style={{
+          border: "var(--border) solid var(--color-base-300)",
+          backgroundColor: "var(--color-base-100)",
+        }}
+      >
+        <input
+          type="text"
+          placeholder="Search notes..."
           class="w-full p-1.5 text-sm bg-transparent focus:outline-none"
           style={{ color: "var(--color-base-content)" }}
         />
@@ -128,6 +134,10 @@ function SearchBar() {
   );
 }
 
+/*
+ * Ideally this would also sort backlinks by Graph Distance, e.g. PageRank -- Power Method
+ * We could use semantic distance for a more interesting pageprank too.
+ */
 function Backlinks() {
   return (
     <div class="p-2">
@@ -171,7 +181,10 @@ function SimilarNotes() {
                 <FileStack class="h-3 w-3 mr-1 text-accent" />
                 <NavLink href={`/note/${note.id}`}>{note.title}</NavLink>
               </div>
-              <span class="text-xs text-neutral" style={{ color: "var(--color-neutral)" }}>
+              <span
+                class="text-xs text-neutral"
+                style={{ color: "var(--color-neutral)" }}
+              >
                 {note.similarity}%
               </span>
             </div>
@@ -214,28 +227,26 @@ function NoteTree() {
   ]);
 
   return (
-    <div class="p-2 overflow-y-auto h-full" style={{ 
-      backgroundColor: "var(--color-base-100)" 
-    }}>
+    <div
+      class="p-2 overflow-y-auto h-full"
+      style={{
+        backgroundColor: "var(--color-base-100)",
+      }}
+    >
+      <div class="mt-3 animate-fadeIn">
+        <PinnedNotes />
+      </div>
       <ServerNoteTree />
-      
+
       <div class="mt-3">
         <SectionHeader>Collections</SectionHeader>
         <div class="space-y-1 mt-1">
           <NavLink href="/" end>
             All Notes
           </NavLink>
-          <NavLink href="/favorites">
-            Favorites
-          </NavLink>
-          <NavLink href="/trash">
-            Trash
-          </NavLink>
+          <NavLink href="/favorites">Favorites</NavLink>
+          <NavLink href="/trash">Trash</NavLink>
         </div>
-      </div>
-      
-      <div class="mt-3 animate-fadeIn">
-        <PinnedNotes />
       </div>
 
       <div class="mt-3 animate-fadeIn">

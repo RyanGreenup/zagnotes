@@ -26,7 +26,7 @@ export default function DynamicIdPage() {
     return (
         <main class="p-4">
             <Card title="URL Parameter Debug" variant="bordered" padding="md">
-                <p> This is root level URL</p>
+                <p> This is note level URL</p>
                 <div class="flex flex-col">
                     <p class="text-lg font-medium">ID Parameter:</p>
                     <code class="bg-base-200 p-2 rounded mt-2 text-primary font-mono">
