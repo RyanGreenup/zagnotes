@@ -1,4 +1,4 @@
-import { createSignal, Show, onMount } from "solid-js";
+import { createSignal, Show, onMount, splitProps } from "solid-js";
 import { A } from "@solidjs/router";
 import NavLink from "./NavLink";
 import { Tabs } from "@ark-ui/solid/tabs";
@@ -24,6 +24,7 @@ import Card from "./Card";
  */
 export default function Sidebar() {
   const [isVisible, setIsVisible] = createSignal(false);
+  const icon_class = `p-2 flex items-center justify-center rounded-md transition-all duration-200 hover:bg-base-300 text-base-content hover:text-primary`;
 
   onMount(() => {
     // Trigger entrance animation after component mounts
@@ -46,24 +47,19 @@ export default function Sidebar() {
         {/* Tabs List -- Buttons showing the tabs*/}
         <Tabs.List>
           <Tabs.Trigger value="note_tree">
-            {" "}
-            <FolderTree />{" "}
+            <FolderTree class={icon_class} />
           </Tabs.Trigger>
           <Tabs.Trigger value="backlinks">
-            {" "}
-            <Link />{" "}
+            <Link class={icon_class} />
           </Tabs.Trigger>
           <Tabs.Trigger value="forward_links">
-            {" "}
-            <ForwardIcon />{" "}
+            <ForwardIcon class={icon_class} />
           </Tabs.Trigger>
           <Tabs.Trigger value="search">
-            {" "}
-            <Search />{" "}
+            <Search class={icon_class} />
           </Tabs.Trigger>
           <Tabs.Trigger value="recent">
-            {" "}
-            <Clock />{" "}
+            <Clock class={icon_class} />
           </Tabs.Trigger>
         </Tabs.List>
 
