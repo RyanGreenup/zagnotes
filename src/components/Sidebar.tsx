@@ -1,10 +1,19 @@
 import { createSignal, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import NavLink from "./NavLink";
+import { Tabs } from "@ark-ui/solid/tabs";
 import SectionHeader from "./SectionHeader";
 import SubSectionHeader from "./SubSectionHeader";
 import AnimatedListItem from "./AnimatedListItem";
 import ServerNoteTree from "./ServerNoteTree";
+import {
+  Clock,
+  FolderTree,
+  ForwardIcon,
+  Link,
+  Search,
+  Trees,
+} from "lucide-solid";
 
 /**
  * Sidebar component for the Notetaking application
@@ -12,12 +21,6 @@ import ServerNoteTree from "./ServerNoteTree";
  * @returns Sidebar component
  */
 export default function Sidebar() {
-  const [recentNotes] = createSignal([
-    { id: 1, title: "Meeting Notes" },
-    { id: 2, title: "Project Ideas" },
-    { id: 3, title: "Shopping List" },
-  ]);
-
   const [isVisible, setIsVisible] = createSignal(false);
 
   onMount(() => {
@@ -37,6 +40,50 @@ export default function Sidebar() {
         "border-right": "var(--border) solid var(--color-base-300)",
       }}
     >
+      <Tabs.Root>
+        <Tabs.List>
+          <Tabs.Trigger value="note_tree">
+            {" "}
+            <FolderTree />{" "}
+          </Tabs.Trigger>
+          <Tabs.Trigger value="backlinks">
+            {" "}
+            <Link />{" "}
+          </Tabs.Trigger>
+          <Tabs.Trigger value="forward_links">
+            {" "}
+            <ForwardIcon />{" "}
+          </Tabs.Trigger>
+          <Tabs.Trigger value="search">
+            {" "}
+            <Search />{" "}
+          </Tabs.Trigger>
+          <Tabs.Trigger value="recent">
+            {" "}
+            <Clock />{" "}
+          </Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="note_tree">
+          <NoteTree />
+        </Tabs.Content>
+        <Tabs.Content value="backlinks">Backlinks </Tabs.Content>
+        <Tabs.Content value="forward_links">Forward Links</Tabs.Content>
+        <Tabs.Content value="search">Search Bar</Tabs.Content>
+        <Tabs.Content value="recent">Recent Items</Tabs.Content>
+      </Tabs.Root>
+    </aside>
+  );
+}
+
+function NoteTree() {
+  const [recentNotes] = createSignal([
+    { id: 1, title: "Meeting Notes" },
+    { id: 2, title: "Project Ideas" },
+    { id: 3, title: "Shopping List" },
+  ]);
+
+  return (
+    <>
       <div class="p-4 overflow-y-auto flex-1 hover:pr-2 transition-all duration-300">
         <ServerNoteTree />
         <SectionHeader>Notes</SectionHeader>
@@ -61,6 +108,6 @@ export default function Sidebar() {
           </ul>
         </div>
       </div>
-    </aside>
+    </>
   );
 }
