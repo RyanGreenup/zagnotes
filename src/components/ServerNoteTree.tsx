@@ -1,11 +1,11 @@
-import { createResource, Show, Suspense, Index } from "solid-js";
+import { createResource, Show, Suspense } from "solid-js";
 import { RootProvider as OriginalGenericTreeView } from "./NoteTree";
 import { Node, fetchTreeData, createCollection } from "./treeCollection";
 import Card from "./Card";
 import SectionHeader from "./SectionHeader";
 import Button from "./Button";
 import { RefreshCwIcon } from "lucide-solid";
-import { JSX } from "solid-js/h/jsx-runtime";
+import GenericTreeView from "./GenericTreeView";
 
 /**
  * Component that fetches tree data from the server and renders a tree view
@@ -70,18 +70,3 @@ function DisplayTreeData(props: DisplayTreeDataProps) {
 }
 
 
-interface GenericTreeViewProps {
-    treedata: Node;
-}
-
-function GenericTreeView(props: GenericTreeViewProps) {
-    return (
-        <>
-        <Index each={props.treedata != undefined}>
-        {(item, index) => (
-            item
-        )}
-        </Index>
-        </>
-    );
-}
