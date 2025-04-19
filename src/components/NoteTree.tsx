@@ -13,6 +13,7 @@ import {
   FolderIcon,
 } from "lucide-solid";
 import { For, Show, Component } from "solid-js";
+import "./NoteTree.css";
 
 /**
  * A tree view component that renders a collection of nodes
