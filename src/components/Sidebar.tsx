@@ -5,6 +5,7 @@ import SectionHeader from "./SectionHeader";
 import SubSectionHeader from "./SubSectionHeader";
 import AnimatedListItem from "./AnimatedListItem";
 import ServerNoteTree from "./ServerNoteTree";
+import { ROUTES } from "../constants/routes";
 import {
   Clock,
   FolderTree,
@@ -16,6 +17,12 @@ import {
 } from "lucide-solid";
 import "./TabFocus.css";
 import Card from "./Card";
+import RecentNotes from "./RecentNotes";
+import SearchBar from "./SearchBar";
+import Backlinks from "./BackLinks";
+import ForwardLinks from "./ForwardLinks";
+import SimilarNotes from "./SimilarNotes";
+import PinnedNotes from "./PinnedNotes";
 
 /**
  * Sidebar component for the Notetaking application
@@ -98,127 +105,6 @@ export default function Sidebar() {
   );
 }
 
-function RecentNotes() {
-  return (
-    <div class="p-2">
-      <SectionHeader>Recent Notes</SectionHeader>
-      <p
-        class="text-xs text-neutral mt-1"
-        style={{ color: "var(--color-neutral)" }}
-      >
-        Your recently accessed notes will appear here.
-      </p>
-    </div>
-  );
-}
-
-function SearchBar() {
-  return (
-    <div class="p-2">
-      <SectionHeader>Search</SectionHeader>
-      <div
-        class="mt-2 rounded-md"
-        style={{
-          border: "var(--border) solid var(--color-base-300)",
-          backgroundColor: "var(--color-base-100)",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Search notes..."
-          class="w-full p-1.5 text-sm bg-transparent focus:outline-none"
-          style={{ color: "var(--color-base-content)" }}
-        />
-      </div>
-    </div>
-  );
-}
-
-/*
- * Ideally this would also sort backlinks by Graph Distance, e.g. PageRank -- Power Method
- * We could use semantic distance for a more interesting pageprank too.
- */
-function Backlinks() {
-  return (
-    <div class="p-2">
-      <SectionHeader>Backlinks</SectionHeader>
-      <p class="text-xs mt-1" style={{ color: "var(--color-neutral)" }}>
-        Notes that link to the current note will appear here.
-      </p>
-    </div>
-  );
-}
-
-function ForwardLinks() {
-  return (
-    <div class="p-2">
-      <SectionHeader>Forward Links</SectionHeader>
-      <p class="text-xs mt-1" style={{ color: "var(--color-neutral)" }}>
-        Notes that are linked from the current note will appear here.
-      </p>
-    </div>
-  );
-}
-
-function SimilarNotes() {
-  const [similarNotes] = createSignal([
-    { id: 201, title: "Related Research", similarity: 85 },
-    { id: 202, title: "Similar Concept", similarity: 72 },
-    { id: 203, title: "Connected Ideas", similarity: 68 },
-  ]);
-
-  return (
-    <div class="p-2">
-      <SectionHeader>Similar Notes</SectionHeader>
-      <p class="text-xs mt-1" style={{ color: "var(--color-neutral)" }}>
-        Notes with similar content to the current note.
-      </p>
-      <ul class="space-y-0.5 mt-2">
-        {similarNotes().map((note, index) => (
-          <AnimatedListItem index={index}>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <FileStack class="h-3 w-3 mr-1 text-accent" />
-                <NavLink href={`/note/${note.id}`}>{note.title}</NavLink>
-              </div>
-              <span
-                class="text-xs text-neutral"
-                style={{ color: "var(--color-neutral)" }}
-              >
-                {note.similarity}%
-              </span>
-            </div>
-          </AnimatedListItem>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function PinnedNotes() {
-  const [pinnedNotes] = createSignal([
-    { id: 101, title: "Important Tasks" },
-    { id: 102, title: "Research Paper" },
-    { id: 103, title: "Project Roadmap" },
-  ]);
-
-  return (
-    <div>
-      <SubSectionHeader>Pinned Notes</SubSectionHeader>
-      <ul class="space-y-0.5 mt-1">
-        {pinnedNotes().map((note, index) => (
-          <AnimatedListItem index={index}>
-            <div class="flex items-center">
-              <Pin class="h-3 w-3 mr-1 text-primary" />
-              <NavLink href={`/note/${note.id}`}>{note.title}</NavLink>
-            </div>
-          </AnimatedListItem>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 function NoteTree() {
   const [recentNotes] = createSignal([
     { id: 1, title: "Meeting Notes" },
@@ -227,12 +113,7 @@ function NoteTree() {
   ]);
 
   return (
-    <div
-      class="p-2 overflow-y-auto h-full"
-      style={{
-        backgroundColor: "var(--color-base-100)",
-      }}
-    >
+    <div class="p-2 overflow-y-auto h-full">
       <div class="mt-3 animate-fadeIn">
         <PinnedNotes />
       </div>
@@ -254,7 +135,9 @@ function NoteTree() {
         <ul class="space-y-0.5 mt-1">
           {recentNotes().map((note, index) => (
             <AnimatedListItem index={index}>
-              <NavLink href={`/note/${note.id}`}>{note.title}</NavLink>
+              <NavLink href={`${ROUTES.NOTE_BASE_PATH}${note.id}`}>
+                {note.title}
+              </NavLink>
             </AnimatedListItem>
           ))}
         </ul>
