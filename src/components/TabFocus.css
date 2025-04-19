@@ -48,7 +48,7 @@
 /* Tab content container */
 [role="tabpanel"] {
   background-color: var(--color-base-100);
-  padding: 1rem;
+  padding: 0.5rem;
   border-radius: 0 0 var(--radius-box) var(--radius-box);
   animation: fadeIn 0.3s ease-out forwards;
 }

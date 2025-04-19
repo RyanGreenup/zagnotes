@@ -91,9 +91,9 @@ export default function Sidebar() {
 
 function RecentNotes() {
   return (
-    <div class="p-4">
+    <div class="p-2">
       <SectionHeader>Recent Notes</SectionHeader>
-      <p class="text-sm text-neutral mt-2" style={{ color: "var(--color-neutral)" }}>
+      <p class="text-xs text-neutral mt-1" style={{ color: "var(--color-neutral)" }}>
         Your recently accessed notes will appear here.
       </p>
     </div>
@@ -102,16 +102,16 @@ function RecentNotes() {
 
 function SearchBar() {
   return (
-    <div class="p-4">
+    <div class="p-2">
       <SectionHeader>Search</SectionHeader>
-      <div class="mt-4 rounded-md" style={{ 
+      <div class="mt-2 rounded-md" style={{ 
         border: "var(--border) solid var(--color-base-300)",
         backgroundColor: "var(--color-base-100)" 
       }}>
         <input 
           type="text" 
           placeholder="Search notes..." 
-          class="w-full p-2 bg-transparent focus:outline-none"
+          class="w-full p-1.5 text-sm bg-transparent focus:outline-none"
           style={{ color: "var(--color-base-content)" }}
         />
       </div>
@@ -121,9 +121,9 @@ function SearchBar() {
 
 function Backlinks() {
   return (
-    <div class="p-4">
+    <div class="p-2">
       <SectionHeader>Backlinks</SectionHeader>
-      <p class="text-sm mt-2" style={{ color: "var(--color-neutral)" }}>
+      <p class="text-xs mt-1" style={{ color: "var(--color-neutral)" }}>
         Notes that link to the current note will appear here.
       </p>
     </div>
@@ -132,9 +132,9 @@ function Backlinks() {
 
 function ForwardLinks() {
   return (
-    <div class="p-4">
+    <div class="p-2">
       <SectionHeader>Forward Links</SectionHeader>
-      <p class="text-sm mt-2" style={{ color: "var(--color-neutral)" }}>
+      <p class="text-xs mt-1" style={{ color: "var(--color-neutral)" }}>
         Notes that are linked from the current note will appear here.
       </p>
     </div>
@@ -149,14 +149,14 @@ function NoteTree() {
   ]);
 
   return (
-    <div class="p-4 overflow-y-auto h-full" style={{ 
+    <div class="p-2 overflow-y-auto h-full" style={{ 
       backgroundColor: "var(--color-base-100)" 
     }}>
       <ServerNoteTree />
       
-      <div class="mt-6">
+      <div class="mt-3">
         <SectionHeader>Collections</SectionHeader>
-        <div class="space-y-2 mt-2">
+        <div class="space-y-1 mt-1">
           <NavLink href="/" end>
             All Notes
           </NavLink>
@@ -169,9 +169,9 @@ function NoteTree() {
         </div>
       </div>
 
-      <div class="mt-6 animate-fadeIn">
+      <div class="mt-3 animate-fadeIn">
         <SubSectionHeader>Recent Notes</SubSectionHeader>
-        <ul class="space-y-1 mt-2">
+        <ul class="space-y-0.5 mt-1">
           {recentNotes().map((note, index) => (
             <AnimatedListItem index={index}>
               <NavLink href={`/note/${note.id}`}>{note.title}</NavLink>
