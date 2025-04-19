@@ -48,7 +48,12 @@ export default function ServerNoteTree() {
 }
 
 
-function DisplayTreeData(props) {
+// Define the interface for DisplayTreeData props
+interface DisplayTreeDataProps {
+    treedata: any; // Using 'any' for now, but ideally this would be the Node type from treeCollection
+}
+
+function DisplayTreeData(props: DisplayTreeDataProps) {
     return (
         <>
             <pre class="mt-4 p-2 bg-base-200 rounded text-sm overflow-auto max-h-60">
