@@ -142,31 +142,7 @@ function TreeNodeItem(props: TreeNodeItemProps) {
   
   // Update navigation map when component mounts or relevant props change
   createEffect(() => {
-    const currentId = props.node.id;
-    const prevSibling = props.index > 0 ? props.siblingIds[props.index - 1] : null;
-    const nextSibling = props.index < props.siblingIds.length - 1 ? props.siblingIds[props.index + 1] : null;
-    
-    // Find the last descendant (for "end" navigation)
-    const findLastDescendant = (node: Node): string => {
-      if (!node.children || node.children.length === 0) {
-        return node.id;
-      }
-      return findLastDescendant(node.children[node.children.length - 1]);
-    };
-    
-    // Calculate navigation targets
-    const targets: NavigationTargets = {
-      up: prevSibling,
-      parent: props.parentId,
-      down: nextSibling || (hasChildren() && props.isExpanded ? props.node.children![0].id : null),
-      end: hasChildren() && props.isExpanded ? findLastDescendant(props.node) : null,
-      home: props.level === 0 ? currentId : null // Root node is home
-    };
-    
-    // Update the navigation map
-    props.setNavMap(produce(state => {
-      state[currentId] = targets;
-    }));
+    updateNodeNavTargets(props.node, props.isExpanded);
   });
 
   // Handle click to focus this node
@@ -212,7 +188,95 @@ function TreeNode(props: TreeNodeProps) {
 
   const toggleExpand = (e: MouseEvent) => {
     e.stopPropagation();
-    setIsExpanded(!isExpanded());
+    const newExpandedState = !isExpanded();
+    setIsExpanded(newExpandedState);
+    
+    // Update navigation map after expanding/collapsing
+    updateNavigationMap(newExpandedState);
+  };
+  
+  // Function to update navigation map when expanding/collapsing
+  const updateNavigationMap = (isNodeExpanded: boolean) => {
+    // Update this node's navigation targets
+    updateNodeNavTargets(props.node, isNodeExpanded);
+    
+    // Update siblings' navigation targets
+    if (props.siblingIds.length > 0) {
+      const nodeIndex = props.siblingIds.indexOf(props.node.id);
+      if (nodeIndex !== -1) {
+        // Update previous sibling's "down" target if it exists
+        if (nodeIndex > 0) {
+          const prevSiblingId = props.siblingIds[nodeIndex - 1];
+          updateSiblingNavTarget(prevSiblingId, "down", props.node.id);
+        }
+        
+        // Update next sibling's "up" target if it exists
+        if (nodeIndex < props.siblingIds.length - 1) {
+          const nextSiblingId = props.siblingIds[nodeIndex + 1];
+          updateSiblingNavTarget(nextSiblingId, "up", props.node.id);
+        }
+      }
+    }
+    
+    // Update parent's navigation targets if it exists
+    if (props.parentId) {
+      updateParentNavTargets(props.parentId);
+    }
+  };
+  
+  // Helper function to update a specific node's navigation targets
+  const updateNodeNavTargets = (node: Node, isNodeExpanded: boolean) => {
+    const currentId = node.id;
+    const prevSibling = props.index > 0 ? props.siblingIds[props.index - 1] : null;
+    const nextSibling = props.index < props.siblingIds.length - 1 ? props.siblingIds[props.index + 1] : null;
+    
+    // Find the last descendant (for "end" navigation)
+    const findLastDescendant = (n: Node): string => {
+      if (!n.children || n.children.length === 0) {
+        return n.id;
+      }
+      return findLastDescendant(n.children[n.children.length - 1]);
+    };
+    
+    // Calculate navigation targets
+    const targets: NavigationTargets = {
+      up: prevSibling,
+      parent: props.parentId,
+      down: nextSibling || (hasChildren() && isNodeExpanded ? node.children![0].id : null),
+      end: hasChildren() && isNodeExpanded ? findLastDescendant(node) : null,
+      home: props.level === 0 ? currentId : null // Root node is home
+    };
+    
+    // Update the navigation map
+    props.setNavMap(produce(state => {
+      state[currentId] = targets;
+    }));
+  };
+  
+  // Helper function to update a sibling's navigation target
+  const updateSiblingNavTarget = (siblingId: string, targetKey: keyof NavigationTargets, targetValue: string | null) => {
+    props.setNavMap(produce(state => {
+      if (state[siblingId]) {
+        state[siblingId][targetKey] = targetValue;
+      }
+    }));
+  };
+  
+  // Helper function to update parent's navigation targets
+  const updateParentNavTargets = (parentId: string) => {
+    props.setNavMap(produce(state => {
+      if (state[parentId]) {
+        // If this is the first child, update parent's "down" target
+        if (props.index === 0) {
+          state[parentId].down = props.node.id;
+        }
+        
+        // If this is the last child, update parent's "end" target
+        if (props.index === props.siblingIds.length - 1) {
+          state[parentId].end = props.node.id;
+        }
+      }
+    }));
   };
   
   // Get sibling IDs for children to use in their navigation
