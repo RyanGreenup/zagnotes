@@ -28,7 +28,7 @@
 }
 
 /* Left border accent for focused items */
-[data-focus]::before {
+[data-focus][data-scope="tree-view"]::before {
   content: "";
   position: absolute;
   left: 0;
@@ -51,20 +51,20 @@
 }
 
 /* Apply pulse animation after a short delay */
-[data-focus]:not(:active) {
+[data-focus][data-scope="tree-view"]:not(:active) {
   animation: focusPulse 2s ease-in-out infinite;
   animation-delay: 0.5s;
 }
 
 /* Scale text slightly for emphasis */
-[data-focus] span {
+[data-focus][data-scope="tree-view"] span {
   transform: scale(1.02);
   transform-origin: left;
   transition: transform 0.2s ease;
 }
 
 /* Improve icon visibility in focused state */
-[data-focus] svg {
+[data-focus][data-scope="tree-view"] svg {
   color: var(--color-primary-content);
   filter: drop-shadow(0 0 1px var(--color-primary-content));
 }
