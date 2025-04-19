@@ -36,16 +36,15 @@ interface navMap {
     targets: NavigationTargets;
 }
 
-function TreeNode(props: TreeNodeProps) {
-  const [isExpanded, setIsExpanded] = createSignal(props.level < 1);
+interface TreeNodeItemProps {
+  node: Node;
+  isExpanded: boolean;
+  toggleExpand: (e: MouseEvent) => void;
+  level: number;
+}
+
+function TreeNodeItem(props: TreeNodeItemProps) {
   const hasChildren = () => props.node.children && props.node.children.length > 0;
-  const [navMap, setNavMap] = createStore<navMap>({})
-
-
-  const toggleExpand = (e: MouseEvent) => {
-    e.stopPropagation();
-    setIsExpanded(!isExpanded());
-  };
 
   const getNodeIcon = () => {
     switch (props.node.type) {
@@ -63,29 +62,49 @@ function TreeNode(props: TreeNodeProps) {
   const NodeIcon = getNodeIcon();
 
   return (
+    <div
+      class="tree-node-content flex items-center py-1 px-2 rounded hover:bg-gray-100 cursor-pointer"
+      style={{ "padding-left": `${props.level * 16 + 4}px` }}
+      onClick={props.toggleExpand}
+    >
+      <Show when={hasChildren()}>
+        <button
+          class="mr-1 p-1 rounded hover:bg-gray-200"
+          onClick={props.toggleExpand}
+          aria-label={props.isExpanded ? "Collapse" : "Expand"}
+        >
+          {props.isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        </button>
+      </Show>
+
+      <Show when={!hasChildren()}>
+        <span class="w-6"></span>
+      </Show>
+
+      <NodeIcon size={16} class="mr-2" />
+      <span class="text-sm">{props.node.name}</span>
+    </div>
+  );
+}
+
+function TreeNode(props: TreeNodeProps) {
+  const [isExpanded, setIsExpanded] = createSignal(props.level < 1);
+  const hasChildren = () => props.node.children && props.node.children.length > 0;
+  const [navMap, setNavMap] = createStore<navMap>({});
+
+  const toggleExpand = (e: MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded());
+  };
+
+  return (
     <div class="tree-node">
-      <div
-        class="tree-node-content flex items-center py-1 px-2 rounded hover:bg-gray-100 cursor-pointer"
-        style={{ "padding-left": `${props.level * 16 + 4}px` }}
-        onClick={toggleExpand}
-      >
-        <Show when={hasChildren()}>
-          <button
-            class="mr-1 p-1 rounded hover:bg-gray-200"
-            onClick={toggleExpand}
-            aria-label={isExpanded() ? "Collapse" : "Expand"}
-          >
-            {isExpanded() ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-          </button>
-        </Show>
-
-        <Show when={!hasChildren()}>
-          <span class="w-6"></span>
-        </Show>
-
-        <NodeIcon size={16} class="mr-2" />
-        <span class="text-sm">{props.node.name}</span>
-      </div>
+      <TreeNodeItem 
+        node={props.node} 
+        isExpanded={isExpanded()} 
+        toggleExpand={toggleExpand} 
+        level={props.level} 
+      />
 
       <Show when={isExpanded() && hasChildren()}>
         <div class="tree-node-children">
