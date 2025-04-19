@@ -6,6 +6,7 @@ import {
 } from "@ark-ui/solid/tree-view";
 import { Node, defaultCollection } from "./treeCollection";
 import { useNavigate } from "@solidjs/router";
+import { ROUTES } from "../constants/routes";
 import {
   CheckSquareIcon,
   ChevronRightIcon,
@@ -33,9 +34,9 @@ export const RootProvider = (props: {
       // Get the selected node ID
       const selectedId = details.selectedValue[0];
       if (selectedId) {
-        // Navigate to the page based on the ID
-        // Remove any folder prefixes for navigation
-        navigate(selectedId);
+        // Navigate to the note page based on the ID
+        // Prepend the note path constant
+        navigate(`${ROUTES.NOTE_BASE_PATH}${selectedId}`);
       }
     },
   });
