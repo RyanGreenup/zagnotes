@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Search,
   Pin,
+  FileStack,
 } from "lucide-solid";
 import "./TabFocus.css";
 import Card from "./Card";
@@ -57,6 +58,10 @@ export default function Sidebar() {
             <ExternalLink />
             <span class="sr-only">Forward Links</span>
           </Tabs.Trigger>
+          <Tabs.Trigger value="similar" title="Similar Notes">
+            <FileStack />
+            <span class="sr-only">Similar Notes</span>
+          </Tabs.Trigger>
           <Tabs.Trigger value="search" title="Search">
             <Search />
             <span class="sr-only">Search</span>
@@ -77,6 +82,9 @@ export default function Sidebar() {
           </Tabs.Content>
           <Tabs.Content value="forward_links">
             <ForwardLinks />
+          </Tabs.Content>
+          <Tabs.Content value="similar">
+            <SimilarNotes />
           </Tabs.Content>
           <Tabs.Content value="search">
             <SearchBar />
@@ -138,6 +146,38 @@ function ForwardLinks() {
       <p class="text-xs mt-1" style={{ color: "var(--color-neutral)" }}>
         Notes that are linked from the current note will appear here.
       </p>
+    </div>
+  );
+}
+
+function SimilarNotes() {
+  const [similarNotes] = createSignal([
+    { id: 201, title: "Related Research", similarity: 85 },
+    { id: 202, title: "Similar Concept", similarity: 72 },
+    { id: 203, title: "Connected Ideas", similarity: 68 },
+  ]);
+
+  return (
+    <div class="p-2">
+      <SectionHeader>Similar Notes</SectionHeader>
+      <p class="text-xs mt-1" style={{ color: "var(--color-neutral)" }}>
+        Notes with similar content to the current note.
+      </p>
+      <ul class="space-y-0.5 mt-2">
+        {similarNotes().map((note, index) => (
+          <AnimatedListItem index={index}>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <FileStack class="h-3 w-3 mr-1 text-accent" />
+                <NavLink href={`/note/${note.id}`}>{note.title}</NavLink>
+              </div>
+              <span class="text-xs text-neutral" style={{ color: "var(--color-neutral)" }}>
+                {note.similarity}%
+              </span>
+            </div>
+          </AnimatedListItem>
+        ))}
+      </ul>
     </div>
   );
 }
