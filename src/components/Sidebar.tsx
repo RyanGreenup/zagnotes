@@ -1,5 +1,4 @@
-import { createSignal, Show, onMount, splitProps } from "solid-js";
-import { A } from "@solidjs/router";
+import { createSignal, onMount } from "solid-js";
 import NavLink from "./NavLink";
 import { Tabs } from "@ark-ui/solid/tabs";
 import SectionHeader from "./SectionHeader";
@@ -9,10 +8,9 @@ import ServerNoteTree from "./ServerNoteTree";
 import {
   Clock,
   FolderTree,
-  ForwardIcon,
-  Link,
+  Link2,
+  ExternalLink,
   Search,
-  Trees,
 } from "lucide-solid";
 import "./TabFocus.css";
 import Card from "./Card";
@@ -24,7 +22,7 @@ import Card from "./Card";
  */
 export default function Sidebar() {
   const [isVisible, setIsVisible] = createSignal(false);
-  const icon_class = `p-2 flex items-center justify-center rounded-md transition-all duration-200 hover:bg-base-300 text-base-content hover:text-primary`;
+  // Removed icon_class as it's now handled in CSS
 
   onMount(() => {
     // Trigger entrance animation after component mounts
@@ -43,42 +41,49 @@ export default function Sidebar() {
         "border-right": "var(--border) solid var(--color-base-300)",
       }}
     >
-      <Tabs.Root defaultValue="note_tree">
+      <Tabs.Root defaultValue="note_tree" class="flex flex-col h-full">
         {/* Tabs List -- Buttons showing the tabs*/}
-        <Tabs.List>
-          <Tabs.Trigger value="note_tree">
-            <FolderTree class={icon_class} />
+        <Tabs.List class="flex-shrink-0">
+          <Tabs.Trigger value="note_tree" title="Note Tree">
+            <FolderTree />
+            <span class="sr-only">Note Tree</span>
           </Tabs.Trigger>
-          <Tabs.Trigger value="backlinks">
-            <Link class={icon_class} />
+          <Tabs.Trigger value="backlinks" title="Backlinks">
+            <Link2 />
+            <span class="sr-only">Backlinks</span>
           </Tabs.Trigger>
-          <Tabs.Trigger value="forward_links">
-            <ForwardIcon class={icon_class} />
+          <Tabs.Trigger value="forward_links" title="Forward Links">
+            <ExternalLink />
+            <span class="sr-only">Forward Links</span>
           </Tabs.Trigger>
-          <Tabs.Trigger value="search">
-            <Search class={icon_class} />
+          <Tabs.Trigger value="search" title="Search">
+            <Search />
+            <span class="sr-only">Search</span>
           </Tabs.Trigger>
-          <Tabs.Trigger value="recent">
-            <Clock class={icon_class} />
+          <Tabs.Trigger value="recent" title="Recent Notes">
+            <Clock />
+            <span class="sr-only">Recent Notes</span>
           </Tabs.Trigger>
         </Tabs.List>
 
         {/* Tab Content, what's shown when tab is selected*/}
-        <Tabs.Content value="note_tree">
-          <NoteTree />
-        </Tabs.Content>
-        <Tabs.Content value="backlinks">
-          <Backlinks></Backlinks>
-        </Tabs.Content>
-        <Tabs.Content value="forward_links">
-          <ForwardLinks />
-        </Tabs.Content>
-        <Tabs.Content value="search">
-          <SearchBar />
-        </Tabs.Content>
-        <Tabs.Content value="recent">
-          <RecentNotes />
-        </Tabs.Content>
+        <div class="flex-grow overflow-auto">
+          <Tabs.Content value="note_tree" class="h-full">
+            <NoteTree />
+          </Tabs.Content>
+          <Tabs.Content value="backlinks">
+            <Backlinks />
+          </Tabs.Content>
+          <Tabs.Content value="forward_links">
+            <ForwardLinks />
+          </Tabs.Content>
+          <Tabs.Content value="search">
+            <SearchBar />
+          </Tabs.Content>
+          <Tabs.Content value="recent">
+            <RecentNotes />
+          </Tabs.Content>
+        </div>
       </Tabs.Root>
     </aside>
   );
@@ -86,33 +91,53 @@ export default function Sidebar() {
 
 function RecentNotes() {
   return (
-    <Card variant="bordered" padding="md">
-      <SectionHeader>Recent Items</SectionHeader>
-    </Card>
+    <div class="p-4">
+      <SectionHeader>Recent Notes</SectionHeader>
+      <p class="text-sm text-neutral mt-2" style={{ color: "var(--color-neutral)" }}>
+        Your recently accessed notes will appear here.
+      </p>
+    </div>
   );
 }
 
 function SearchBar() {
   return (
-    <Card variant="bordered" padding="md">
-      <SectionHeader>Search Bar</SectionHeader>
-    </Card>
+    <div class="p-4">
+      <SectionHeader>Search</SectionHeader>
+      <div class="mt-4 rounded-md" style={{ 
+        border: "var(--border) solid var(--color-base-300)",
+        backgroundColor: "var(--color-base-100)" 
+      }}>
+        <input 
+          type="text" 
+          placeholder="Search notes..." 
+          class="w-full p-2 bg-transparent focus:outline-none"
+          style={{ color: "var(--color-base-content)" }}
+        />
+      </div>
+    </div>
   );
 }
 
 function Backlinks() {
   return (
-    <Card variant="bordered" padding="md">
-      <SectionHeader>Backlinks One Day</SectionHeader>
-    </Card>
+    <div class="p-4">
+      <SectionHeader>Backlinks</SectionHeader>
+      <p class="text-sm mt-2" style={{ color: "var(--color-neutral)" }}>
+        Notes that link to the current note will appear here.
+      </p>
+    </div>
   );
 }
 
 function ForwardLinks() {
   return (
-    <Card variant="bordered" padding="md">
-      <SectionHeader>Forward LInks</SectionHeader>
-    </Card>
+    <div class="p-4">
+      <SectionHeader>Forward Links</SectionHeader>
+      <p class="text-sm mt-2" style={{ color: "var(--color-neutral)" }}>
+        Notes that are linked from the current note will appear here.
+      </p>
+    </div>
   );
 }
 
@@ -124,31 +149,36 @@ function NoteTree() {
   ]);
 
   return (
-    <>
-      <div class="p-4 overflow-y-auto flex-1 hover:pr-2 transition-all duration-300">
-        <ServerNoteTree />
-        <SectionHeader>Notes</SectionHeader>
-
-        <div class="space-y-2">
+    <div class="p-4 overflow-y-auto h-full" style={{ 
+      backgroundColor: "var(--color-base-100)" 
+    }}>
+      <ServerNoteTree />
+      
+      <div class="mt-6">
+        <SectionHeader>Collections</SectionHeader>
+        <div class="space-y-2 mt-2">
           <NavLink href="/" end>
             All Notes
           </NavLink>
-          <NavLink href="/favorites">Favorites</NavLink>
-          <NavLink href="/trash">Trash</NavLink>
-        </div>
-
-        <div class="mt-8 animate-fadeIn">
-          <SubSectionHeader>Recent Notes</SubSectionHeader>
-
-          <ul class="space-y-1">
-            {recentNotes().map((note, index) => (
-              <AnimatedListItem index={index}>
-                <NavLink href={`/note/${note.id}`}>{note.title}</NavLink>
-              </AnimatedListItem>
-            ))}
-          </ul>
+          <NavLink href="/favorites">
+            Favorites
+          </NavLink>
+          <NavLink href="/trash">
+            Trash
+          </NavLink>
         </div>
       </div>
-    </>
+
+      <div class="mt-6 animate-fadeIn">
+        <SubSectionHeader>Recent Notes</SubSectionHeader>
+        <ul class="space-y-1 mt-2">
+          {recentNotes().map((note, index) => (
+            <AnimatedListItem index={index}>
+              <NavLink href={`/note/${note.id}`}>{note.title}</NavLink>
+            </AnimatedListItem>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }
