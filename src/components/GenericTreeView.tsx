@@ -2,7 +2,7 @@ import { For, Show } from "solid-js";
 import { Node, NodeType } from "./treeCollection";
 import { ChevronDown, ChevronRight, FileText, Folder, Tag } from "lucide-solid";
 import { createSignal } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, SetStoreFunction } from "solid-js/store";
 
 interface GenericTreeViewProps {
   collection: {
@@ -41,6 +41,7 @@ interface TreeNodeItemProps {
   isExpanded: boolean;
   toggleExpand: (e: MouseEvent) => void;
   level: number;
+  navMapSetter: SetStoreFunction<navMap>;
 }
 
 function TreeNodeItem(props: TreeNodeItemProps) {
@@ -99,11 +100,12 @@ function TreeNode(props: TreeNodeProps) {
 
   return (
     <div class="tree-node">
-      <TreeNodeItem 
-        node={props.node} 
-        isExpanded={isExpanded()} 
-        toggleExpand={toggleExpand} 
-        level={props.level} 
+      <TreeNodeItem
+        node={props.node}
+        isExpanded={isExpanded()}
+        toggleExpand={toggleExpand}
+        level={props.level}
+        navMapSetter={props.navMapSetter}
       />
 
       <Show when={isExpanded() && hasChildren()}>
