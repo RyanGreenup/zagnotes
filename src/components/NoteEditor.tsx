@@ -1,4 +1,4 @@
-import { createSignal, JSX, createEffect, onMount, Show } from "solid-js";
+import { createSignal, JSX } from "solid-js";
 
 interface NoteEditorProps {
   initialContent?: string;
@@ -10,36 +10,19 @@ interface NoteEditorProps {
 
 /**
  * A component that provides a textarea for editing note content
- * Uses clientOnly directive to prevent hydration mismatches
  */
 export default function NoteEditor(props: NoteEditorProps) {
   const [content, setContent] = createSignal(props.initialContent || "");
-  
-  // This will only run on the client
-  onMount(() => {
-    // Set initial content after mount to ensure client-side rendering
-    if (props.initialContent !== undefined) {
-      setContent(props.initialContent);
-    }
-  });
-
-  // Update content when initialContent prop changes
-  createEffect(() => {
-    if (props.initialContent !== undefined) {
-      setContent(props.initialContent);
-    }
-  });
 
   const handleInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = (event) => {
     const newContent = event.currentTarget.value;
     setContent(newContent);
-    
+
     if (props.onContentChange) {
       props.onContentChange(newContent);
     }
   };
 
-  // Use a static placeholder during SSR that will be replaced during hydration
   return (
     <div class={`note-editor ${props.class || ""}`}>
       <textarea
