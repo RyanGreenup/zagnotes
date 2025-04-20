@@ -11,7 +11,8 @@ import NoteEditor from "~/components/NoteEditor";
 import MyCkEditor from "~/components/MyCkEditor";
 import Preview from "~/components/Preview";
 import { Tabs } from "@ark-ui/solid";
-import { Edit, EyeIcon, Notebook, PackageIcon, Save } from "lucide-solid";
+import { Edit, EyeIcon, Notebook, PackageIcon, Save, Undo } from "lucide-solid";
+import Button from "~/components/Button";
 
 /**
  * Server function to get note body based on ID
@@ -69,6 +70,13 @@ export default function DynamicIdPage() {
     }
   };
 
+  const resetTextBox = () => {
+      const maybe_note_body = noteBody();
+      if (maybe_note_body) {
+        setEditableContent(maybe_note_body);
+      }
+  }
+
   enum TabValues {
     Preview = "preview",
     Edit = "edit",
@@ -76,14 +84,21 @@ export default function DynamicIdPage() {
 
   const SaveButton = () => {
     return (
-      <button
-        onClick={saveChanges}
-        class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-focus transition-colors"
-      >
-        <Save />
-      </button>
+        <Button
+        onClick={saveChanges}>
+        <Save class="w-4 h-4"/>
+        </Button>
     );
   };
+
+  const ResetButton = () => {
+      return (
+          <Button onClick={resetTextBox}>
+          <Undo class="w-4 h-4" />
+          </Button>
+      );
+
+  }
 
   const NoteDetails = () => {
     return (
@@ -107,13 +122,17 @@ export default function DynamicIdPage() {
       <Suspense
         fallback={<p class="text-neutral-500">Loading note content...</p>}
       >
-        <SaveButton />
 
         <NoteEditor
           content={editableContent}
           setContent={setEditableContent}
           placeholder=""
         />
+        <SaveButton />
+        {/*
+          * This isn't needed, just refresh.
+        <ResetButton/>
+        */}
       </Suspense>
     );
   };
@@ -154,11 +173,25 @@ export default function DynamicIdPage() {
         </Tabs.Content>
         <Tabs.Content value={TabValues.Edit}>
           <main class="p-4">
+
+
+
             <SupsenseNoteEditor />
             <LivePreview />
             {/*
             <NoteDetails />
             */}
+
+
+
+
+
+
+
+
+
+
+
           </main>
         </Tabs.Content>
       </Tabs.Root>
