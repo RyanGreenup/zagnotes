@@ -4,6 +4,7 @@ import { Suspense } from "solid-js";
 import ServerTime from "~/components/ServerTime";
 import Layout from "~/components/Layout";
 import "./app.css";
+import "katex/dist/katex.min.css";
 
 /**
  * Main application component

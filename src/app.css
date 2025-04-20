@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @plugin "daisyui" {
   themes: all;
 }
@@ -222,3 +223,76 @@ a[href]:hover {
 /*
  * Additional Styling and Animations
 */
+
+/* Add this to your app.css or create a new CSS file and import it */
+.hljs {
+  @apply p-4 rounded-lg overflow-x-auto my-4; /* Code block styling */
+}
+
+/* If you're using dark mode with prose-dark */
+.prose pre {
+  background-color: transparent !important; /* Remove hljs background */
+}
+
+
+
+
+
+.markdown-alert {
+  position: relative;
+  padding: 16px;
+  margin: 20px 0;
+  border: 1px solid #dfe1e6; /* Default border color */
+  border-radius: 4px;
+  background-color: #f4f5f7; /* Default background color */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+/* Used to style the title part of the alert, specifically enhancing icons and text */
+.markdown-alert-title {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #333333; /* Default text color */
+}
+
+/* SVG icon styling in the title */
+.markdown-alert-title .octicon {
+  fill: #0056b3; /* Default icon color */
+  margin-right: 8px;
+}
+
+/* Specific style for notes */
+.markdown-alert-note {
+  border-color: #b8d4ff;
+  background-color: #e6f3ff;
+}
+
+.markdown-alert-note .markdown-alert-title {
+  color: #0056b3;
+}
+
+.markdown-alert-note .octicon {
+  fill: #0056b3;
+}
+
+/* Paragraph or content within the alert */
+.markdown-alert p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* To ensure responsive behavior */
+@media (max-width: 600px) {
+  .markdown-alert {
+    padding: 12px;
+  }
+
+  .markdown-alert-title .octicon {
+    width: 20px;
+    height: 20px;
+  }
+}
+

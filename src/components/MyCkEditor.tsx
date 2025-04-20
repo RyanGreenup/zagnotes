@@ -1,11 +1,10 @@
-
 /*
-* An example lifted from:
-*
-* https://blog.siposdani87.com/posts/create-rich-textarea-component-in-solid-js-with-ckeditor-5
-*
-* This example does not work and seems unstable, likely best to avoid CKEditor
-*/
+ * An example lifted from:
+ *
+ * https://blog.siposdani87.com/posts/create-rich-textarea-component-in-solid-js-with-ckeditor-5
+ *
+ * This example does not work and seems unstable, likely best to avoid CKEditor
+ */
 
 import "ckeditor5/ckeditor5.css";
 
