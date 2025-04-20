@@ -1,7 +1,7 @@
 import { useParams } from "@solidjs/router";
 import Card from "~/components/Card";
 import NoteEditor from "~/components/NoteEditor";
-import { createResource, createSignal } from "solid-js";
+import { createResource, createSignal, Show } from "solid-js";
 
 /**
  * Server function to get note body based on ID
@@ -64,14 +64,17 @@ export default function DynamicIdPage() {
                         <span class="text-sm text-neutral">{savedStatus()}</span>
                     </div>
                     
-                    {noteBody.loading ? (
-                        <p class="text-neutral-500">Loading note content...</p>
-                    ) : (
-                        <NoteEditor 
-                            initialContent={noteBody()} 
-                            onContentChange={handleContentChange}
-                        />
-                    )}
+                    <Show
+                        when={!noteBody.loading}
+                        fallback={<p class="text-neutral-500">Loading note content...</p>}
+                    >
+                        <div id="editor-container">
+                            <NoteEditor 
+                                initialContent={noteBody()} 
+                                onContentChange={handleContentChange}
+                            />
+                        </div>
+                    </Show>
                 </div>
             </Card>
         </main>

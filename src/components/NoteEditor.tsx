@@ -1,4 +1,4 @@
-import { createSignal, JSX, createEffect, onMount } from "solid-js";
+import { createSignal, JSX, createEffect, onMount, Show } from "solid-js";
 
 interface NoteEditorProps {
   initialContent?: string;
@@ -10,22 +10,22 @@ interface NoteEditorProps {
 
 /**
  * A component that provides a textarea for editing note content
- * Ensures client-only rendering to avoid hydration mismatches
+ * Uses clientOnly directive to prevent hydration mismatches
  */
 export default function NoteEditor(props: NoteEditorProps) {
   const [content, setContent] = createSignal(props.initialContent || "");
-  const [isClient, setIsClient] = createSignal(false);
-
-  // Mark as client-side after component mounts
+  
+  // This will only run on the client
   onMount(() => {
-    setIsClient(true);
     // Set initial content after mount to ensure client-side rendering
-    setContent(props.initialContent || "");
+    if (props.initialContent !== undefined) {
+      setContent(props.initialContent);
+    }
   });
 
   // Update content when initialContent prop changes
   createEffect(() => {
-    if (isClient() && props.initialContent !== undefined) {
+    if (props.initialContent !== undefined) {
       setContent(props.initialContent);
     }
   });
@@ -39,27 +39,22 @@ export default function NoteEditor(props: NoteEditorProps) {
     }
   };
 
+  // Use a static placeholder during SSR that will be replaced during hydration
   return (
     <div class={`note-editor ${props.class || ""}`}>
-      {isClient() ? (
-        <textarea
-          value={content()}
-          onInput={handleInput}
-          placeholder={props.placeholder || "Start typing your note..."}
-          disabled={props.disabled}
-          class="w-full min-h-[200px] p-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
-          style={{
-            "background-color": "var(--color-base-200)",
-            "color": "var(--color-base-content)",
-            "border-color": "var(--color-base-300)",
-            "resize": "vertical",
-          }}
-        />
-      ) : (
-        <div class="w-full min-h-[200px] p-3 rounded-md border bg-base-200 text-base-content animate-pulse">
-          Loading editor...
-        </div>
-      )}
+      <textarea
+        value={content()}
+        onInput={handleInput}
+        placeholder={props.placeholder || "Start typing your note..."}
+        disabled={props.disabled}
+        class="w-full min-h-[200px] p-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
+        style={{
+          "background-color": "var(--color-base-200)",
+          "color": "var(--color-base-content)",
+          "border-color": "var(--color-base-300)",
+          "resize": "vertical",
+        }}
+      />
     </div>
   );
 }
