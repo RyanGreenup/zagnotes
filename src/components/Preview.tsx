@@ -58,8 +58,9 @@ async function renderMarkdownServer(source_content: string): Promise<string> {
   "use server";
   try {
     // Add a 10-second delay to simulate longer server processing
-    await new Promise(resolve => setTimeout(resolve, 10000));
-    
+    // TODO Remove this eventually, this stops as accidently using SSR for live preview
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     const marked_converter = configureMarked();
     return await marked_converter.parse(source_content);
   } catch (error) {
@@ -70,10 +71,10 @@ async function renderMarkdownServer(source_content: string): Promise<string> {
 
 export default function Preview(props: PreviewProps) {
   // Choose the appropriate rendering function based on the prop
-  const renderFunction = props.renderOnServer 
-    ? renderMarkdownServer 
+  const renderFunction = props.renderOnServer
+    ? renderMarkdownServer
     : renderMarkdownClient;
-  
+
   const [html] = createResource(
     () => typeof props.content === 'function' ? props.content() : props.content,
     renderFunction

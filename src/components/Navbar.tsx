@@ -25,7 +25,6 @@ function SearchBar(props: {
       <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
         <IconWrapper icon={Search} size="sm" color="var(--color-neutral)" />
       </div>
-      */}
       <input
         type="text"
         placeholder="fzf notes..."
@@ -40,6 +39,7 @@ function SearchBar(props: {
         value={props.value}
         onInput={props.onInput}
       />
+      */}
     </div>
   );
 }

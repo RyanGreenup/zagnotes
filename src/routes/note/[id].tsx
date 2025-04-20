@@ -122,13 +122,11 @@ export default function DynamicIdPage() {
       <Suspense
         fallback={<p class="text-neutral-500">Loading note content...</p>}
       >
-
         <NoteEditor
           content={editableContent}
           setContent={setEditableContent}
           placeholder=""
         />
-        <SaveButton />
         {/*
           * This isn't needed, just refresh.
         <ResetButton/>
@@ -151,7 +149,7 @@ export default function DynamicIdPage() {
     return (
       <Suspense fallback={<p>Loading Preview</p>}>
         <Card title="Note Preview" variant="bordered" padding="md">
-          <Preview content={noteBody} />
+          <Preview content={noteBody} renderOnServer={true}/>
         </Card>
       </Suspense>
     );
@@ -173,6 +171,8 @@ export default function DynamicIdPage() {
         </Tabs.Content>
         <Tabs.Content value={TabValues.Edit}>
           <main class="p-4">
+
+        <SaveButton />
             <div class="flex flex-col md:flex-row gap-4">
               <div class="w-full md:w-1/2">
                 <SupsenseNoteEditor />
