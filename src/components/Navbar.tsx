@@ -20,9 +20,12 @@ function SearchBar(props: {
 }) {
   return (
     <div class="relative">
+    {/*
+      * This doesn't quite look right
       <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
         <IconWrapper icon={Search} size="sm" color="var(--color-neutral)" />
       </div>
+      */}
       <input
         type="text"
         placeholder="fzf notes..."
