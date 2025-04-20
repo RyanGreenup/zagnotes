@@ -1,6 +1,6 @@
 import { useParams } from "@solidjs/router";
 import Card from "~/components/Card";
-import { createResource, Show, Suspense } from "solid-js";
+import { createResource, Show, Suspense, createSignal, createEffect } from "solid-js";
 import NoteEditor from "~/components/NoteEditor";
 
 /**
@@ -16,16 +16,49 @@ async function getNoteBody(id: string) {
 }
 
 /**
+ * Server function to save note body
+ * @param id The note ID to save
+ * @param content The content to save
+ * @returns Success message
+ */
+async function saveNoteBody(id: string, content: string) {
+  "use server";
+  // This is a placeholder implementation
+  // In the future, this would save to a database
+  console.log(`Saving note ${id}: ${content}`);
+  return { success: true, message: "Note saved successfully" };
+}
+
+/**
  * Dynamic ID route component
  * Displays the ID from the URL for debugging purposes
  * @returns Component that shows the ID in a card
  */
 export default function DynamicIdPage() {
   const params = useParams();
-  const [noteBody, { mutate_note_body, refetch_note_body }] = createResource(
+  const [noteBody, { mutate: mutateNoteBody, refetch: refetchNoteBody }] = createResource(
     () => params.id,
     getNoteBody,
   );
+  
+  // Local editable state that syncs with the resource
+  const [editableContent, setEditableContent] = createSignal<string>("");
+  
+  // Sync the resource data to our local state when it loads
+  createEffect(() => {
+    if (noteBody()) {
+      setEditableContent(noteBody() || "");
+    }
+  });
+  
+  // Function to save changes
+  const saveChanges = async () => {
+    const result = await saveNoteBody(params.id, editableContent());
+    if (result.success) {
+      // Update the resource with our local state to keep them in sync
+      mutateNoteBody(editableContent());
+    }
+  };
 
   return (
     <main class="p-4">
@@ -43,7 +76,19 @@ export default function DynamicIdPage() {
               fallback={<p class="text-neutral-500">Loading note content...</p>}
             >
               <p>{noteBody()}</p>
-              <NoteEditor initialContent={noteBody} placeholder="" />
+              <NoteEditor 
+                content={editableContent} 
+                setContent={setEditableContent}
+                placeholder="" 
+              />
+              <div class="mt-4">
+                <button 
+                  onClick={saveChanges}
+                  class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-focus transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
             </Suspense>
           </div>
         </div>

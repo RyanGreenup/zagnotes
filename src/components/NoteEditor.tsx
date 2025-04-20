@@ -1,32 +1,46 @@
-import { createSignal, JSX } from "solid-js";
+import { JSX, createEffect, Accessor, Setter } from "solid-js";
 
 interface NoteEditorProps {
-  initialContent?: string;
-  onContentChange?: (content: string) => void;
+  /**
+   * Accessor function that returns the current content
+   */
+  content: Accessor<string | undefined>;
+  
+  /**
+   * Setter function to update the content
+   */
+  setContent: Setter<string>;
+  
+  /**
+   * Additional CSS classes
+   */
   class?: string;
+  
+  /**
+   * Placeholder text when content is empty
+   */
   placeholder?: string;
+  
+  /**
+   * Whether the editor is disabled
+   */
   disabled?: boolean;
 }
 
 /**
- * A component that provides a textarea for editing note content
+ * A fully reactive note editor component that works with Solid.js accessors and setters
  */
 export default function NoteEditor(props: NoteEditorProps) {
-  const [content, setContent] = createSignal(props.initialContent || "");
-
+  // Handle input changes
   const handleInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = (event) => {
     const newContent = event.currentTarget.value;
-    setContent(newContent);
-
-    if (props.onContentChange) {
-      props.onContentChange(newContent);
-    }
+    props.setContent(newContent);
   };
 
   return (
     <div class={`note-editor ${props.class || ""}`}>
       <textarea
-        value={content()}
+        value={props.content() || ""}
         onInput={handleInput}
         placeholder={props.placeholder || "Start typing your note..."}
         disabled={props.disabled}
