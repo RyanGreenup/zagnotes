@@ -9,50 +9,74 @@ import { createDirectives } from "marked-directive";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css"; // Import highlight.js CSS
 
-interface previewProps {
+interface PreviewProps {
   content: Accessor<string> | Resource<string>;
+  renderOnServer?: boolean;
 }
 
-const marked_converter = new Marked()
-  .use(markedAlert())
-  .use(extendedTables())
-  .use(
-    markedHighlight({
-      emptyLangClass: "hljs",
-      langPrefix: "hljs language-",
-      highlight(code, lang, info) {
-        const language = hljs.getLanguage(lang) ? lang : "plaintext";
-        return hljs.highlight(code, { language }).value;
-      },
-    }),
-  )
-  .use(markedFootnote())
-  .use(createDirectives())
-  .use(
-    markedKatex({
-      throwOnError: false,
-    }),
-  );
+// Configure marked converter (shared between client and server)
+const configureMarked = () => {
+  return new Marked()
+    .use(markedAlert())
+    .use(extendedTables())
+    .use(
+      markedHighlight({
+        emptyLangClass: "hljs",
+        langPrefix: "hljs language-",
+        highlight(code, lang, info) {
+          const language = hljs.getLanguage(lang) ? lang : "plaintext";
+          return hljs.highlight(code, { language }).value;
+        },
+      }),
+    )
+    .use(markedFootnote())
+    .use(createDirectives())
+    .use(
+      markedKatex({
+        throwOnError: false,
+      }),
+    );
+};
 
 /**
- * Renders markdown content to HTML using marked.js
+ * Renders markdown content to HTML using marked.js on the client
  */
-async function markdown_render(source_content: string): Promise<string> {
+async function renderMarkdownClient(source_content: string): Promise<string> {
   try {
-    // Ensure we properly await the parsing result
+    const marked_converter = configureMarked();
     return await marked_converter.parse(source_content);
   } catch (error) {
-    console.error("Error rendering markdown:", error);
+    console.error("Error rendering markdown on client:", error);
     return `<p class="text-red-500">Error rendering content</p>`;
   }
 }
 
-export default function (props: previewProps) {
-  const [get_html, { mutate, refetch }] = createResource(
-    props.content,
-    markdown_render,
+/**
+ * Renders markdown content to HTML using marked.js on the server
+ */
+async function renderMarkdownServer(source_content: string): Promise<string> {
+  "use server";
+  try {
+    const marked_converter = configureMarked();
+    return await marked_converter.parse(source_content);
+  } catch (error) {
+    console.error("Error rendering markdown on server:", error);
+    return `<p class="text-red-500">Error rendering content on server</p>`;
+  }
+}
+
+export default function Preview(props: PreviewProps) {
+  // Choose the appropriate rendering function based on the prop
+  const renderFunction = props.renderOnServer 
+    ? renderMarkdownServer 
+    : renderMarkdownClient;
+  
+  const [html] = createResource(
+    () => typeof props.content === 'function' ? props.content() : props.content,
+    renderFunction
   );
+
   return (
-    <div class="markdown-preview prose max-w-none" innerHTML={get_html()} />
+    <div class="markdown-preview prose max-w-none" innerHTML={html()} />
   );
 }
