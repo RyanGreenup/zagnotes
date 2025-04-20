@@ -57,6 +57,9 @@ async function renderMarkdownClient(source_content: string): Promise<string> {
 async function renderMarkdownServer(source_content: string): Promise<string> {
   "use server";
   try {
+    // Add a 10-second delay to simulate longer server processing
+    await new Promise(resolve => setTimeout(resolve, 10000));
+    
     const marked_converter = configureMarked();
     return await marked_converter.parse(source_content);
   } catch (error) {
