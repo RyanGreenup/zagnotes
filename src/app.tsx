@@ -12,13 +12,13 @@ import "./app.css";
 export default function App() {
   return (
     <Router
-      root={props => (
+      root={(props) => (
         <Layout>
           <Suspense>
-            <div style={{ margin: "1rem" }}>
-              <ServerTime />
-            </div>
             {props.children}
+            {/*
+            <div style={{ margin: "1rem" }}><ServerTime /> </div>
+            */}
           </Suspense>
         </Layout>
       )}

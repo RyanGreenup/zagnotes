@@ -8,6 +8,10 @@ import {
   createEffect,
 } from "solid-js";
 import NoteEditor from "~/components/NoteEditor";
+import MyCkEditor from "~/components/MyCkEditor";
+import Preview from "~/components/Preview";
+import { Tabs } from "@ark-ui/solid";
+import { Edit, EyeIcon, Notebook, PackageIcon, Save } from "lucide-solid";
 
 /**
  * Server function to get note body based on ID
@@ -65,9 +69,25 @@ export default function DynamicIdPage() {
     }
   };
 
-  return (
-    <main class="p-4">
-      <Card title="URL Parameter Debug" variant="bordered" padding="md">
+  enum TabValues {
+    Preview = "preview",
+    Edit = "edit",
+  }
+
+  const SaveButton = () => {
+    return (
+      <button
+        onClick={saveChanges}
+        class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-focus transition-colors"
+      >
+        <Save />
+      </button>
+    );
+  };
+
+  const NoteDetails = () => {
+    return (
+      <Card title="Editing Region" variant="bordered" padding="md">
         <p> This is note level URL</p>
         <div class="flex flex-col">
           <p class="text-lg font-medium">ID Parameter:</p>
@@ -76,32 +96,72 @@ export default function DynamicIdPage() {
           </code>
 
           <p class="text-lg font-medium mt-4">Note Body:</p>
-          <div class="bg-base-200 p-2 rounded mt-2">
-            <Suspense
-              fallback={<p class="text-neutral-500">Loading note content...</p>}
-            >
-              <NoteEditor
-                content={editableContent}
-                setContent={setEditableContent}
-                placeholder=""
-              />
-              <div class="mt-4">
-                <button
-                  onClick={saveChanges}
-                  class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-focus transition-colors"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </Suspense>
-          </div>
+          <div class="bg-base-200 p-2 rounded mt-2"></div>
         </div>
       </Card>
+    );
+  };
+
+  const SupsenseNoteEditor = () => {
+    return (
+      <Suspense
+        fallback={<p class="text-neutral-500">Loading note content...</p>}
+      >
+        <SaveButton />
+
+        <NoteEditor
+          content={editableContent}
+          setContent={setEditableContent}
+          placeholder=""
+        />
+      </Suspense>
+    );
+  };
+
+  const LivePreview = () => {
+    return (
       <Card title="Preview" variant="bordered" padding="md">
         <Suspense fallback={<p>Loading Preview</p>}>
-          <p>{noteBody()}</p>
+          <Preview content={editableContent} />
         </Suspense>
       </Card>
-    </main>
+    );
+  };
+
+  const ServerSidePreview = () => {
+    return (
+      <Suspense fallback={<p>Loading Preview</p>}>
+        <Card title="Note Preview" variant="bordered" padding="md">
+          <Preview content={noteBody} />
+        </Card>
+      </Suspense>
+    );
+  };
+
+  return (
+    <>
+      <Tabs.Root defaultValue="preview">
+        <Tabs.List>
+          <Tabs.Trigger value={TabValues.Preview} title="Preview">
+            <Notebook />
+          </Tabs.Trigger>
+          <Tabs.Trigger value={TabValues.Edit} title="Edit">
+            <Edit />
+          </Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value={TabValues.Preview}>
+          <ServerSidePreview />
+        </Tabs.Content>
+        <Tabs.Content value={TabValues.Edit}>
+          <main class="p-4">
+            <SupsenseNoteEditor />
+            <LivePreview />
+            {/*
+            <NoteDetails />
+            */}
+          </main>
+        </Tabs.Content>
+      </Tabs.Root>
+    </>
   );
 }
