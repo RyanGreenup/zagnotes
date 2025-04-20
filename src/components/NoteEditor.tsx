@@ -5,22 +5,22 @@ interface NoteEditorProps {
    * Accessor function that returns the current content
    */
   content: Accessor<string | undefined>;
-  
+
   /**
    * Setter function to update the content
    */
   setContent: Setter<string>;
-  
+
   /**
    * Additional CSS classes
    */
   class?: string;
-  
+
   /**
    * Placeholder text when content is empty
    */
   placeholder?: string;
-  
+
   /**
    * Whether the editor is disabled
    */
@@ -32,7 +32,9 @@ interface NoteEditorProps {
  */
 export default function NoteEditor(props: NoteEditorProps) {
   // Handle input changes
-  const handleInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = (event) => {
+  const handleInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = (
+    event,
+  ) => {
     const newContent = event.currentTarget.value;
     props.setContent(newContent);
   };
@@ -47,9 +49,9 @@ export default function NoteEditor(props: NoteEditorProps) {
         class="w-full min-h-[200px] p-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
         style={{
           "background-color": "var(--color-base-200)",
-          "color": "var(--color-base-content)",
+          color: "var(--color-base-content)",
           "border-color": "var(--color-base-300)",
-          "resize": "vertical",
+          resize: "vertical",
         }}
       />
     </div>

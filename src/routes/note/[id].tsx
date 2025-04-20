@@ -1,6 +1,12 @@
 import { useParams } from "@solidjs/router";
 import Card from "~/components/Card";
-import { createResource, Show, Suspense, createSignal, createEffect } from "solid-js";
+import {
+  createResource,
+  Show,
+  Suspense,
+  createSignal,
+  createEffect,
+} from "solid-js";
 import NoteEditor from "~/components/NoteEditor";
 
 /**
@@ -36,24 +42,23 @@ async function saveNoteBody(id: string, content: string) {
  */
 export default function DynamicIdPage() {
   const params = useParams();
-  const [noteBody, { mutate: mutateNoteBody, refetch: refetchNoteBody }] = createResource(
-    () => params.id,
-    getNoteBody,
-  );
-  
+  const get_note_id = () => params.id;
+  const [noteBody, { mutate: mutateNoteBody, refetch: refetchNoteBody }] =
+    createResource(get_note_id, getNoteBody);
+
   // Local editable state that syncs with the resource
   const [editableContent, setEditableContent] = createSignal<string>("");
-  
+
   // Sync the resource data to our local state when it loads
   createEffect(() => {
     if (noteBody()) {
       setEditableContent(noteBody() || "");
     }
   });
-  
+
   // Function to save changes
   const saveChanges = async () => {
-    const result = await saveNoteBody(params.id, editableContent());
+    const result = await saveNoteBody(get_note_id(), editableContent());
     if (result.success) {
       // Update the resource with our local state to keep them in sync
       mutateNoteBody(editableContent());
@@ -75,14 +80,13 @@ export default function DynamicIdPage() {
             <Suspense
               fallback={<p class="text-neutral-500">Loading note content...</p>}
             >
-              <p>{noteBody()}</p>
-              <NoteEditor 
-                content={editableContent} 
+              <NoteEditor
+                content={editableContent}
                 setContent={setEditableContent}
-                placeholder="" 
+                placeholder=""
               />
               <div class="mt-4">
-                <button 
+                <button
                   onClick={saveChanges}
                   class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-focus transition-colors"
                 >
@@ -92,6 +96,11 @@ export default function DynamicIdPage() {
             </Suspense>
           </div>
         </div>
+      </Card>
+      <Card title="Preview" variant="bordered" padding="md">
+        <Suspense fallback={<p>Loading Preview</p>}>
+          <p>{noteBody()}</p>
+        </Suspense>
       </Card>
     </main>
   );
