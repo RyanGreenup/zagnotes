@@ -173,25 +173,17 @@ export default function DynamicIdPage() {
         </Tabs.Content>
         <Tabs.Content value={TabValues.Edit}>
           <main class="p-4">
-
-
-
-            <SupsenseNoteEditor />
-            <LivePreview />
+            <div class="flex flex-col md:flex-row gap-4">
+              <div class="w-full md:w-1/2">
+                <SupsenseNoteEditor />
+              </div>
+              <div class="w-full md:w-1/2">
+                <LivePreview />
+              </div>
+            </div>
             {/*
             <NoteDetails />
             */}
-
-
-
-
-
-
-
-
-
-
-
           </main>
         </Tabs.Content>
       </Tabs.Root>
