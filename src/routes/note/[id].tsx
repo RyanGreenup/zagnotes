@@ -14,6 +14,7 @@ async function getNoteBody(id: string) {
     return `This is the default note body for ID: ${id}`;
 }
 
+
 /**
  * Dynamic ID route component
  * Displays the ID from the URL for debugging purposes
