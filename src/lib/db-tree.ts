@@ -20,7 +20,7 @@ export interface TreeNode {
  */
 export async function getNoteTree(): Promise<TreeNode> {
   const db = await getDbConnection({ readonly: true });
-  
+
   try {
     return buildNoteTree(db);
   } catch (error) {
@@ -46,7 +46,7 @@ function buildNoteTree(db: any): TreeNode {
       [id: string]: {
         id: string;
         title: string;
-        name: string; 
+        name: string;
         type: "file" | "folder";
         parent_id: string;
         children: TreeNode[];
@@ -170,7 +170,7 @@ function cleanTree(node: any): TreeNode {
         type: child.type
       };
     });
-    
+
     return {
       id: node.id,
       name: node.name,
@@ -198,26 +198,26 @@ export async function createFolder(
   parentId?: string
 ): Promise<{ id: string; success: boolean; message: string }> {
   const db = await getDbConnection();
-  
+
   try {
     // Generate a unique ID for the folder
     const id = `folder_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-    
+
     db.prepare(
-      'INSERT INTO folders (id, title, parent_id, created_time, updated_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
+      `INSERT INTO folders (id, title, parent_id, created_time, updated_time) VALUES (?, ?, ?, strftime('%s', CURRENT_TIMESTAMP), strftime('%s', CURRENT_TIMESTAMP))`
     ).run(id, title, parentId || null);
-    
-    return { 
+
+    return {
       id,
-      success: true, 
-      message: "Folder created successfully" 
+      success: true,
+      message: "Folder created successfully"
     };
   } catch (error) {
     console.error('Error creating folder:', error);
-    return { 
+    return {
       id: '',
-      success: false, 
-      message: `Error creating folder: ${error instanceof Error ? error.message : String(error)}` 
+      success: false,
+      message: `Error creating folder: ${error instanceof Error ? error.message : String(error)}`
     };
   }
 }
@@ -235,53 +235,53 @@ export async function moveItem(
   type: 'note' | 'folder'
 ): Promise<{ success: boolean; message: string }> {
   const db = await getDbConnection();
-  
+
   try {
     if (type === 'folder') {
       // Check for circular references if moving a folder
       if (parentId) {
         let currentParentId = parentId;
         const visited = new Set<string>();
-        
+
         while (currentParentId) {
           if (currentParentId === id) {
-            return { 
-              success: false, 
-              message: "Cannot move a folder into its own descendant (would create circular reference)" 
+            return {
+              success: false,
+              message: "Cannot move a folder into its own descendant (would create circular reference)"
             };
           }
-          
+
           if (visited.has(currentParentId)) {
-            return { 
-              success: false, 
-              message: "Detected circular reference in folder structure" 
+            return {
+              success: false,
+              message: "Detected circular reference in folder structure"
             };
           }
-          
+
           visited.add(currentParentId);
-          
+
           // Get the parent of the current parent
           const parentFolder = db.prepare('SELECT parent_id FROM folders WHERE id = ?').get(currentParentId);
           if (!parentFolder || !parentFolder.parent_id) break;
-          
+
           currentParentId = parentFolder.parent_id;
         }
       }
-      
+
       // Move the folder
-      db.prepare('UPDATE folders SET parent_id = ?, updated_time = CURRENT_TIMESTAMP WHERE id = ?')
+      db.prepare('UPDATE folders SET parent_id = ?, updated_time = strftime(%s, CURRENT_TIMESTAMP) WHERE id = ?')
         .run(parentId, id);
     } else {
       // Move the note
-      db.prepare('UPDATE notes SET parent_id = ?, updated_time = CURRENT_TIMESTAMP WHERE id = ?')
+      db.prepare('UPDATE notes SET parent_id = ?, updated_time = strftime(%s, CURRENT_TIMESTAMP) WHERE id = ?')
         .run(parentId, id);
     }
-    
+
     return { success: true, message: `${type === 'folder' ? 'Folder' : 'Note'} moved successfully` };
   } catch (error) {
     console.error(`Error moving ${type}:`, error);
-    return { 
-      success: false, 
+    return {
+      success: false,
       message: `Error moving ${type}: ${error instanceof Error ? error.message : String(error)}`
     };
   }

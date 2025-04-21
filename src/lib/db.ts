@@ -11,7 +11,7 @@ import { getDbConnection } from './db-connection';
  */
 export async function getNote(id: string): Promise<{ body: string; title?: string } | null> {
   const db = await getDbConnection({ readonly: true });
-  
+
   try {
     // Get note content with title if available
     const note = db.prepare('SELECT body, title FROM notes WHERE id = ?').get(id);
@@ -30,48 +30,48 @@ export async function getNote(id: string): Promise<{ body: string; title?: strin
  * @returns Success status
  */
 export async function saveNote(
-  id: string, 
+  id: string,
   content: string,
   title?: string
 ): Promise<{ success: boolean; message: string }> {
   const db = await getDbConnection();
-  
+
   try {
     // Begin a transaction for data consistency
     const transaction = db.transaction((noteId, noteContent, noteTitle) => {
       // Check if the note exists
       const note = db.prepare('SELECT id, title FROM notes WHERE id = ?').get(noteId);
-      
+
       if (note) {
         // Update existing note
         if (noteTitle) {
           // Update both content and title
           db.prepare(
-            'UPDATE notes SET body = ?, title = ?, updated_time = CURRENT_TIMESTAMP WHERE id = ?'
+            `UPDATE notes SET body = ?, title = ?, updated_time = strftime('%s', CURRENT_TIMESTAMP) WHERE id = ?`
           ).run(noteContent, noteTitle, noteId);
         } else {
           // Update only content
           db.prepare(
-            'UPDATE notes SET body = ?, updated_time = CURRENT_TIMESTAMP WHERE id = ?'
+            `UPDATE notes SET body = ?, updated_time = strftime('%s', CURRENT_TIMESTAMP) WHERE id = ?`
           ).run(noteContent, noteId);
         }
       } else {
         // Create new note (use provided title or ID as fallback)
         db.prepare(
-          'INSERT INTO notes (id, title, body, created_time, updated_time) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
+          `INSERT INTO notes (id, title, body, created_time, updated_time) VALUES (?, ?, ?, strftime('%s', CURRENT_TIMESTAMP), strftime('%s', CURRENT_TIMESTAMP))`
         ).run(noteId, noteTitle || noteId, noteContent);
       }
     });
-    
+
     // Execute the transaction
     transaction(id, content, title);
-    
+
     return { success: true, message: "Note saved successfully" };
   } catch (error) {
     console.error(`Error saving note ${id}:`, error);
-    return { 
-      success: false, 
-      message: `Error saving note: ${error instanceof Error ? error.message : String(error)}` 
+    return {
+      success: false,
+      message: `Error saving note: ${error instanceof Error ? error.message : String(error)}`
     };
   }
 }

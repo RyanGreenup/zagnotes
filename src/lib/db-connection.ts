@@ -20,21 +20,21 @@ export async function getDbConnection(options: { readonly?: boolean } = {}) {
 
   // Import database module dynamically for server-side only code
   const Database = await import('better-sqlite3').then(module => module.default);
-  
+
   const dbPath = process.env.DB_PATH;
   if (!dbPath) {
     throw new Error('Database path not found in environment variables');
   }
-  
+
   try {
     // Create/open the database connection
-    db = new Database(dbPath, options);
+    db = new Database(dbPath, {readonly: false});
     isInitialized = true;
-    
+
     // Set pragmas for better performance
     db.pragma('journal_mode = WAL');
     db.pragma('synchronous = NORMAL');
-    
+
     return db;
   } catch (error) {
     console.error('Failed to initialize database:', error);
@@ -60,7 +60,7 @@ export function closeDbConnection() {
  */
 export async function getDbStatus(): Promise<{ connected: boolean; path: string | null }> {
   const dbPath = process.env.DB_PATH;
-  
+
   return {
     connected: isInitialized && db !== null,
     path: dbPath || null
@@ -73,32 +73,32 @@ export async function getDbStatus(): Promise<{ connected: boolean; path: string 
  */
 export async function initializeDbSchema() {
   const db = await getDbConnection();
-  
+
   // Create tables in a transaction
   db.exec(`
     BEGIN TRANSACTION;
-    
+
     -- Notes table
     CREATE TABLE IF NOT EXISTS notes (
       id TEXT PRIMARY KEY,
       title TEXT,
       body TEXT,
       parent_id TEXT,
-      created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created_time TIMESTAMP DEFAULT strftime('%s', CURRENT_TIMESTAMP),
+      updated_time TIMESTAMP DEFAULT strftime('%s', CURRENT_TIMESTAMP)
     );
-    
+
     -- Folders table
     CREATE TABLE IF NOT EXISTS folders (
       id TEXT PRIMARY KEY,
       title TEXT,
       parent_id TEXT,
-      created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created_time TIMESTAMP DEFAULT strftime('%s', CURRENT_TIMESTAMP),
+      updated_time TIMESTAMP DEFAULT strftime('%s', CURRENT_TIMESTAMP)
     );
-    
+
     COMMIT;
   `);
-  
+
   return db;
 }
