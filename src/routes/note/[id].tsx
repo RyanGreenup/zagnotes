@@ -143,12 +143,23 @@ export default function DynamicIdPage() {
 
   const ServerSidePreview = () => {
     return (
-      <Suspense fallback={<p>Loading Preview</p>}>
-        // After this change, the preview for default content appears to be double bordered, as if it was in two cards. Review the Preview code and this code to make sure that this is consistent and professional looking AI!
-        <Card title="Note Preview" variant="bordered" padding="md">
-          <Preview content={noteBody} renderOnServer={true} />
-        </Card>
-      </Suspense>
+      <main class="container mx-auto px-4 py-6 max-w-7xl">
+        <h1 class="text-2xl font-bold mb-6 truncate">
+          {params.id.replace(/-/g, ' ')}
+        </h1>
+        
+        <div class="bg-base-200 rounded-lg shadow-md overflow-hidden border border-base-300">
+          <div class="bg-base-300 px-4 py-2 border-b border-base-300 flex items-center">
+            <EyeIcon class="w-4 h-4 mr-2" />
+            <h2 class="font-medium">Note Preview</h2>
+          </div>
+          <div class="p-0">
+            <Suspense fallback={<div class="p-4 animate-pulse">Loading preview...</div>}>
+              <Preview content={noteBody} renderOnServer={true} />
+            </Suspense>
+          </div>
+        </div>
+      </main>
     );
   };
 
