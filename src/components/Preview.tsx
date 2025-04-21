@@ -57,7 +57,6 @@ async function renderMarkdownClient(source_content: string): Promise<string> {
 async function renderMarkdownServer(source_content: string): Promise<string> {
   "use server";
   try {
-
     // NOTE this is handy to simulate SSR
     // TODO Remove this eventually, this stops as accidently using SSR for live preview
     // await new Promise(resolve => setTimeout(resolve, 500));
@@ -77,15 +76,19 @@ export default function Preview(props: PreviewProps) {
     : renderMarkdownClient;
 
   const [html] = createResource(
-    () => typeof props.content === 'function' ? props.content() : props.content,
-    renderFunction
+    () =>
+      typeof props.content === "function" ? props.content() : props.content,
+    renderFunction,
   );
 
   return (
-    <div 
-      class="markdown-preview prose max-w-none h-full overflow-auto p-4 rounded-md bg-base-100 shadow-sm" 
-      style={{ "font-size": "var(--font-size-base)", "line-height": "var(--line-height-base)" }}
-      innerHTML={html()} 
+    <div
+      class="markdown-preview prose max-w-none h-full overflow-auto p-4 rounded-md bg-base-100 shadow-sm"
+      style={{
+        "font-size": "var(--font-size-base)",
+        "line-height": "var(--line-height-base)",
+      }}
+      innerHTML={html()}
     />
   );
 }

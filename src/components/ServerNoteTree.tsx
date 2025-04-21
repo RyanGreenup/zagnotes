@@ -1,4 +1,10 @@
-import { createResource, Show, Suspense, createSignal, createEffect } from "solid-js";
+import {
+  createResource,
+  Show,
+  Suspense,
+  createSignal,
+  createEffect,
+} from "solid-js";
 import { RootProvider as GenericTreeView } from "./NoteTree";
 import { fetchTreeData, createCollection } from "./treeCollection";
 import Card from "./Card";
@@ -25,13 +31,13 @@ function RefreshButton(props: { onRefresh: () => void }) {
 export default function ServerNoteTree() {
   // Create a resource that fetches tree data from the server
   const [treeData, { refetch }] = createResource(fetchTreeData);
-  
+
   // Get current note ID from route params
   const params = useParams();
-  
+
   // State for selected item in tree
   const [selectedItem, setSelectedItem] = createSignal<string[]>([]);
-  
+
   // Effect to update tree selection when note ID changes
   createEffect(() => {
     if (params.id) {
@@ -59,8 +65,8 @@ export default function ServerNoteTree() {
         <Show when={treeData()}>
           <div class="mt-2 mb-4">
             {/* Create a collection from the fetched data and pass to RootProvider */}
-            <GenericTreeView 
-              collection={createCollection(treeData()!)} 
+            <GenericTreeView
+              collection={createCollection(treeData()!)}
               selectedValues={selectedItem()}
             />
           </div>
@@ -71,4 +77,3 @@ export default function ServerNoteTree() {
     </>
   );
 }
-

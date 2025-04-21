@@ -17,9 +17,9 @@ interface ToolbarButtonProps {
  */
 export default function ToolbarButton(props: ToolbarButtonProps) {
   return (
-    <Button 
-      onClick={props.onClick} 
-      variant="ghost" 
+    <Button
+      onClick={props.onClick}
+      variant="ghost"
       class={`h-8 min-h-0 px-2 ${props.class || ""}`}
       ariaLabel={props.ariaLabel}
       disabled={props.disabled}

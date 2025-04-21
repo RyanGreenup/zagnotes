@@ -1,11 +1,23 @@
 import { createEffect, onCleanup, onMount, Accessor, Setter } from "solid-js";
 import { EditorState, Extension } from "@codemirror/state";
-import { EditorView, keymap, highlightSpecialChars, drawSelection, lineNumbers, gutter} from "@codemirror/view";
-import { defaultKeymap, history, historyKeymap} from "@codemirror/commands";
+import {
+  EditorView,
+  keymap,
+  highlightSpecialChars,
+  drawSelection,
+  lineNumbers,
+  gutter,
+} from "@codemirror/view";
+import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
-import { syntaxHighlighting, defaultHighlightStyle, HighlightStyle, foldGutter } from "@codemirror/language";
-import { vim } from "@replit/codemirror-vim"
+import {
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  HighlightStyle,
+  foldGutter,
+} from "@codemirror/language";
+import { vim } from "@replit/codemirror-vim";
 
 import { tags } from "@lezer/highlight";
 import { foldService, foldEffect } from "@codemirror/language";
@@ -54,16 +66,32 @@ export default function CodeMirrorNoteEditor(props: CodeMirrorNoteEditorProps) {
     { tag: tags.heading5, fontSize: "1.05em", fontWeight: "bold" },
     { tag: tags.heading6, fontSize: "1em", fontWeight: "bold" },
     { tag: tags.strong, fontWeight: "bold", color: "var(--color-primary)" },
-    { tag: tags.emphasis, fontStyle: "italic", color: "var(--color-secondary)" },
+    {
+      tag: tags.emphasis,
+      fontStyle: "italic",
+      color: "var(--color-secondary)",
+    },
     { tag: tags.strikethrough, textDecoration: "line-through" },
-    { tag: tags.link, color: "var(--color-primary)", textDecoration: "underline" },
-    { tag: tags.url, color: "var(--color-primary)", textDecoration: "underline" },
+    {
+      tag: tags.link,
+      color: "var(--color-primary)",
+      textDecoration: "underline",
+    },
+    {
+      tag: tags.url,
+      color: "var(--color-primary)",
+      textDecoration: "underline",
+    },
     { tag: tags.quote, color: "var(--color-accent)", fontStyle: "italic" },
     { tag: tags.list, color: "var(--color-base-content)" },
     { tag: tags.content, color: "var(--color-base-content)" },
-    { tag: tags.monospace, color: "#a3742c", backgroundColor: "rgba(0,0,0,0.05)" },
+    {
+      tag: tags.monospace,
+      color: "#a3742c",
+      backgroundColor: "rgba(0,0,0,0.05)",
+    },
     { tag: tags.meta, color: "#404740" },
-    { tag: tags.comment, color: "#506050", fontStyle: "italic" }
+    { tag: tags.comment, color: "#506050", fontStyle: "italic" },
   ]);
 
   // Build the basic extensions
@@ -79,7 +107,7 @@ export default function CodeMirrorNoteEditor(props: CodeMirrorNoteEditorProps) {
     markdown({
       base: markdownLanguage,
       codeLanguages: languages,
-      addKeymap: true
+      addKeymap: true,
     }),
     // Apply both default and custom markdown highlighting
     syntaxHighlighting(defaultHighlightStyle),
@@ -94,35 +122,35 @@ export default function CodeMirrorNoteEditor(props: CodeMirrorNoteEditorProps) {
       "&": {
         height: "100%",
         fontSize: "var(--font-size-base)",
-        lineHeight: "var(--line-height-base)"
+        lineHeight: "var(--line-height-base)",
       },
       ".cm-scroller": {
         fontFamily: "monospace",
         overflow: "auto",
-        height: "100%"
+        height: "100%",
       },
       ".cm-content": {
         caretColor: "var(--color-primary)",
         color: "var(--color-base-content)",
-        padding: "1rem"
+        padding: "1rem",
       },
       ".cm-line": {
-        padding: "0"
+        padding: "0",
       },
       ".cm-lineNumbers": {
         fontSize: "0.85rem",
         fontFamily: "monospace",
         paddingRight: "12px",
         backgroundColor: "var(--color-base-300)",
-        color: "var(--color-base-content-secondary)"
+        color: "var(--color-base-content-secondary)",
       },
       ".cm-gutters": {
         backgroundColor: "var(--color-base-300)",
         color: "var(--color-base-content-secondary)",
         border: "none",
-        borderRight: "1px solid var(--color-base-content-tertiary)"
-      }
-    })
+        borderRight: "1px solid var(--color-base-content-tertiary)",
+      },
+    }),
   ];
 
   // Initialize the editor with a delay to ensure the DOM is ready
@@ -135,13 +163,13 @@ export default function CodeMirrorNoteEditor(props: CodeMirrorNoteEditorProps) {
         // Create editor state
         const state = EditorState.create({
           doc: props.content() || "",
-          extensions: getExtensions()
+          extensions: getExtensions(),
         });
 
         // Create editor view
         editorView = new EditorView({
           state,
-          parent: editorRef
+          parent: editorRef,
         });
 
         // Set the disabled state if needed
@@ -165,13 +193,17 @@ export default function CodeMirrorNoteEditor(props: CodeMirrorNoteEditorProps) {
   createEffect(() => {
     const currentContent = props.content() || "";
 
-    if (editorView && isInitialized && editorView.state.doc.toString() !== currentContent) {
+    if (
+      editorView &&
+      isInitialized &&
+      editorView.state.doc.toString() !== currentContent
+    ) {
       editorView.dispatch({
         changes: {
           from: 0,
           to: editorView.state.doc.length,
-          insert: currentContent
-        }
+          insert: currentContent,
+        },
       });
     }
   });
@@ -181,7 +213,7 @@ export default function CodeMirrorNoteEditor(props: CodeMirrorNoteEditorProps) {
     if (editorView && isInitialized && editorView.contentDOM) {
       editorView.contentDOM.setAttribute(
         "contenteditable",
-        props.disabled ? "false" : "true"
+        props.disabled ? "false" : "true",
       );
     }
   });
