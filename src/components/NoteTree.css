@@ -1,59 +1,147 @@
 /*
- * Focused items in the Ark UI Tree
+ * Professional VSCode-like styling for Ark UI Tree
  */
 
-/* Professional focus styling with animations */
+/* Base styling for all tree components */
+[data-scope="tree-view"] {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  user-select: none;
+}
+
+/* Tree item styling */
+[data-part="item"],
+[data-part="branch-control"] {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0;
+  transition: background-color 0.1s ease;
+  cursor: pointer;
+  height: 1.5rem;
+}
+
+/* Hover state for items */
+[data-part="item"]:hover,
+[data-part="branch-control"]:hover {
+  background-color: var(--color-base-200);
+}
+
+/* Active/selected state */
+[data-selected="true"][data-scope="tree-view"] {
+  background-color: var(--color-base-300);
+  font-weight: 500;
+}
+
+/* Focus styling - subtle and professional */
 [data-focus][data-scope="tree-view"] {
-  background-color: var(--color-primary);
-  color: var(--color-primary-content);
+  background-color: var(--color-base-300);
   outline: none;
   position: relative;
-  box-shadow: 0 0 0 1px var(--color-primary);
-  transform: translateX(2px);
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border-radius: var(--radius-field);
 }
 
-/* Subtle pulse animation for focused items */
-@keyframes focusPulse {
-  0% {
-    box-shadow: 0 0 0 1px var(--color-primary);
-  }
-  50% {
-    box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.4);
-  }
-  100% {
-    box-shadow: 0 0 0 1px var(--color-primary);
-  }
+/* Active focus - when item is both focused and selected */
+[data-focus][data-selected="true"][data-scope="tree-view"] {
+  background-color: var(--color-primary-content);
+  color: var(--color-primary);
 }
 
+/* Branch indicator rotation for expanded state */
+[data-state="open"] [data-part="branch-indicator"] {
+  transform: rotate(90deg);
+}
 
-@keyframes slideIn {
+/* Branch content animation */
+[data-part="branch-content"] {
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
   from {
-    transform: scaleY(0);
-    opacity: 0;
+    max-height: 0;
+    opacity: 0.8;
   }
   to {
-    transform: scaleY(1);
+    max-height: 1000px;
     opacity: 1;
   }
 }
 
-/* Apply pulse animation after a short delay */
-[data-focus][data-scope="tree-view"]:not(:active) {
-  animation: focusPulse 2s ease-in-out infinite;
-  animation-delay: 0.5s;
+/* Indent guide styling - VSCode-like */
+[data-part="branch-indent-guide"] {
+  border-left: 1px solid var(--color-base-300);
+  margin-left: 0.5rem;
+  padding-left: 0.5rem;
+  height: 100%;
 }
 
-/* Scale text slightly for emphasis */
-[data-focus][data-scope="tree-view"] span {
-  transform: scale(1.02);
-  transform-origin: left;
-  transition: transform 0.2s ease;
+/* Improve spacing for branch text and icons */
+[data-part="branch-text"],
+[data-part="item-text"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-/* Improve icon visibility in focused state */
-[data-focus][data-scope="tree-view"] svg {
-  color: var(--color-primary-content);
-  filter: drop-shadow(0 0 1px var(--color-primary-content));
+/* Icon styling */
+[data-scope="tree-view"] svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+  color: var(--color-base-content);
+}
+
+/* Folder icon in open state */
+[data-state="open"] [data-part="branch-text"] svg {
+  color: var(--color-primary);
+  opacity: 0.9;
+}
+
+/* File icon styling */
+[data-part="item-text"] svg {
+  color: var(--color-secondary);
+}
+
+/* Branch/folder expansion transition */
+[data-part="branch-indicator"] {
+  transition: transform 0.15s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+/* Tree container styling */
+[data-scope="tree-view"] > ul {
+  border-radius: var(--radius-box);
+  background-color: var(--color-base-100);
+  overflow: hidden;
+}
+
+/* Subtle depth indicators */
+/*
+These should be left commented out now
+*/
+/*
+[data-depth="1"] {
+  padding-left: 1rem;
+}
+
+[data-depth="2"] {
+  padding-left: 2rem;
+}
+
+[data-depth="3"] {
+  padding-left: 3rem;
+}
+*/
+
+/* Node name text styling */
+[data-part="branch-text"] span,
+[data-part="item-text"] span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.875rem;
 }
