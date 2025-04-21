@@ -157,14 +157,14 @@ export default function DynamicIdPage() {
     <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
       <main class="p-4">
         <SaveButton />
-        <div class="flex flex-col md:flex-row gap-4">
-          <div class="w-full md:w-1/2">
-            <SupsenseNoteEditor />
-          </div>
-          <div class="w-full md:w-1/2">
-            <LivePreview />
-          </div>
-        </div>
+    <div class="flex flex-col md:flex-row gap-4 h-screen">
+      <div class="w-full md:w-1/2 flex-1 overflow-y-auto">
+        <SupsenseNoteEditor />
+      </div>
+      <div class="w-full md:w-1/2 flex-1 overflow-y-auto">
+        <LivePreview />
+      </div>
+    </div>
         {/*
             <NoteDetails />
             */}
