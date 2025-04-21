@@ -207,51 +207,84 @@ export function Tree(props: TreeProps) {
     const visible = getVisibleNodes();
     const currentIndex = visible.indexOf(currentId);
 
+    function focusDown(e: KeyboardEvent): void {
+      e.preventDefault();
+      if (currentIndex < visible.length - 1) {
+        setFocusedId(visible[currentIndex + 1]);
+      }
+    }
+
+    function focusUp(e: KeyboardEvent): void {
+      e.preventDefault();
+      if (currentIndex > 0) {
+        setFocusedId(visible[currentIndex - 1]);
+      }
+    }
+
+    function expandFocused(e: KeyboardEvent): void {
+      e.preventDefault();
+      // Expand folder if collapsed
+      if (isFolder(node) && !node.isExpanded) {
+        toggleNode(currentId);
+      }
+    }
+
+    function collapseFocused(e: KeyboardEvent): void {
+      e.preventDefault();
+      if (isFolder(node) && node.isExpanded) {
+        // Collapse folder
+        toggleNode(currentId);
+      } else if (node.parent && node.parent !== props.collection.rootNode.id) {
+        // Move focus to parent
+        setFocusedId(node.parent);
+      }
+    }
+
+    function expandSpaceFocused(e: KeyboardEvent): void {
+      e.preventDefault();
+      if (isFolder(node)) {
+        toggleNode(currentId);
+      } else {
+        navigate(`/note/${currentId}`);
+      }
+    }
+
     switch (e.key) {
       case "ArrowDown":
-        e.preventDefault();
-        if (currentIndex < visible.length - 1) {
-          setFocusedId(visible[currentIndex + 1]);
-        }
+        focusDown(e);
+        break;
+
+      case "j":
+        focusDown(e);
         break;
 
       case "ArrowUp":
-        e.preventDefault();
-        if (currentIndex > 0) {
-          setFocusedId(visible[currentIndex - 1]);
-        }
+        focusUp(e);
+        break;
+
+      case "k":
+        focusUp(e);
         break;
 
       case "ArrowRight":
-        e.preventDefault();
-        // Expand folder if collapsed
-        if (isFolder(node) && !node.isExpanded) {
-          toggleNode(currentId);
-        }
+        expandFocused(e);
+        break;
+
+      case "l":
+        expandFocused(e);
         break;
 
       case "ArrowLeft":
-        e.preventDefault();
-        if (isFolder(node) && node.isExpanded) {
-          // Collapse folder
-          toggleNode(currentId);
-        } else if (
-          node.parent &&
-          node.parent !== props.collection.rootNode.id
-        ) {
-          // Move focus to parent
-          setFocusedId(node.parent);
-        }
+        collapseFocused(e);
+        break;
+
+      case "h":
+        collapseFocused(e);
         break;
 
       case "Enter":
       case " ":
-        e.preventDefault();
-        if (isFolder(node)) {
-          toggleNode(currentId);
-        } else {
-          navigate(`/note/${currentId}`);
-        }
+        expandSpaceFocused(e);
         break;
     }
   }
