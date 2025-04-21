@@ -86,13 +86,13 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
           </TreeView.Item>
         }
       >
-        <TreeView.Branch class="animate-fadeIn">
+        <TreeView.Branch>
           <TreeView.BranchControl
-            class="py-1.5 px-3 hover:bg-opacity-80 flex items-center w-full cursor-pointer transition-all duration-200"
+            class="py-1.5 px-3 hover:bg-opacity-80 flex items-center w-full cursor-pointer"
             data-focus-visible-within:bg-primary-content
             data-focus:bg-primary-content
           >
-            <TreeView.BranchIndicator class="transition-transform duration-200 transform mr-1">
+            <TreeView.BranchIndicator class="mr-1">
               <ChevronRightIcon class="h-4 w-4 opacity-70" />
             </TreeView.BranchIndicator>
             <TreeView.BranchText class="flex items-center gap-2 font-medium">
@@ -101,7 +101,7 @@ const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
             </TreeView.BranchText>
           </TreeView.BranchControl>
           <TreeView.BranchContent class="pl-4 mt-1">
-            <TreeView.BranchIndentGuide class="border-l-2 border-opacity-30 ml-2 pl-2" />
+            <TreeView.BranchIndentGuide class="border-l border-base-300 ml-2 pl-2" />
             <For each={node.children}>
               {(child, index) => (
                 <TreeNode node={child} indexPath={[...indexPath, index()]} />

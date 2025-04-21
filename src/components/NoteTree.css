@@ -37,7 +37,6 @@
 [data-focus][data-scope="tree-view"] {
   background-color: var(--color-base-300);
   outline: none;
-  position: relative;
 }
 
 /* Active focus - when item is both focused and selected */
@@ -47,32 +46,23 @@
 }
 
 /* Branch indicator rotation for expanded state */
+[data-part="branch-indicator"] {
+  transition: transform 0.15s ease;
+}
+
 [data-state="open"] [data-part="branch-indicator"] {
   transform: rotate(90deg);
 }
 
-/* Branch content animation */
+/* Branch content transition - simple and clean */
 [data-part="branch-content"] {
   overflow: hidden;
-  animation: slideDown 0.2s ease-out;
+  transition: height 0.15s ease, opacity 0.15s ease;
 }
 
-@keyframes slideDown {
-  from {
-    max-height: 0;
-    opacity: 0.8;
-  }
-  to {
-    max-height: 1000px;
-    opacity: 1;
-  }
-}
-
-/* Indent guide styling - VSCode-like */
+/* VSCode-like indent guides */
 [data-part="branch-indent-guide"] {
-  border-left: 1px solid var(--color-base-300);
-  margin-left: 0.5rem;
-  padding-left: 0.5rem;
+  opacity: 0.6;
   height: 100%;
 }
 
@@ -102,40 +92,12 @@
   color: var(--color-secondary);
 }
 
-/* Branch/folder expansion transition */
-[data-part="branch-indicator"] {
-  transition: transform 0.15s ease-in-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-}
-
 /* Tree container styling */
 [data-scope="tree-view"] > ul {
   border-radius: var(--radius-box);
   background-color: var(--color-base-100);
   overflow: hidden;
 }
-
-/* Subtle depth indicators */
-/*
-These should be left commented out now
-*/
-/*
-[data-depth="1"] {
-  padding-left: 1rem;
-}
-
-[data-depth="2"] {
-  padding-left: 2rem;
-}
-
-[data-depth="3"] {
-  padding-left: 3rem;
-}
-*/
 
 /* Node name text styling */
 [data-part="branch-text"] span,
