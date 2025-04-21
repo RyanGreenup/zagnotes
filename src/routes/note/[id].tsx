@@ -193,24 +193,4 @@ export default function DynamicIdPage() {
       </main>
     </Show>
   );
-
-  return (
-    <>
-      <Tabs.Root defaultValue="preview">
-        <Tabs.List>
-          <Tabs.Trigger value={TabValues.Preview} title="Preview">
-            <Notebook />
-          </Tabs.Trigger>
-          <Tabs.Trigger value={TabValues.Edit} title="Edit">
-            <Edit />
-          </Tabs.Trigger>
-        </Tabs.List>
-
-        <Tabs.Content value={TabValues.Preview}>
-          <ServerSidePreview />
-        </Tabs.Content>
-        <Tabs.Content value={TabValues.Edit}></Tabs.Content>
-      </Tabs.Root>
-    </>
-  );
 }

@@ -39,21 +39,19 @@ export default function NoteEditor(props: NoteEditorProps) {
     props.setContent(newContent);
   };
 
-  /* Consider min-h-64 */
   return (
-    <div class={`note-editor ${props.class || ""}`}>
+    <div class={`note-editor h-full ${props.class || ""}`}>
       <textarea
         value={props.content() || ""}
         onInput={handleInput}
         placeholder={props.placeholder || "Start typing your note..."}
         disabled={props.disabled}
-
-        class="w-full h-full min-h-[300px] p-4 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 font-mono text-base leading-relaxed"
+        class="w-full h-full p-4 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 font-mono text-base leading-relaxed"
         style={{
           "background-color": "var(--color-base-200)",
           color: "var(--color-base-content)",
-          "border-color": "var(--color-base-300)",
-          resize: "vertical",
+          border: "none",
+          resize: "none",
         }}
       />
     </div>
