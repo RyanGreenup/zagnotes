@@ -1,4 +1,11 @@
-import { createSignal, createEffect, onMount, onCleanup, For, Show } from "solid-js";
+import {
+  createSignal,
+  createEffect,
+  onMount,
+  onCleanup,
+  For,
+  Show,
+} from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { isServer } from "solid-js/web";
 import "./NoteTree.css";
@@ -28,8 +35,10 @@ export function Tree(props: TreeProps) {
   // Core state
   const [nodes, setNodes] = createSignal<NodeMap>({});
   const [focusedId, setFocusedId] = createSignal<string>("");
+  const [isTreeFocused, setIsTreeFocused] = createSignal(false);
+  const treeRef = { current: null as HTMLDivElement | null };
   const navigate = useNavigate();
-  
+
   // Get expanded state from localStorage
   function getStoredExpanded(): Record<string, boolean> {
     if (isServer) return {};
@@ -40,7 +49,7 @@ export function Tree(props: TreeProps) {
       return {};
     }
   }
-  
+
   // Save expanded state to localStorage
   function saveExpanded(expanded: Record<string, boolean>): void {
     if (isServer) return;
@@ -50,12 +59,12 @@ export function Tree(props: TreeProps) {
       console.error("Failed to save tree state");
     }
   }
-  
+
   // Helper function to check if a node is a folder
   function isFolder(node: TreeNode): boolean {
     return Boolean(node.children && node.children.length > 0);
   }
-  
+
   // Get node name safely
   function getNodeName(node: TreeNode): string {
     if (props.collection.nodeToString) {
@@ -67,25 +76,25 @@ export function Tree(props: TreeProps) {
     }
     return node.name;
   }
-  
+
   // Get visible nodes in display order
   function getVisibleNodes(): string[] {
     const nodeMap = nodes();
     const rootId = props.collection.rootNode.id;
     const result: string[] = [];
     const stack: string[] = [rootId];
-    
+
     while (stack.length > 0) {
       const id = stack.pop()!;
       const node = nodeMap[id];
-      
+
       if (!node) continue;
-      
+
       // Skip root node from visible list
       if (id !== rootId) {
         result.push(id);
       }
-      
+
       // Add children if expanded
       if (node.isExpanded && node.children) {
         // Add in reverse order for correct display
@@ -94,19 +103,19 @@ export function Tree(props: TreeProps) {
         }
       }
     }
-    
+
     return result;
   }
-  
+
   // Initialize the tree
   createEffect(() => {
     if (!props.collection?.rootNode) return;
-    
+
     try {
       // Process the tree and create a flat node map
       const expandedState = getStoredExpanded();
       const nodeMap: NodeMap = {};
-      
+
       function processNode(node: any, depth = 0, parent = ""): void {
         // Ensure node has all necessary properties
         const id = node.id || `node-${Math.random().toString(36).slice(2, 9)}`;
@@ -117,24 +126,24 @@ export function Tree(props: TreeProps) {
           depth,
           parent,
           // Root node is expanded by default, otherwise check stored state
-          isExpanded: id in expandedState ? expandedState[id] : depth === 0
+          isExpanded: id in expandedState ? expandedState[id] : depth === 0,
         };
-        
+
         // Add to node map
         nodeMap[id] = processedNode;
-        
+
         // Process children recursively
         if (node.children && Array.isArray(node.children)) {
-          node.children.forEach((child: any) => 
-            processNode(child, depth + 1, id)
+          node.children.forEach((child: any) =>
+            processNode(child, depth + 1, id),
           );
         }
       }
-      
+
       // Start processing from root
       processNode(props.collection.rootNode);
       setNodes(nodeMap);
-      
+
       // Set initial focus
       if (props.selectedValues?.length) {
         setFocusedId(props.selectedValues[0]);
@@ -148,53 +157,56 @@ export function Tree(props: TreeProps) {
       console.error("Error initializing tree:", error);
     }
   });
-  
+
   // Update focus when selected values change
   createEffect(() => {
     if (props.selectedValues?.length) {
       setFocusedId(props.selectedValues[0]);
     }
   });
-  
+
   // Toggle node expansion - central function for all expansion operations
   function toggleNode(id: string): void {
     const nodeMap = nodes();
     const node = nodeMap[id];
-    
+
     // Only folders can be toggled
     if (!node || !isFolder(node)) return;
-    
+
     // Remember current focused item
     const currentFocused = focusedId();
-    
+
     // Toggle expansion state
     const newIsExpanded = !node.isExpanded;
-    
+
     // Update node state
     setNodes({
       ...nodeMap,
-      [id]: { ...node, isExpanded: newIsExpanded }
+      [id]: { ...node, isExpanded: newIsExpanded },
     });
-    
+
     // Persist expanded state
     const expanded = getStoredExpanded();
     expanded[id] = newIsExpanded;
     saveExpanded(expanded);
-    
+
     // Ensure focus is maintained
     setFocusedId(currentFocused);
   }
-  
+
   // Handle keyboard navigation
   function handleKeyDown(e: KeyboardEvent): void {
+    // Only handle keyboard events when the tree is focused
+    if (!isTreeFocused()) return;
+
     const currentId = focusedId();
     if (!currentId) return;
-    
+
     const nodeMap = nodes();
     const node = nodeMap[currentId];
     const visible = getVisibleNodes();
     const currentIndex = visible.indexOf(currentId);
-    
+
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
@@ -202,14 +214,14 @@ export function Tree(props: TreeProps) {
           setFocusedId(visible[currentIndex + 1]);
         }
         break;
-        
+
       case "ArrowUp":
         e.preventDefault();
         if (currentIndex > 0) {
           setFocusedId(visible[currentIndex - 1]);
         }
         break;
-        
+
       case "ArrowRight":
         e.preventDefault();
         // Expand folder if collapsed
@@ -217,18 +229,21 @@ export function Tree(props: TreeProps) {
           toggleNode(currentId);
         }
         break;
-        
+
       case "ArrowLeft":
         e.preventDefault();
         if (isFolder(node) && node.isExpanded) {
           // Collapse folder
           toggleNode(currentId);
-        } else if (node.parent && node.parent !== props.collection.rootNode.id) {
+        } else if (
+          node.parent &&
+          node.parent !== props.collection.rootNode.id
+        ) {
           // Move focus to parent
           setFocusedId(node.parent);
         }
         break;
-        
+
       case "Enter":
       case " ":
         e.preventDefault();
@@ -240,14 +255,14 @@ export function Tree(props: TreeProps) {
         break;
     }
   }
-  
+
   // Handle node click
   function handleNodeClick(id: string): void {
     const node = nodes()[id];
-    
+
     // Set focus
     setFocusedId(id);
-    
+
     // Toggle folder or navigate to note
     if (isFolder(node)) {
       toggleNode(id);
@@ -255,27 +270,52 @@ export function Tree(props: TreeProps) {
       navigate(`/note/${id}`);
     }
   }
-  
-  // Setup keyboard listeners
+
+  // Setup focus and keyboard event handlers
   onMount(() => {
     if (!isServer) {
+      // Global keyboard event listener
       document.addEventListener("keydown", handleKeyDown);
+
+      // Set up focus tracking if we have a reference
+      if (treeRef.current) {
+        // Focus events
+        treeRef.current.addEventListener("focusin", () =>
+          setIsTreeFocused(true),
+        );
+        treeRef.current.addEventListener("focusout", () =>
+          setIsTreeFocused(false),
+        );
+      }
     }
   });
-  
+
   onCleanup(() => {
     if (!isServer) {
+      // Clean up event listeners
       document.removeEventListener("keydown", handleKeyDown);
+
+      if (treeRef.current) {
+        treeRef.current.removeEventListener("focusin", () =>
+          setIsTreeFocused(true),
+        );
+        treeRef.current.removeEventListener("focusout", () =>
+          setIsTreeFocused(false),
+        );
+      }
     }
   });
-  
+
   // Render tree
   return (
     <div
+      ref={(el) => (treeRef.current = el)}
       class="tree-view w-full rounded-md bg-[var(--color-base-100)] text-[var(--color-base-content)]"
       tabIndex={0}
       data-scope="tree-view"
       aria-label="Note Tree"
+      onFocus={() => setIsTreeFocused(true)}
+      onBlur={() => setIsTreeFocused(false)}
     >
       <ul class="py-1">
         <Show when={props.collection?.rootNode?.children}>
@@ -283,7 +323,7 @@ export function Tree(props: TreeProps) {
             {(nodeId) => {
               const node = () => nodes()[nodeId];
               const isSelected = () => nodeId === focusedId();
-              
+
               return (
                 <Show when={node()}>
                   <li
@@ -294,10 +334,13 @@ export function Tree(props: TreeProps) {
                     <div
                       classList={{
                         "flex items-center px-2 py-1 cursor-pointer": true,
-                        "bg-[var(--color-base-300)] text-[var(--color-primary)]": isSelected(),
-                        "hover:bg-[var(--color-base-200)]": !isSelected()
+                        "bg-[var(--color-base-300)] text-[var(--color-primary)]":
+                          isSelected(),
+                        "hover:bg-[var(--color-base-200)]": !isSelected(),
                       }}
-                      style={{ "padding-left": `${(node().depth || 0) * 1.25}rem` }}
+                      style={{
+                        "padding-left": `${(node().depth || 0) * 1.25}rem`,
+                      }}
                       data-part="item"
                       data-focus={isSelected() ? "true" : undefined}
                       onClick={() => handleNodeClick(nodeId)}
@@ -305,16 +348,22 @@ export function Tree(props: TreeProps) {
                       <Show when={isFolder(node())}>
                         <span
                           class="mr-1 inline-flex justify-center items-center w-4 h-4 transition-transform duration-150"
-                          style={{ transform: node().isExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
+                          style={{
+                            transform: node().isExpanded
+                              ? "rotate(90deg)"
+                              : "rotate(0deg)",
+                          }}
                           data-part="branch-indicator"
                         >
                           <ChevronRight />
                         </span>
                       </Show>
-                      
+
                       <span
                         class="flex items-center gap-2 truncate"
-                        data-part={isFolder(node()) ? "branch-text" : "item-text"}
+                        data-part={
+                          isFolder(node()) ? "branch-text" : "item-text"
+                        }
                       >
                         <span class="truncate">{getNodeName(node())}</span>
                       </span>
