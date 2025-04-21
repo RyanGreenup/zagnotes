@@ -25,24 +25,9 @@ async function getNoteBody(id: string) {
   "use server";
 
   try {
-    const Database = await import("better-sqlite3").then(
-      (module) => module.default,
-    );
-
-    const dbPath = process.env.DB_PATH;
-    if (!dbPath) {
-      throw new Error("Database path not found in environment variables");
-    }
-
-    // Open the database connection
-    const db = new Database(dbPath, { readonly: true });
-
-    // Query the database for the note body
-    const note = db.prepare("SELECT body FROM notes WHERE id = ?").get(id);
-
-    // Close the database connection
-    db.close();
-
+    const { getNote } = await import("~/lib/db");
+    const note = await getNote(id);
+    
     // Return the note body or a default message if not found
     return note?.body || `Note with ID ${id} not found`;
   } catch (error) {
@@ -61,43 +46,8 @@ async function saveNoteBody(id: string, content: string) {
   "use server";
 
   try {
-    const Database = await import("better-sqlite3").then(
-      (module) => module.default,
-    );
-
-    const dbPath = process.env.DB_PATH;
-    if (!dbPath) {
-      throw new Error("Database path not found in environment variables");
-    }
-
-    // Open the database connection
-    const db = new Database(dbPath);
-
-    // Begin a transaction for data consistency
-    const transaction = db.transaction((noteId, noteContent) => {
-      // Check if the note exists
-      const note = db.prepare("SELECT id FROM notes WHERE id = ?").get(noteId);
-
-      if (note) {
-        // Update existing note
-        db.prepare(
-          "UPDATE notes SET body = ?, updated_time = CURRENT_TIMESTAMP WHERE id = ?",
-        ).run(noteContent, noteId);
-      } else {
-        // Create new note
-        db.prepare(
-          "INSERT INTO notes (id, body, created_time, updated_time) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-        ).run(noteId, noteContent);
-      }
-    });
-
-    // Execute the transaction
-    transaction(id, content);
-
-    // Close the database connection
-    db.close();
-
-    return { success: true, message: "Note saved successfully" };
+    const { saveNote } = await import("~/lib/db");
+    return await saveNote(id, content);
   } catch (error) {
     console.error("Error saving note:", error);
     return {
