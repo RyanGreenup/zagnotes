@@ -33,7 +33,8 @@ export const RootProvider = (props: {
   // Initialize the tree view with the current selected values
   const treeView = useTreeView({
     collection,
-    defaultSelectedValue: props.selectedValues || [],
+    selectedValue: props.selectedValues || [],
+    selectionMode: "single",
     onSelectionChange: (details: TreeViewSelectionChangeDetails) => {
       // Get the selected node ID
       const selectedId = details.selectedValue[0];
