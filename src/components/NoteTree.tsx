@@ -146,7 +146,13 @@ export function Tree(props: TreeProps) {
 
       // Set initial focus
       if (props.selectedValues?.length) {
-        setFocusedId(props.selectedValues[0]);
+        const selectedId = props.selectedValues[0];
+        setFocusedId(selectedId);
+        setPrevSelectedId(selectedId);
+        
+        // Expand all parent nodes to reveal the selected node
+        // This only happens on initial load or when URL changes
+        setTimeout(() => expandParents(selectedId), 0); // Using setTimeout to ensure nodes state is set
       } else {
         const visible = getVisibleNodes();
         if (visible.length > 0) {
@@ -158,10 +164,64 @@ export function Tree(props: TreeProps) {
     }
   });
 
-  // Update focus when selected values change
+  // Expand all parent nodes of a given node
+  // This only expands parent folders, without modifying the target node itself
+  function expandParents(nodeId: string): void {
+    const nodeMap = nodes();
+    let currentNode = nodeMap[nodeId];
+    
+    // Skip if node doesn't exist
+    if (!currentNode) return;
+    
+    // Get current expanded state
+    const expanded = getStoredExpanded();
+    let hasChanges = false;
+
+    // Traverse up the tree and expand all parent nodes
+    while (currentNode && currentNode.parent && currentNode.parent !== props.collection.rootNode.id) {
+      const parentId = currentNode.parent;
+      const parentNode = nodeMap[parentId];
+      
+      // If parent exists and is not expanded, expand it
+      if (parentNode && !parentNode.isExpanded) {
+        // Update node in the map
+        setNodes({
+          ...nodes(),
+          [parentId]: { ...parentNode, isExpanded: true }
+        });
+        
+        // Update expanded state for persistence
+        expanded[parentId] = true;
+        hasChanges = true;
+      }
+      
+      // Move up to the next parent
+      currentNode = parentNode;
+    }
+    
+    // Save expanded state if changes were made
+    if (hasChanges) {
+      saveExpanded(expanded);
+    }
+  }
+
+  // Track the previous selected ID to detect changes from URL params
+  const [prevSelectedId, setPrevSelectedId] = createSignal<string>("");
+  
+  // Update focus when selected values change (typically from URL params)
   createEffect(() => {
     if (props.selectedValues?.length) {
-      setFocusedId(props.selectedValues[0]);
+      const selectedId = props.selectedValues[0];
+      
+      // Set the focused ID
+      setFocusedId(selectedId);
+      
+      // Only expand parents when the selection changes due to URL params
+      // This prevents re-expansion after user manually collapses folders
+      if (prevSelectedId() !== selectedId) {
+        expandParents(selectedId);
+        setPrevSelectedId(selectedId);
+      }
     }
   });
 
@@ -243,8 +303,10 @@ export function Tree(props: TreeProps) {
     function expandSpaceFocused(e: KeyboardEvent): void {
       e.preventDefault();
       if (isFolder(node)) {
+        // Allow users to toggle folders freely, even if they contain the current page
         toggleNode(currentId);
       } else {
+        // For note nodes, just navigate - URL params will trigger the expansion
         navigate(`/note/${currentId}`);
       }
     }
@@ -298,8 +360,10 @@ export function Tree(props: TreeProps) {
 
     // Toggle folder or navigate to note
     if (isFolder(node)) {
+      // Allow users to toggle folders freely, even if they contain the current page
       toggleNode(id);
     } else {
+      // For note nodes, just navigate - URL params will trigger the expansion
       navigate(`/note/${id}`);
     }
   }
