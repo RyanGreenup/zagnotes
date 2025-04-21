@@ -63,12 +63,14 @@ export default function ServerNoteTree() {
 
         {/* Show the tree view when data is available */}
         <Show when={treeData()}>
-          <div class="mt-2 mb-4">
-            {/* Create a collection from the fetched data and pass to RootProvider */}
-            <GenericTreeView
-              collection={createCollection(treeData()!)}
-              selectedValues={selectedItem()}
-            />
+          <div class="mt-2 mb-4 w-full relative" style={{ "overflow-x": "auto", "overflow-y": "hidden" }}>
+            <div style={{ "min-width": "min-content", "width": "100%" }}>
+              {/* Create a collection from the fetched data and pass to RootProvider */}
+              <GenericTreeView
+                collection={createCollection(treeData()!)}
+                selectedValues={selectedItem()}
+              />
+            </div>
           </div>
         </Show>
       </Suspense>

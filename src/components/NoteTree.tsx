@@ -407,7 +407,8 @@ export function Tree(props: TreeProps) {
   return (
     <div
       ref={(el) => (treeRef.current = el)}
-      class="tree-view w-full rounded-md bg-[var(--color-base-100)] text-[var(--color-base-content)]"
+      class="tree-view rounded-md bg-[var(--color-base-100)] text-[var(--color-base-content)]"
+      style={{ "width": "max-content", "min-width": "100%" }}
       tabIndex={0}
       data-scope="tree-view"
       aria-label="Note Tree"
@@ -437,6 +438,9 @@ export function Tree(props: TreeProps) {
                       }}
                       style={{
                         "padding-left": `${(node().depth || 0) * 1.25}rem`,
+                        "white-space": "nowrap",
+                        "width": "max-content",
+                        "min-width": "100%"
                       }}
                       data-part="item"
                       data-focus={isSelected() ? "true" : undefined}
@@ -457,7 +461,7 @@ export function Tree(props: TreeProps) {
                       </Show>
 
                       <span
-                        class="flex items-center gap-2 truncate"
+                        class="flex items-center gap-2 whitespace-nowrap"
                         data-part={
                           isFolder(node()) ? "branch-text" : "item-text"
                         }
