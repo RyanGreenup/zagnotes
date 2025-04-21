@@ -8,6 +8,7 @@ import { markedHighlight } from "marked-highlight";
 import { createDirectives } from "marked-directive";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css"; // Import highlight.js CSS
+import { ROUTES } from "~/constants/routes";
 
 interface PreviewProps {
   content: Accessor<string> | Resource<string>;
@@ -16,7 +17,40 @@ interface PreviewProps {
 
 // Configure marked converter (shared between client and server)
 const configureMarked = () => {
-  return new Marked()
+  const marked = new Marked();
+  
+  // Add a custom extension to handle the special link format
+  marked.use({
+    extensions: [{
+      name: 'noteLink',
+      level: 'inline',
+      // Only match markdown links that start with :/
+      start(src) { 
+        return src.match(/\[.*?\]\(\s*:\//)?.index;
+      },
+      tokenizer(src) {
+        const rule = /^\[(.*?)\]\(\s*:\/([^\s\)]+)(?:\s+"([^"]+)")?\s*\)/;
+        const match = rule.exec(src);
+        if (match) {
+          return {
+            type: 'noteLink',
+            raw: match[0],
+            text: match[1],
+            noteId: match[2],
+            title: match[3]
+          };
+        }
+        return undefined;
+      },
+      renderer(token) {
+        const href = `/${ROUTES.NOTE_BASE_PATH}${token.noteId}`;
+        const title = token.title ? ` title="${token.title}"` : '';
+        return `<a href="${href}"${title}>${token.text}</a>`;
+      }
+    }]
+  });
+  
+  return marked
     .use(markedAlert())
     .use(extendedTables())
     .use(
