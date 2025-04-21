@@ -80,6 +80,8 @@ My Themes for later migration away from Daisy UI
   /* Base sizes */
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
+  --font-size-base: 0.875rem;
+  --line-height-base: 1.5;
 
   /* Layout dimensions */
   --navbar-height: 3rem;

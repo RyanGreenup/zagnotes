@@ -82,6 +82,10 @@ export default function Preview(props: PreviewProps) {
   );
 
   return (
-    <div class="markdown-preview prose prose-sm md:prose-base lg:prose-lg max-w-none h-full overflow-auto p-4 rounded-md bg-base-100 shadow-sm" innerHTML={html()} />
+    <div 
+      class="markdown-preview prose max-w-none h-full overflow-auto p-4 rounded-md bg-base-100 shadow-sm" 
+      style={{ "font-size": "var(--font-size-base)", "line-height": "var(--line-height-base)" }}
+      innerHTML={html()} 
+    />
   );
 }

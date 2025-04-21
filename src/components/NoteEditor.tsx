@@ -46,8 +46,10 @@ export default function NoteEditor(props: NoteEditorProps) {
         onInput={handleInput}
         placeholder={props.placeholder || "Start typing your note..."}
         disabled={props.disabled}
-        class="w-full h-full p-4 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 font-mono text-base leading-relaxed"
+        class="w-full h-full p-4 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 font-mono leading-relaxed"
         style={{
+          "font-size": "var(--font-size-base)",
+          "line-height": "var(--line-height-base)",
           "background-color": "var(--color-base-200)",
           color: "var(--color-base-content)",
           border: "none",

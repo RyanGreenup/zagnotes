@@ -93,8 +93,8 @@ export default function CodeMirrorNoteEditor(props: CodeMirrorNoteEditorProps) {
     EditorView.theme({
       "&": {
         height: "100%",
-        fontSize: "1rem",
-        lineHeight: "1.5"
+        fontSize: "var(--font-size-base)",
+        lineHeight: "var(--line-height-base)"
       },
       ".cm-scroller": {
         fontFamily: "monospace",
