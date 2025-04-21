@@ -23,9 +23,32 @@ import ToolbarButton from "~/components/ToolbarButton";
  */
 async function getNoteBody(id: string) {
   "use server";
-  // This is a placeholder implementation
-  // In the future, this would fetch actual note data from a database
-  return `This is the default note body for ID: ${id}`;
+
+  try {
+    const Database = await import("better-sqlite3").then(
+      (module) => module.default,
+    );
+
+    const dbPath = process.env.DB_PATH;
+    if (!dbPath) {
+      throw new Error("Database path not found in environment variables");
+    }
+
+    // Open the database connection
+    const db = new Database(dbPath, { readonly: true });
+
+    // Query the database for the note body
+    const note = db.prepare("SELECT body FROM notes WHERE id = ?").get(id);
+
+    // Close the database connection
+    db.close();
+
+    // Return the note body or a default message if not found
+    return note?.body || `Note with ID ${id} not found`;
+  } catch (error) {
+    console.error("Error fetching note body:", error);
+    return `Error fetching note: ${error instanceof Error ? error.message : String(error)}`;
+  }
 }
 
 /**
@@ -36,10 +59,52 @@ async function getNoteBody(id: string) {
  */
 async function saveNoteBody(id: string, content: string) {
   "use server";
-  // This is a placeholder implementation
-  // In the future, this would save to a database
-  console.log(`Saving note ${id}: ${content}`);
-  return { success: true, message: "Note saved successfully" };
+
+  try {
+    const Database = await import("better-sqlite3").then(
+      (module) => module.default,
+    );
+
+    const dbPath = process.env.DB_PATH;
+    if (!dbPath) {
+      throw new Error("Database path not found in environment variables");
+    }
+
+    // Open the database connection
+    const db = new Database(dbPath);
+
+    // Begin a transaction for data consistency
+    const transaction = db.transaction((noteId, noteContent) => {
+      // Check if the note exists
+      const note = db.prepare("SELECT id FROM notes WHERE id = ?").get(noteId);
+
+      if (note) {
+        // Update existing note
+        db.prepare(
+          "UPDATE notes SET body = ?, updated_time = CURRENT_TIMESTAMP WHERE id = ?",
+        ).run(noteContent, noteId);
+      } else {
+        // Create new note
+        db.prepare(
+          "INSERT INTO notes (id, body, created_time, updated_time) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+        ).run(noteId, noteContent);
+      }
+    });
+
+    // Execute the transaction
+    transaction(id, content);
+
+    // Close the database connection
+    db.close();
+
+    return { success: true, message: "Note saved successfully" };
+  } catch (error) {
+    console.error("Error saving note:", error);
+    return {
+      success: false,
+      message: `Error saving note: ${error instanceof Error ? error.message : String(error)}`,
+    };
+  }
 }
 
 /**
