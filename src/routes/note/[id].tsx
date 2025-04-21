@@ -154,14 +154,27 @@ export default function DynamicIdPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   return (
+
+      // AI: The editor and preview is used here
+      // The tailwind utility classes to define the sizing and responsive layout of
+      // this editor and preview are completely inappropriate and it looks awful
+      // Completely overhaul the sizing and class parameters so that the sizing and layout is
+      //
+      // 1. Responsive for desktop and mobile
+      // 2. Professional looking (this is important for my job and wellbeing)
+      // 3. Practical and effective, the layout must make it effective for users to edit notes
+      //
+      // Follow best practices of tailwind to create a modern and responsive editing layout for a modern wiki web application AI!
+
+
     <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
       <main class="p-4">
         <SaveButton />
-    <div class="flex flex-col md:flex-row gap-4 h-screen">
+    <div class="flex flex-col md:flex-row h-screen">
       <div class="w-full md:w-1/2 flex-1 overflow-y-auto">
         <SupsenseNoteEditor />
       </div>
-      <div class="w-full md:w-1/2 flex-1 overflow-y-auto">
+      <div class="w-full md:w-1/2 flex-1 overflow-y-auto h-64">
         <LivePreview />
       </div>
     </div>

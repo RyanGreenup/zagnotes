@@ -47,6 +47,9 @@ export default function NoteEditor(props: NoteEditorProps) {
         onInput={handleInput}
         placeholder={props.placeholder || "Start typing your note..."}
         disabled={props.disabled}
+
+        // AI: The class for the Textarea is defined here
+
         class="w-full md:h-full md:min-h-screen  min-h-64  p-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
         style={{
           "background-color": "var(--color-base-200)",

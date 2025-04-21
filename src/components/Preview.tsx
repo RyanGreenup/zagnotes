@@ -81,6 +81,7 @@ export default function Preview(props: PreviewProps) {
   );
 
   return (
+      // AI: The class for the preview is here
     <div class="markdown-preview prose max-w-none" innerHTML={html()} />
   );
 }
