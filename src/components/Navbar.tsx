@@ -1,7 +1,16 @@
-import { createSignal, JSX } from "solid-js";
-import { A } from "@solidjs/router";
-import { Menu, Search, MoreVertical, Users, FileEdit } from "lucide-solid";
+import { createSignal, JSX, Show, Suspense } from "solid-js";
+import { A, useLocation, useParams, useSearchParams } from "@solidjs/router";
+import {
+  Menu,
+  Search,
+  MoreVertical,
+  Users,
+  FileEdit,
+  Edit,
+  NotebookIcon,
+} from "lucide-solid";
 import IconWrapper from "./IconWrapper";
+import Button from "./Button";
 
 // Add CSS for placeholder styling
 const styles = `
@@ -92,6 +101,44 @@ function AppLogo() {
   );
 }
 
+function EditButton() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const params = useParams();
+
+  const location = useLocation();
+
+  const pathIsNote = () => {
+    return location.pathname.startsWith("/note");
+  };
+
+  const EditButton = () => {
+    return (
+      <Button variant="ghost" onClick={() => setSearchParams({ edit: true })}>
+        <Edit />
+      </Button>
+    );
+  };
+
+  const PreviewButton = () => {
+    return (
+      <Button
+        variant="ghost"
+        onClick={() => setSearchParams({ edit: undefined })}
+      >
+        <NotebookIcon />
+      </Button>
+    );
+  };
+
+  return (
+    <Show when={pathIsNote() && params.id}>
+      <Show when={searchParams.edit} fallback={<EditButton />}>
+        <PreviewButton />
+      </Show>
+    </Show>
+  );
+}
+
 /**
  * Navbar component for the Notetaking application
  * Includes app title, search, and mobile menu toggle
@@ -127,7 +174,7 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
             ariaLabel="Toggle sidebar"
             class="md:hidden"
           />
-          <AppLogo />
+          <EditButton />
         </div>
 
         {/* Center - Search bar */}
