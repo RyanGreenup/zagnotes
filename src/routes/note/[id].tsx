@@ -13,6 +13,7 @@ import Preview from "~/components/Preview";
 import { Tabs } from "@ark-ui/solid";
 import { Edit, EyeIcon, Notebook, PackageIcon, Save, Undo } from "lucide-solid";
 import Button from "~/components/Button";
+import ToolbarButton from "~/components/ToolbarButton";
 
 /**
  * Server function to get note body based on ID
@@ -82,19 +83,22 @@ export default function DynamicIdPage() {
     Edit = "edit",
   }
 
-  const SaveButton = () => {
+  /**
+   * Toolbar component for note editing actions
+   */
+  const NoteToolbar = () => {
     return (
-      <Button onClick={saveChanges}>
-        <Save class="w-4 h-4" />
-      </Button>
-    );
-  };
-
-  const ResetButton = () => {
-    return (
-      <Button onClick={resetTextBox}>
-        <Undo class="w-4 h-4" />
-      </Button>
+      <div class="bg-base-200 px-3 py-2 rounded-t-lg border-b border-base-300 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <ToolbarButton onClick={resetTextBox}>
+            <Undo class="w-4 h-4" />
+          </ToolbarButton>
+          <ToolbarButton onClick={saveChanges}>
+            <Save class="w-4 h-4" />
+          </ToolbarButton>
+        </div>
+        <div class="text-xs text-base-content/70">Editing: {params.id}</div>
+      </div>
     );
   };
 
@@ -144,21 +148,11 @@ export default function DynamicIdPage() {
   const ServerSidePreview = () => {
     return (
       <main class="container mx-auto px-4 py-6 max-w-7xl">
-        <h1 class="text-2xl font-bold mb-6 truncate">
-          {params.id.replace(/-/g, ' ')}
-        </h1>
-        
-        <div class="bg-base-200 rounded-lg shadow-md overflow-hidden border border-base-300">
-          <div class="bg-base-300 px-4 py-2 border-b border-base-300 flex items-center">
-            <EyeIcon class="w-4 h-4 mr-2" />
-            <h2 class="font-medium">Note Preview</h2>
-          </div>
-          <div class="p-0">
-            <Suspense fallback={<div class="p-4 animate-pulse">Loading preview...</div>}>
-              <Preview content={noteBody} renderOnServer={true} />
-            </Suspense>
-          </div>
-        </div>
+        <Suspense
+          fallback={<div class="p-4 animate-pulse">Loading preview...</div>}
+        >
+          <Preview content={noteBody} renderOnServer={true} />
+        </Suspense>
       </main>
     );
   };
@@ -167,39 +161,30 @@ export default function DynamicIdPage() {
 
   return (
     <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
-      <main class="container mx-auto px-4 py-6 max-w-7xl">
-        <div class="flex justify-between items-center mb-6">
-          <h1 class="text-2xl font-bold truncate">
-            {params.id.replace(/-/g, ' ')}
-          </h1>
-          <div class="flex space-x-2">
-            <ResetButton />
-            <SaveButton />
-          </div>
-        </div>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-12rem)]">
+      <main class="container mx-auto px-4 py-3 max-w-7xl">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-8rem)]">
           {/* Editor Panel */}
-          <div class="bg-base-200 rounded-lg shadow-md overflow-hidden border border-base-300">
-            <div class="bg-base-300 px-4 py-2 border-b border-base-300 flex items-center">
-              <Edit class="w-4 h-4 mr-2" />
-              <h2 class="font-medium">Editor</h2>
-            </div>
-            <div class="h-[calc(100%-2.5rem)]">
-              <Suspense fallback={<div class="p-4 animate-pulse">Loading editor...</div>}>
+          <div class="flex flex-col rounded-lg shadow-md overflow-hidden border border-base-300">
+            <NoteToolbar />
+            <div class="flex-grow bg-base-200 overflow-hidden">
+              <Suspense
+                fallback={
+                  <div class="p-4 animate-pulse">Loading editor...</div>
+                }
+              >
                 <SupsenseNoteEditor />
               </Suspense>
             </div>
           </div>
-          
+
           {/* Preview Panel */}
           <div class="bg-base-200 rounded-lg shadow-md overflow-hidden border border-base-300">
-            <div class="bg-base-300 px-4 py-2 border-b border-base-300 flex items-center">
-              <EyeIcon class="w-4 h-4 mr-2" />
-              <h2 class="font-medium">Preview</h2>
-            </div>
-            <div class="h-[calc(100%-2.5rem)] overflow-auto">
-              <Suspense fallback={<div class="p-4 animate-pulse">Rendering preview...</div>}>
+            <div class="h-full overflow-auto">
+              <Suspense
+                fallback={
+                  <div class="p-4 animate-pulse">Rendering preview...</div>
+                }
+              >
                 <LivePreview />
               </Suspense>
             </div>
