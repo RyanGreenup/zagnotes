@@ -112,24 +112,8 @@ function NoteTree() {
     { id: 3, title: "Shopping List" },
   ]);
 
-  return (
-    <div class="p-2 overflow-y-auto h-full">
-      <div class="mt-3 animate-fadeIn">
-        <PinnedNotes />
-      </div>
-      <ServerNoteTree />
-
-      <div class="mt-3">
-        <SectionHeader>Collections</SectionHeader>
-        <div class="space-y-1 mt-1">
-          <NavLink href="/" end>
-            All Notes
-          </NavLink>
-          <NavLink href="/favorites">Favorites</NavLink>
-          <NavLink href="/trash">Trash</NavLink>
-        </div>
-      </div>
-
+  const RecentNotes = () => {
+    return (
       <div class="mt-3 animate-fadeIn">
         <SubSectionHeader>Recent Notes</SubSectionHeader>
         <ul class="space-y-0.5 mt-1">
@@ -142,6 +126,32 @@ function NoteTree() {
           ))}
         </ul>
       </div>
+    );
+  };
+
+  const PinnedNotes = () => {
+    return (
+      <div class="mt-3 animate-fadeIn">
+        <PinnedNotes />
+      </div>
+    );
+  };
+
+  return (
+    <div class="p-2 overflow-y-auto h-full">
+      <ServerNoteTree />
+
+      <div class="mt-3">
+        <SectionHeader>Collections</SectionHeader>
+        <div class="space-y-1 mt-1">
+          <NavLink href="/" end>
+            All Notes
+          </NavLink>
+          <NavLink href="/favorites">Favorites</NavLink>
+          <NavLink href="/trash">Trash</NavLink>
+        </div>
+      </div>
+      {/*<RecentNotes />*/}
     </div>
   );
 }

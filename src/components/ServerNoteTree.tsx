@@ -7,6 +7,17 @@ import Button from "./Button";
 import { RefreshCwIcon } from "lucide-solid";
 
 /**
+ * Component for a refresh button that triggers refetching data
+ */
+function RefreshButton(props: { onRefresh: () => void }) {
+  return (
+    <Button variant="secondary" class="mt-4" onClick={props.onRefresh}>
+      <RefreshCwIcon />
+    </Button>
+  );
+}
+
+/**
  * Component that fetches tree data from the server and renders a tree view
  * Uses suspense for loading state and provides a refresh button
  */
@@ -15,8 +26,8 @@ export default function ServerNoteTree() {
   const [treeData, { refetch }] = createResource(fetchTreeData);
 
   return (
-    <Card variant="bordered" padding="md">
-      <SectionHeader>File Explorer</SectionHeader>
+    <>
+      {/* <SectionHeader>File Explorer</SectionHeader> */}
 
       {/* Wrap the tree view in Suspense to handle async loading state */}
       <Suspense fallback={<p>Loading file structure...</p>}>
@@ -36,10 +47,8 @@ export default function ServerNoteTree() {
         </Show>
       </Suspense>
 
-      {/* Button to manually refresh the tree data */}
-      <Button variant="secondary" class="mt-4" onClick={() => refetch()}>
-        <RefreshCwIcon />
-      </Button>
-    </Card>
+      {/*<RefreshButton onRefresh={refetch} />*/}
+    </>
   );
 }
+
