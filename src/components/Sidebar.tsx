@@ -38,6 +38,15 @@ export default function Sidebar() {
     setTimeout(() => setIsVisible(true), 100);
   });
 
+  enum TabEnum {
+    NOTE_TREE = "note_tree",
+    BACKLINKS = "backlinks",
+    FORWARDLINKS = "forwardlinks",
+    SIMILAR = "similar",
+    SEARCH = "search",
+    RECENT = "recent",
+  }
+
   return (
     <aside
       class="h-full w-64 flex-shrink-0 transition-all duration-500 ease-in-out flex flex-col"
@@ -50,14 +59,14 @@ export default function Sidebar() {
         "border-right": "var(--border) solid var(--color-base-300)",
       }}
     >
-      <Tabs.Root defaultValue="note_tree" class="flex flex-col h-full">
+      <Tabs.Root defaultValue={TabEnum.NOTE_TREE} class="flex flex-col h-full">
         {/* Tabs List -- Buttons showing the tabs*/}
         <Tabs.List class="flex-shrink-0">
           <Tabs.Trigger value="note_tree" title="Note Tree">
             <FolderTree />
             <span class="sr-only">Note Tree</span>
           </Tabs.Trigger>
-          <Tabs.Trigger value="backlinks" title="Backlinks">
+          <Tabs.Trigger value={TabEnum.BACKLINKS} title="Backlinks">
             <Link2 />
             <span class="sr-only">Backlinks</span>
           </Tabs.Trigger>
