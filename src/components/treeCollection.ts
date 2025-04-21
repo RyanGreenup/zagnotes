@@ -12,47 +12,43 @@ export interface Node {
 
 /**
  * Fetch the collection data from the server
- * In the future, this will query from a SQLite database
+ * Fetches from SQLite database using the tree functions
  * @returns The root node with all children
  */
 export async function fetchTreeData(): Promise<Node> {
-    "use server";
-  // This function runs on the server due to the "use server" directive
-  // In the future, replace this with actual database queries
-  return {
-    id: "ROOT",
-    name: "",
-    children: [
-      {
-        id: "node_modules",
-        name: "node_modules",
-        children: [
-          { id: "node_modules/zag-js", name: "zag-js" },
-          { id: "node_modules/pandacss", name: "panda" },
-          {
-            id: "node_modules/@types",
-            name: "@types",
-            children: [
-              { id: "node_modules/@types/react", name: "react" },
-              { id: "node_modules/@types/react-dom", name: "react-dom" },
-            ],
-          },
-        ],
-      },
-      {
-        id: "src",
-        name: "src",
-        children: [
-          { id: "src/app.tsx", name: "app.tsx" },
-          { id: "src/index.ts", name: "index.ts" },
-        ],
-      },
-      { id: "panda.config", name: "panda.config.ts" },
-      { id: "package.json", name: "package.json" },
-      { id: "renovate.json", name: "renovate.json" },
-      { id: "readme.md", name: "README.md" },
-    ],
-  };
+  "use server";
+  
+  try {
+    const { getNoteTree } = await import("~/lib");
+    const tree = await getNoteTree();
+    
+    // Convert TreeNode to Node interface format
+    const convertTreeNode = (node: any): Node => {
+      const result: Node = {
+        id: node.id,
+        name: node.name || node.id,
+      };
+      
+      if (node.children && node.children.length > 0) {
+        result.children = node.children.map(convertTreeNode);
+      }
+      
+      return result;
+    };
+    
+    return convertTreeNode(tree);
+  } catch (error) {
+    console.error("Error fetching tree data:", error);
+    
+    // Return a fallback tree structure on error
+    return {
+      id: "ROOT",
+      name: "Root",
+      children: [
+        { id: "error", name: "Error loading notes" }
+      ]
+    };
+  }
 }
 
 /**
