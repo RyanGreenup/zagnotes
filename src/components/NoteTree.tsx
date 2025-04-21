@@ -44,10 +44,9 @@ function flattenTree(
   expandedState: Record<string, boolean> = {},
 ): NodeMap {
   // Determine if the node should be expanded based on saved state or default
-  const isNodeExpanded = node.id in expandedState 
-    ? expandedState[node.id] 
-    : depth === 0; // Root node is expanded by default
-  
+  const isNodeExpanded =
+    node.id in expandedState ? expandedState[node.id] : depth === 0; // Root node is expanded by default
+
   const nodeWithDepth = {
     ...node,
     depth,
@@ -141,9 +140,9 @@ function getNodeValue(
 // Store tree expansion state in localStorage to persist across navigations
 function getStoredExpandedState(): Record<string, boolean> {
   if (isServer) return {};
-  
+
   try {
-    const stored = localStorage.getItem('note-tree-expanded-state');
+    const stored = localStorage.getItem("note-tree-expanded-state");
     return stored ? JSON.parse(stored) : {};
   } catch (e) {
     return {};
@@ -152,11 +151,14 @@ function getStoredExpandedState(): Record<string, boolean> {
 
 function saveExpandedState(expandedNodes: Record<string, boolean>): void {
   if (isServer) return;
-  
+
   try {
-    localStorage.setItem('note-tree-expanded-state', JSON.stringify(expandedNodes));
+    localStorage.setItem(
+      "note-tree-expanded-state",
+      JSON.stringify(expandedNodes),
+    );
   } catch (e) {
-    console.error('Failed to save tree state:', e);
+    console.error("Failed to save tree state:", e);
   }
 }
 
@@ -165,7 +167,9 @@ export function Tree(props: TreeProps) {
   const [focusedId, setFocusedId] = createSignal<string>("");
   const [nodes, setNodes] = createSignal<NodeMap>({});
   const [visibleNodes, setVisibleNodes] = createSignal<string[]>([]);
-  const [expandedState, setExpandedState] = createSignal<Record<string, boolean>>(getStoredExpandedState());
+  const [expandedState, setExpandedState] = createSignal<
+    Record<string, boolean>
+  >(getStoredExpandedState());
 
   const navigate = useNavigate();
 
@@ -196,7 +200,13 @@ export function Tree(props: TreeProps) {
 
         const safeRootNode = ensureNodeProperties(rootNode);
         const currentExpandedState = expandedState();
-        const nodeMap = flattenTree(safeRootNode, {}, 0, "", currentExpandedState);
+        const nodeMap = flattenTree(
+          safeRootNode,
+          {},
+          0,
+          "",
+          currentExpandedState,
+        );
         setNodes(nodeMap);
 
         // Initialize visible nodes
@@ -253,16 +263,22 @@ export function Tree(props: TreeProps) {
             ...prev,
             [currentFocusedId]: { ...node, isExpanded: true },
           }));
-          
+
           // Update expanded state
-          const newExpandedState = { ...expandedState(), [currentFocusedId]: true };
+          const newExpandedState = {
+            ...expandedState(),
+            [currentFocusedId]: true,
+          };
           setExpandedState(newExpandedState);
           saveExpandedState(newExpandedState);
-          
+
           // Update visible nodes
           setVisibleNodes(
             getVisibleNodes(nodes(), props.collection.rootNode.id),
           );
+
+          // Preserve focus
+          setFocusedId(currentFocusedId);
         }
         break;
 
@@ -276,16 +292,22 @@ export function Tree(props: TreeProps) {
               ...prev,
               [currentFocusedId]: { ...currentNode, isExpanded: false },
             }));
-            
+
             // Update expanded state
-            const newExpandedState = { ...expandedState(), [currentFocusedId]: false };
+            const newExpandedState = {
+              ...expandedState(),
+              [currentFocusedId]: false,
+            };
             setExpandedState(newExpandedState);
             saveExpandedState(newExpandedState);
-            
+
             // Update visible nodes
             setVisibleNodes(
               getVisibleNodes(nodes(), props.collection.rootNode.id),
             );
+
+            // Preserve focus
+            setFocusedId(currentFocusedId);
           } else if (
             currentNode.parent &&
             currentNode.parent !== props.collection.rootNode.id
@@ -311,16 +333,22 @@ export function Tree(props: TreeProps) {
                 isExpanded: newIsExpanded,
               },
             }));
-            
+
             // Update expanded state
-            const newExpandedState = { ...expandedState(), [currentFocusedId]: newIsExpanded };
+            const newExpandedState = {
+              ...expandedState(),
+              [currentFocusedId]: newIsExpanded,
+            };
             setExpandedState(newExpandedState);
             saveExpandedState(newExpandedState);
-            
+
             // Update visible nodes
             setVisibleNodes(
               getVisibleNodes(nodes(), props.collection.rootNode.id),
             );
+
+            // Preserve focus
+            setFocusedId(currentFocusedId);
           } else {
             // Navigate to the note
             navigate(`/note/${currentFocusedId}`);
@@ -334,16 +362,18 @@ export function Tree(props: TreeProps) {
   const toggleNode = (id: string) => {
     const nodeMap = nodes();
     const node = nodeMap[id];
+    const currentFocused = focusedId();
 
     if (!node || !node.isFolder) return;
-    
+
     const newIsExpanded = !node.isExpanded;
-    
+
+    // Update node state
     setNodes((prev) => ({
       ...prev,
       [id]: { ...node, isExpanded: newIsExpanded },
     }));
-    
+
     // Update expanded state
     const newExpandedState = { ...expandedState(), [id]: newIsExpanded };
     setExpandedState(newExpandedState);
@@ -351,6 +381,11 @@ export function Tree(props: TreeProps) {
 
     // Update visible nodes
     setVisibleNodes(getVisibleNodes(nodes(), props.collection.rootNode.id));
+
+    // Make sure we preserve focus
+    if (currentFocused) {
+      setFocusedId(currentFocused);
+    }
   };
 
   // Setup keyboard event listeners - only in browser environment
