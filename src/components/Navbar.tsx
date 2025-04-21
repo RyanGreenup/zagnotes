@@ -203,6 +203,7 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
       </div>
 
       {/* Mobile search bar */}
+      {/*
       <div
         class="px-4 py-2 md:hidden"
         style={{
@@ -211,6 +212,7 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
       >
         <SearchBar value={searchQuery()} onInput={handleSearchInput} />
       </div>
+      */}
     </nav>
   );
 }
