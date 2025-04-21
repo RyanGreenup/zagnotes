@@ -8,6 +8,7 @@ import {
   createEffect,
 } from "solid-js";
 import NoteEditor from "~/components/NoteEditor";
+import CodeMirrorNoteEditor from "~/components/CodeMirrorNoteEditor";
 import MyCkEditor from "~/components/MyCkEditor";
 import Preview from "~/components/Preview";
 import { Tabs } from "@ark-ui/solid";
@@ -120,11 +121,16 @@ export default function DynamicIdPage() {
   };
 
   const SupsenseNoteEditor = () => {
+    /*
+       NOTE: Below CodeMirrorNoteEditor is used
+       This can be Changed to `<NoteEditor` freely in order
+       to fall back to a simpler `<textarea` component.
+    */
     return (
       <Suspense
         fallback={<p class="text-neutral-500">Loading note content...</p>}
       >
-        <NoteEditor
+        <CodeMirrorNoteEditor
           content={editableContent}
           setContent={setEditableContent}
           placeholder=""
