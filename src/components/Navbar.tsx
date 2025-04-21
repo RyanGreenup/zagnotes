@@ -29,26 +29,23 @@ function SearchBar(props: {
 }) {
   return (
     <div class="relative">
-      {/*
-      * This doesn't quite look right
-      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+      <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
         <IconWrapper icon={Search} size="sm" color="var(--color-neutral)" />
       </div>
       <input
         type="text"
-        placeholder="fzf notes..."
-        class="block w-full pl-11 pr-3 py-2 leading-5 sm:text-sm search-input"
+        placeholder="Search notes..."
+        class="block w-full pl-8 pr-2 py-1 leading-5 text-sm search-input"
         style={{
           "background-color": "var(--color-base-200)",
           border: "var(--border) solid var(--color-base-300)",
           "border-radius": "var(--radius-field)",
           color: "var(--color-base-content)",
-          padding: "var(--size-field)",
+          height: "calc(var(--navbar-height) * 0.6)",
         }}
         value={props.value}
         onInput={props.onInput}
       />
-      */}
     </div>
   );
 }
@@ -69,7 +66,7 @@ function NavButton(props: {
   return (
     <button
       onClick={props.onClick}
-      class={`p-2 focus:outline-none ${roundedClass} ${props.class || ""}`}
+      class={`p-1 focus:outline-none ${roundedClass} ${props.class || ""}`}
       style={{
         color: "var(--color-base-content)",
         "border-radius":
@@ -79,7 +76,7 @@ function NavButton(props: {
       }}
       aria-label={props.ariaLabel}
     >
-      <IconWrapper icon={props.icon} size={props.size || "lg"} />
+      <IconWrapper icon={props.icon} size={props.size || "md"} />
     </button>
   );
 }
@@ -90,9 +87,9 @@ function NavButton(props: {
 function AppLogo() {
   return (
     <A href="/" class="flex items-center ml-2 md:ml-0">
-      <IconWrapper icon={FileEdit} size="lg" color="var(--color-primary)" />
+      <IconWrapper icon={FileEdit} size="md" color="var(--color-primary)" />
       <span
-        class="ml-2 text-xl font-semibold"
+        class="ml-2 text-lg font-semibold"
         style={{ color: "var(--color-base-content)" }}
       >
         NoteKeeper
@@ -113,20 +110,23 @@ function EditButton() {
 
   const EditButton = () => {
     return (
-      <Button variant="ghost" onClick={() => setSearchParams({ edit: true })}>
-        <Edit />
-      </Button>
+      <NavButton
+        icon={Edit}
+        onClick={() => setSearchParams({ edit: true })}
+        size="md"
+        rounded="full"
+      />
     );
   };
 
   const PreviewButton = () => {
     return (
-      <Button
-        variant="ghost"
+      <NavButton
+        icon={NotebookIcon}
         onClick={() => setSearchParams({ edit: undefined })}
-      >
-        <NotebookIcon />
-      </Button>
+        size="md"
+        rounded="full"
+      />
     );
   };
 
@@ -163,34 +163,52 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
       }}
     >
       <style>{styles}</style>
-      <div class="px-4 py-3 flex items-center justify-between">
+      {/* Desktop Navbar */}
+      <div
+        class="h-full flex items-center justify-between md:px-4"
+        style={{
+          height: "var(--navbar-height)",
+          padding: "0 var(--navbar-padding-x)",
+        }}
+      >
         {/* Left side - Logo and mobile menu button */}
-        <div class="flex items-center">
+        <div class="flex items-center gap-1">
           <NavButton
             onClick={props.toggleSidebar}
             icon={Menu}
-            size="lg"
+            size="md"
             rounded="md"
             ariaLabel="Toggle sidebar"
             class="md:hidden"
           />
+          {/*
+          <AppLogo />
+          */}
+
           <EditButton />
         </div>
 
-        {/* Center - Search bar */}
+        {/* Center - Search bar (Desktop only) */}
+        {/*
         <div class="hidden md:block flex-1 max-w-md mx-4">
           <SearchBar value={searchQuery()} onInput={handleSearchInput} />
         </div>
+        */}
 
         {/* Right side - User menu */}
-        <div class="flex items-center">
-          <NavButton icon={MoreVertical} rounded="full" />
-          <NavButton icon={Users} rounded="full" class="ml-2" />
+        <div class="flex items-center gap-1">
+          <NavButton icon={MoreVertical} rounded="full" size="md" />
+          <NavButton icon={Users} rounded="full" size="md" />
         </div>
       </div>
 
       {/* Mobile search bar */}
-      <div class="px-4 py-2 md:hidden">
+      <div
+        class="px-4 py-2 md:hidden"
+        style={{
+          "border-top": "var(--border) solid var(--color-base-300)",
+        }}
+      >
         <SearchBar value={searchQuery()} onInput={handleSearchInput} />
       </div>
     </nav>

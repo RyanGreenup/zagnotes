@@ -81,6 +81,13 @@ My Themes for later migration away from Daisy UI
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
 
+  /* Layout dimensions */
+  --navbar-height: 3rem;
+  --navbar-height-mobile: 3.5rem;
+  --navbar-padding-x: 1rem;
+  --navbar-padding-y: 0.5rem;
+  --sidebar-width: 16rem;
+
   /* Border size */
   --border: 1px;
 
@@ -129,6 +136,13 @@ My Themes for later migration away from Daisy UI
   --color-error: oklch(60% 0.3 30);
   --color-error-content: oklch(98% 0.01 30);
 
+  /* Layout dimensions - kept the same as light mode */
+  --navbar-height: 3rem;
+  --navbar-height-mobile: 3.5rem;
+  --navbar-padding-x: 1rem;
+  --navbar-padding-y: 0.5rem;
+  --sidebar-width: 16rem;
+
   /* Legacy variables for backward compatibility */
   --background-rgb: 0, 0, 0;
   --foreground-rgb: 255, 255, 255;
@@ -170,6 +184,13 @@ My Themes for later migration away from Daisy UI
     --color-warning-content: oklch(20% 0.05 80);
     --color-error: oklch(60% 0.3 30);
     --color-error-content: oklch(98% 0.01 30);
+
+    /* Layout dimensions - kept the same as light mode */
+    --navbar-height: 3rem;
+    --navbar-height-mobile: 3.5rem;
+    --navbar-padding-x: 1rem;
+    --navbar-padding-y: 0.5rem;
+    --sidebar-width: 16rem;
 
     /* Legacy variables for backward compatibility */
     --background-rgb: 0, 0, 0;
