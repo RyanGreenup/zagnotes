@@ -1,10 +1,11 @@
-import { createResource, Show, Suspense } from "solid-js";
+import { createResource, Show, Suspense, createSignal, createEffect } from "solid-js";
 import { RootProvider as GenericTreeView } from "./NoteTree";
 import { fetchTreeData, createCollection } from "./treeCollection";
 import Card from "./Card";
 import SectionHeader from "./SectionHeader";
 import Button from "./Button";
 import { RefreshCwIcon } from "lucide-solid";
+import { useParams } from "@solidjs/router";
 
 /**
  * Component for a refresh button that triggers refetching data
@@ -24,6 +25,22 @@ function RefreshButton(props: { onRefresh: () => void }) {
 export default function ServerNoteTree() {
   // Create a resource that fetches tree data from the server
   const [treeData, { refetch }] = createResource(fetchTreeData);
+  
+  // Get current note ID from route params
+  const params = useParams();
+  
+  // State for selected item in tree
+  const [selectedItem, setSelectedItem] = createSignal<string[]>([]);
+  
+  // Effect to update tree selection when note ID changes
+  createEffect(() => {
+    if (params.id) {
+      setSelectedItem([params.id]);
+    } else {
+      // Clear selection when not on a note page
+      setSelectedItem([]);
+    }
+  });
 
   return (
     <>
@@ -42,7 +59,10 @@ export default function ServerNoteTree() {
         <Show when={treeData()}>
           <div class="mt-2 mb-4">
             {/* Create a collection from the fetched data and pass to RootProvider */}
-            <GenericTreeView collection={createCollection(treeData()!)} />
+            <GenericTreeView 
+              collection={createCollection(treeData()!)} 
+              selectedValues={selectedItem()}
+            />
           </div>
         </Show>
       </Suspense>

@@ -13,23 +13,27 @@ import {
   FileIcon,
   FolderIcon,
 } from "lucide-solid";
-import { For, Show, Component } from "solid-js";
+import { For, Show, Component, createEffect } from "solid-js";
 import "./NoteTree.css";
 
 /**
  * A tree view component that renders a collection of nodes
  * @param props.collection The tree collection to render
+ * @param props.selectedValues Optional array of selected values to control the tree selection
  * I'm trying to keep this generic for both tags and folders
  * However, this may change.
  */
 export const RootProvider = (props: {
   collection: ReturnType<typeof createTreeCollection<Node>>;
+  selectedValues?: string[];
 }) => {
   const navigate = useNavigate();
   const { collection } = props;
 
+  // Initialize the tree view with the current selected values
   const treeView = useTreeView({
     collection,
+    defaultSelectedValue: props.selectedValues || [],
     onSelectionChange: (details: TreeViewSelectionChangeDetails) => {
       // Get the selected node ID
       const selectedId = details.selectedValue[0];
@@ -43,7 +47,9 @@ export const RootProvider = (props: {
 
   return (
     <TreeView.RootProvider value={treeView}>
-      <TreeView.Tree class="rounded-lg overflow-hidden">
+      <TreeView.Tree
+        class="rounded-lg overflow-hidden"
+      >
         <For each={collection.rootNode.children}>
           {(node, index) => <TreeNode node={node} indexPath={[index()]} />}
         </For>
