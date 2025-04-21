@@ -1,122 +1,394 @@
 import {
-  TreeView,
-  TreeViewSelectionChangeDetails,
-  useTreeView,
-  createTreeCollection,
-} from "@ark-ui/solid/tree-view";
-import { Node, defaultCollection } from "./treeCollection";
+  createSignal,
+  createEffect,
+  onMount,
+  onCleanup,
+  For,
+  Show,
+} from "solid-js";
 import { useNavigate } from "@solidjs/router";
-import { ROUTES } from "../constants/routes";
-import {
-  CheckSquareIcon,
-  ChevronRightIcon,
-  FileIcon,
-  FolderIcon,
-} from "lucide-solid";
-import { For, Show, Component, createEffect } from "solid-js";
+import { isServer } from "solid-js/web";
 import "./NoteTree.css";
+import { Node } from "./treeCollection";
+import { ChevronRight, Folder } from "lucide-solid";
 
-/**
- * A tree view component that renders a collection of nodes
- * @param props.collection The tree collection to render
- * @param props.selectedValues Optional array of selected values to control the tree selection
- * I'm trying to keep this generic for both tags and folders
- * However, this may change.
- */
-export const RootProvider = (props: {
-  collection: ReturnType<typeof createTreeCollection<Node>>;
+// Type definitions
+type NodeMap = Record<string, TreeNode>;
+
+interface TreeNode extends Node {
+  isExpanded?: boolean;
+  isFolder?: boolean;
+  depth?: number;
+  parent?: string;
+}
+
+interface TreeProps {
+  collection: {
+    rootNode: TreeNode;
+    nodeToValue?: (node: TreeNode) => string;
+    nodeToString?: (node: TreeNode) => string;
+  };
   selectedValues?: string[];
-}) => {
-  const navigate = useNavigate();
-  const { collection } = props;
+}
 
-  // Initialize the tree view with the current selected values
-  const treeView = useTreeView({
-    collection,
-    selectedValue: props.selectedValues || [],
-    selectionMode: "single",
-    onSelectionChange: (details: TreeViewSelectionChangeDetails) => {
-      // Get the selected node ID
-      const selectedId = details.selectedValue[0];
-      if (selectedId) {
-        // Navigate to the note page based on the ID
-        // Prepend the note path constant
-        navigate(`${ROUTES.NOTE_BASE_PATH}${selectedId}`);
+// Helper functions
+function isFolder(node: TreeNode): boolean {
+  return Boolean(node.children && node.children.length > 0);
+}
+
+function flattenTree(
+  node: TreeNode,
+  nodeMap: NodeMap = {},
+  depth = 0,
+  parent = "",
+): NodeMap {
+  const nodeWithDepth = {
+    ...node,
+    depth,
+    isFolder: isFolder(node),
+    parent,
+    isExpanded: depth === 0, // Root node is expanded by default
+  };
+
+  nodeMap[node.id] = nodeWithDepth;
+
+  if (node.children) {
+    for (const child of node.children) {
+      flattenTree(child, nodeMap, depth + 1, node.id);
+    }
+  }
+
+  return nodeMap;
+}
+
+function getVisibleNodes(nodes: NodeMap, rootId: string): string[] {
+  const result: string[] = [];
+  const stack: string[] = [rootId];
+
+  while (stack.length > 0) {
+    const nodeId = stack.pop()!;
+    const node = nodes[nodeId];
+
+    if (!node) continue;
+
+    // Skip root node from visible list, but process its children
+    if (nodeId !== rootId) {
+      result.push(nodeId);
+    }
+
+    // If node is expanded and has children, add them to the stack
+    if (node.isExpanded && node.children) {
+      // Add in reverse order to maintain correct display order
+      for (let i = node.children.length - 1; i >= 0; i--) {
+        stack.push(node.children[i].id);
       }
-    },
+    }
+  }
+
+  return result;
+}
+
+function getNextNodeId(
+  currentId: string,
+  visibleNodes: string[],
+  direction: "up" | "down",
+): string {
+  const currentIndex = visibleNodes.indexOf(currentId);
+  if (currentIndex === -1) return visibleNodes[0] || "";
+
+  if (direction === "down") {
+    return visibleNodes[Math.min(currentIndex + 1, visibleNodes.length - 1)];
+  } else {
+    return visibleNodes[Math.max(currentIndex - 1, 0)];
+  }
+}
+
+// Safe accessor function to handle potentially missing methods
+function getNodeString(
+  node: TreeNode,
+  collection: TreeProps["collection"],
+): string {
+  if (collection.nodeToString) {
+    try {
+      return collection.nodeToString(node);
+    } catch (e) {
+      return node.name;
+    }
+  }
+  return node.name;
+}
+
+function getNodeValue(
+  node: TreeNode,
+  collection: TreeProps["collection"],
+): string {
+  if (collection.nodeToValue) {
+    try {
+      return collection.nodeToValue(node);
+    } catch (e) {
+      return node.id;
+    }
+  }
+  return node.id;
+}
+
+// Main tree component
+export function Tree(props: TreeProps) {
+  const [focusedId, setFocusedId] = createSignal<string>("");
+  const [nodes, setNodes] = createSignal<NodeMap>({});
+  const [visibleNodes, setVisibleNodes] = createSignal<string[]>([]);
+
+  const navigate = useNavigate();
+
+  // Initialize node map from collection
+  createEffect(() => {
+    if (props.collection && props.collection.rootNode) {
+      try {
+        // Ensure rootNode has an id property
+        const rootNode: TreeNode = {
+          ...(props.collection.rootNode || {}),
+          id: props.collection.rootNode.id || "ROOT",
+        };
+
+        // Ensure all nodes have minimum required properties
+        const ensureNodeProperties = (node: any): TreeNode => {
+          const result: TreeNode = {
+            ...node,
+            id: node.id || `node-${Math.random().toString(36).slice(2, 9)}`,
+            name: node.name || node.id || "Unnamed",
+          };
+
+          if (node.children && Array.isArray(node.children)) {
+            result.children = node.children.map(ensureNodeProperties);
+          }
+
+          return result;
+        };
+
+        const safeRootNode = ensureNodeProperties(rootNode);
+        const nodeMap = flattenTree(safeRootNode);
+        setNodes(nodeMap);
+
+        // Initialize visible nodes
+        setVisibleNodes(getVisibleNodes(nodeMap, safeRootNode.id));
+
+        // Set initial focus if there's a selected value
+        if (props.selectedValues && props.selectedValues.length > 0) {
+          setFocusedId(props.selectedValues[0]);
+        } else {
+          // Set focus to first visible node
+          const visible = getVisibleNodes(nodeMap, safeRootNode.id);
+          setFocusedId(visible[0] || "");
+        }
+      } catch (error) {
+        console.error("Error initializing tree:", error);
+      }
+    }
+  });
+
+  // Update focused id when selected values change
+  createEffect(() => {
+    if (props.selectedValues && props.selectedValues.length > 0) {
+      setFocusedId(props.selectedValues[0]);
+    }
+  });
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: KeyboardEvent) => {
+    const currentFocusedId = focusedId();
+    if (!currentFocusedId) return;
+
+    const nodeMap = nodes();
+    const currentVisible = visibleNodes();
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        const nextId = getNextNodeId(currentFocusedId, currentVisible, "down");
+        setFocusedId(nextId);
+        break;
+
+      case "ArrowUp":
+        e.preventDefault();
+        const prevId = getNextNodeId(currentFocusedId, currentVisible, "up");
+        setFocusedId(prevId);
+        break;
+
+      case "ArrowRight":
+        e.preventDefault();
+        const node = nodeMap[currentFocusedId];
+        if (node && node.isFolder && !node.isExpanded) {
+          // Expand the folder
+          setNodes((prev) => ({
+            ...prev,
+            [currentFocusedId]: { ...node, isExpanded: true },
+          }));
+          // Update visible nodes
+          setVisibleNodes(
+            getVisibleNodes(nodes(), props.collection.rootNode.id),
+          );
+        }
+        break;
+
+      case "ArrowLeft":
+        e.preventDefault();
+        const currentNode = nodeMap[currentFocusedId];
+        if (currentNode) {
+          if (currentNode.isFolder && currentNode.isExpanded) {
+            // Collapse the folder
+            setNodes((prev) => ({
+              ...prev,
+              [currentFocusedId]: { ...currentNode, isExpanded: false },
+            }));
+            // Update visible nodes
+            setVisibleNodes(
+              getVisibleNodes(nodes(), props.collection.rootNode.id),
+            );
+          } else if (
+            currentNode.parent &&
+            currentNode.parent !== props.collection.rootNode.id
+          ) {
+            // Move focus to parent
+            setFocusedId(currentNode.parent);
+          }
+        }
+        break;
+
+      case "Enter":
+      case " ":
+        e.preventDefault();
+        const targetNode = nodeMap[currentFocusedId];
+        if (targetNode) {
+          if (targetNode.isFolder) {
+            // Toggle folder expansion
+            setNodes((prev) => ({
+              ...prev,
+              [currentFocusedId]: {
+                ...targetNode,
+                isExpanded: !targetNode.isExpanded,
+              },
+            }));
+            // Update visible nodes
+            setVisibleNodes(
+              getVisibleNodes(nodes(), props.collection.rootNode.id),
+            );
+          } else {
+            // Navigate to the note
+            navigate(`/note/${currentFocusedId}`);
+          }
+        }
+        break;
+    }
+  };
+
+  // Toggle node expansion
+  const toggleNode = (id: string) => {
+    const nodeMap = nodes();
+    const node = nodeMap[id];
+
+    if (!node || !node.isFolder) return;
+
+    setNodes((prev) => ({
+      ...prev,
+      [id]: { ...node, isExpanded: !node.isExpanded },
+    }));
+
+    // Update visible nodes
+    setVisibleNodes(getVisibleNodes(nodes(), props.collection.rootNode.id));
+  };
+
+  // Setup keyboard event listeners - only in browser environment
+  onMount(() => {
+    if (!isServer) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+  });
+
+  onCleanup(() => {
+    if (!isServer) {
+      document.removeEventListener("keydown", handleKeyDown);
+    }
   });
 
   return (
-    <TreeView.RootProvider value={treeView}>
-      <TreeView.Tree
-        class="rounded-lg overflow-hidden"
-      >
-        <For each={collection.rootNode.children}>
-          {(node, index) => <TreeNode node={node} indexPath={[index()]} />}
-        </For>
-      </TreeView.Tree>
-    </TreeView.RootProvider>
-  );
-};
+    <div
+      class="tree-view w-full rounded-md bg-[var(--color-base-100)] text-[var(--color-base-content)]"
+      tabIndex={0}
+      data-scope="tree-view"
+      aria-label="Note Tree"
+    >
+      <ul class="py-1">
+        <Show when={props.collection?.rootNode?.children}>
+          <For each={visibleNodes()}>
+            {(nodeId) => {
+              const node = () => nodes()[nodeId];
+              const isSelected = () => nodeId === focusedId();
 
-/*
-This can be used for a tight heading, I haven't used it though
-*/
-const TreeLabelComponent: Component<{ label: string }> = ({ label }) => {
-  return (
-    <TreeView.Label class="text-sm font-semibold uppercase tracking-wider mb-2">
-      {label}
-    </TreeView.Label>
-  );
-};
+              return (
+                <Show when={node()}>
+                  <li
+                    class="flex flex-col"
+                    aria-expanded={node().isExpanded}
+                    data-state={node().isExpanded ? "open" : "closed"}
+                  >
+                    <div
+                      class={`
+                        flex items-center px-2 py-1 cursor-pointer
+                        ${isSelected() ? "bg-[var(--color-base-300)] text-[var(--color-primary)]" : "hover:bg-[var(--color-base-200)]"}
+                      `}
+                      style={{
+                        "padding-left": `${(node().depth || 0) * 1.25}rem`,
+                      }}
+                      data-part="item"
+                      data-focus={isSelected() ? "true" : undefined}
+                      onClick={() => {
+                        setFocusedId(nodeId);
+                        if (node().isFolder) {
+                          toggleNode(nodeId);
+                        } else {
+                          navigate(`/note/${nodeId}`);
+                        }
+                      }}
+                    >
+                      <Show when={node().isFolder}>
+                        <span
+                          class="mr-1 inline-flex justify-center items-center w-4 h-4 transition-transform duration-150"
+                          style={{
+                            transform: node().isExpanded
+                              ? "rotate(90deg)"
+                              : "rotate(0deg)",
+                          }}
+                          data-part="branch-indicator"
+                        >
+                          <ChevronRight />
+                        </span>
+                      </Show>
 
-const TreeNode = (props: TreeView.NodeProviderProps<Node>) => {
-  const { node, indexPath } = props;
-  // Get the focused value
-  return (
-    <TreeView.NodeProvider node={node} indexPath={indexPath}>
-      <Show
-        when={node.children}
-        fallback={
-          <TreeView.Item
-            class="py-1.5 px-3 hover:bg-opacity-70 transition-all duration-200 flex items-center gap-2 cursor-pointer"
-            data-focus-visible-within:bg-primary-content
-            data-focus:bg-primary-content
-          >
-            <TreeView.ItemIndicator class="text-xs opacity-80">
-              <CheckSquareIcon class="h-4 w-4" />
-            </TreeView.ItemIndicator>
-            <TreeView.ItemText class="flex items-center gap-2 font-medium">
-              <FileIcon class="h-4 w-4 opacity-70" />
-              <span class="text-sm">{node.name}</span>
-            </TreeView.ItemText>
-          </TreeView.Item>
-        }
-      >
-        <TreeView.Branch>
-          <TreeView.BranchControl
-            class="py-1.5 px-3 hover:bg-opacity-80 flex items-center w-full cursor-pointer"
-            data-focus-visible-within:bg-primary-content
-            data-focus:bg-primary-content
-          >
-            <TreeView.BranchIndicator class="mr-1">
-              <ChevronRightIcon class="h-4 w-4 opacity-70" />
-            </TreeView.BranchIndicator>
-            <TreeView.BranchText class="flex items-center gap-2 font-medium">
-              <FolderIcon class="h-4 w-4" />
-              <span class="text-sm">{node.name}</span>
-            </TreeView.BranchText>
-          </TreeView.BranchControl>
-          <TreeView.BranchContent class="pl-4 mt-1">
-            <TreeView.BranchIndentGuide class="border-l border-base-300 ml-2 pl-2" />
-            <For each={node.children}>
-              {(child, index) => (
-                <TreeNode node={child} indexPath={[...indexPath, index()]} />
-              )}
-            </For>
-          </TreeView.BranchContent>
-        </TreeView.Branch>
-      </Show>
-    </TreeView.NodeProvider>
+                      <span
+                        class="flex items-center gap-2 truncate"
+                        data-part={
+                          node().isFolder ? "branch-text" : "item-text"
+                        }
+                      >
+                        <span class="truncate">
+                          {getNodeString(node(), props.collection)}
+                        </span>
+                      </span>
+                    </div>
+                  </li>
+                </Show>
+              );
+            }}
+          </For>
+        </Show>
+      </ul>
+    </div>
   );
-};
+}
+
+// Provider component for backward compatibility
+export function RootProvider(props: TreeProps) {
+  return <Tree {...props} />;
+}
+
+export default Tree;

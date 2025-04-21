@@ -2,10 +2,10 @@
  * Professional VSCode-like styling for Ark UI Tree
  */
 
-/* Base styling for all tree components */
+/* Base styling for tree components */
 [data-scope="tree-view"] {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
   user-select: none;
 }
 
@@ -34,9 +34,12 @@
 }
 
 /* Focus styling - subtle and professional */
-[data-focus][data-scope="tree-view"] {
+[data-focus][data-scope="tree-view"],
+[data-focused="true"] {
   background-color: var(--color-base-300);
   outline: none;
+  color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary-content);
 }
 
 /* Active focus - when item is both focused and selected */
@@ -105,5 +108,5 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
 }
