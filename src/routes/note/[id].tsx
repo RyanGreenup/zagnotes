@@ -1,4 +1,4 @@
-import { useParams } from "@solidjs/router";
+import { useParams, useSearchParams } from "@solidjs/router";
 import Card from "~/components/Card";
 import {
   createResource,
@@ -71,11 +71,11 @@ export default function DynamicIdPage() {
   };
 
   const resetTextBox = () => {
-      const maybe_note_body = noteBody();
-      if (maybe_note_body) {
-        setEditableContent(maybe_note_body);
-      }
-  }
+    const maybe_note_body = noteBody();
+    if (maybe_note_body) {
+      setEditableContent(maybe_note_body);
+    }
+  };
 
   enum TabValues {
     Preview = "preview",
@@ -84,21 +84,19 @@ export default function DynamicIdPage() {
 
   const SaveButton = () => {
     return (
-        <Button
-        onClick={saveChanges}>
-        <Save class="w-4 h-4"/>
-        </Button>
+      <Button onClick={saveChanges}>
+        <Save class="w-4 h-4" />
+      </Button>
     );
   };
 
   const ResetButton = () => {
-      return (
-          <Button onClick={resetTextBox}>
-          <Undo class="w-4 h-4" />
-          </Button>
-      );
-
-  }
+    return (
+      <Button onClick={resetTextBox}>
+        <Undo class="w-4 h-4" />
+      </Button>
+    );
+  };
 
   const NoteDetails = () => {
     return (
@@ -137,11 +135,9 @@ export default function DynamicIdPage() {
 
   const LivePreview = () => {
     return (
-      <Card title="Preview" variant="bordered" padding="md">
-        <Suspense fallback={<p>Loading Preview</p>}>
-          <Preview content={editableContent} />
-        </Suspense>
-      </Card>
+      <Suspense fallback={<p>Loading Preview</p>}>
+        <Preview content={editableContent} />
+      </Suspense>
     );
   };
 
@@ -149,11 +145,32 @@ export default function DynamicIdPage() {
     return (
       <Suspense fallback={<p>Loading Preview</p>}>
         <Card title="Note Preview" variant="bordered" padding="md">
-          <Preview content={noteBody} renderOnServer={true}/>
+          <Preview content={noteBody} renderOnServer={true} />
         </Card>
       </Suspense>
     );
   };
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  return (
+    <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
+      <main class="p-4">
+        <SaveButton />
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="w-full md:w-1/2">
+            <SupsenseNoteEditor />
+          </div>
+          <div class="w-full md:w-1/2">
+            <LivePreview />
+          </div>
+        </div>
+        {/*
+            <NoteDetails />
+            */}
+      </main>
+    </Show>
+  );
 
   return (
     <>
@@ -166,26 +183,11 @@ export default function DynamicIdPage() {
             <Edit />
           </Tabs.Trigger>
         </Tabs.List>
+
         <Tabs.Content value={TabValues.Preview}>
           <ServerSidePreview />
         </Tabs.Content>
-        <Tabs.Content value={TabValues.Edit}>
-          <main class="p-4">
-
-        <SaveButton />
-            <div class="flex flex-col md:flex-row gap-4">
-              <div class="w-full md:w-1/2">
-                <SupsenseNoteEditor />
-              </div>
-              <div class="w-full md:w-1/2">
-                <LivePreview />
-              </div>
-            </div>
-            {/*
-            <NoteDetails />
-            */}
-          </main>
-        </Tabs.Content>
+        <Tabs.Content value={TabValues.Edit}></Tabs.Content>
       </Tabs.Root>
     </>
   );
