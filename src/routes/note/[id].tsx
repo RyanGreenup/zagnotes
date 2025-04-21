@@ -154,33 +154,45 @@ export default function DynamicIdPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   return (
-
-      // AI: The editor and preview is used here
-      // The tailwind utility classes to define the sizing and responsive layout of
-      // this editor and preview are completely inappropriate and it looks awful
-      // Completely overhaul the sizing and class parameters so that the sizing and layout is
-      //
-      // 1. Responsive for desktop and mobile
-      // 2. Professional looking (this is important for my job and wellbeing)
-      // 3. Practical and effective, the layout must make it effective for users to edit notes
-      //
-      // Follow best practices of tailwind to create a modern and responsive editing layout for a modern wiki web application AI!
-
-
     <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
-      <main class="p-4">
-        <SaveButton />
-    <div class="flex flex-col md:flex-row h-screen">
-      <div class="w-full md:w-1/2 flex-1 overflow-y-auto">
-        <SupsenseNoteEditor />
-      </div>
-      <div class="w-full md:w-1/2 flex-1 overflow-y-auto h-64">
-        <LivePreview />
-      </div>
-    </div>
-        {/*
-            <NoteDetails />
-            */}
+      <main class="container mx-auto px-4 py-6 max-w-7xl">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold truncate">
+            {params.id.replace(/-/g, ' ')}
+          </h1>
+          <div class="flex space-x-2">
+            <ResetButton />
+            <SaveButton />
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-12rem)]">
+          {/* Editor Panel */}
+          <div class="bg-base-200 rounded-lg shadow-md overflow-hidden border border-base-300">
+            <div class="bg-base-300 px-4 py-2 border-b border-base-300 flex items-center">
+              <Edit class="w-4 h-4 mr-2" />
+              <h2 class="font-medium">Editor</h2>
+            </div>
+            <div class="h-[calc(100%-2.5rem)]">
+              <Suspense fallback={<div class="p-4 animate-pulse">Loading editor...</div>}>
+                <SupsenseNoteEditor />
+              </Suspense>
+            </div>
+          </div>
+          
+          {/* Preview Panel */}
+          <div class="bg-base-200 rounded-lg shadow-md overflow-hidden border border-base-300">
+            <div class="bg-base-300 px-4 py-2 border-b border-base-300 flex items-center">
+              <EyeIcon class="w-4 h-4 mr-2" />
+              <h2 class="font-medium">Preview</h2>
+            </div>
+            <div class="h-[calc(100%-2.5rem)] overflow-auto">
+              <Suspense fallback={<div class="p-4 animate-pulse">Rendering preview...</div>}>
+                <LivePreview />
+              </Suspense>
+            </div>
+          </div>
+        </div>
       </main>
     </Show>
   );
