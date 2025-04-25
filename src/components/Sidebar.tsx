@@ -49,7 +49,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      class="h-full w-64 flex-shrink-0 transition-all duration-500 ease-in-out flex flex-col"
+      class="h-full flex-shrink-0 transition-all duration-500 ease-in-out flex flex-col relative"
       classList={{
         "translate-x-0 opacity-100": isVisible(),
         "-translate-x-full opacity-0": !isVisible(),
@@ -57,6 +57,7 @@ export default function Sidebar() {
       style={{
         "background-color": "var(--color-base-200)",
         "border-right": "var(--border) solid var(--color-base-300)",
+        "width": "100%",
       }}
     >
       <Tabs.Root defaultValue={TabEnum.NOTE_TREE} class="flex flex-col h-full">

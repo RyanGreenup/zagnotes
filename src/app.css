@@ -225,6 +225,23 @@ body {
   background: var(--color-neutral);
 }
 
+/* Resize handle styles */
+.resize-handle {
+  transition: opacity 0.2s;
+  z-index: 50;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  opacity: 1 !important;
+}
+
+/* Set body styles when resizing */
+body.resizing {
+  cursor: ew-resize !important;
+  user-select: none !important;
+}
+
 /* Firefox scrollbar styling */
 * {
   scrollbar-width: thin;
