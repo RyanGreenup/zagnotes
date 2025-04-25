@@ -150,7 +150,7 @@ export default function Sidebar() {
         </div>
       </Tabs.Root>
       <div
-        class="resize-handle"
+        class="hidden md:block resize-handle"
         onMouseDown={handleMouseDown}
       />
     </aside>
