@@ -109,7 +109,7 @@ export async function moveItem(
 export async function createNewNote(
   title: string,
   parentId: string,
-  initialBody: string = ""
+  initialBody: string = "",
 ): Promise<{ id: string } & DbResponse> {
   "use server";
   try {
@@ -157,7 +157,9 @@ export async function moveItemToRoot(id: string): Promise<DbResponse> {
   "use server";
   try {
     // Import required functions
-    const { moveFolder, moveNote, isFolder, isNote } = await import("~/lib/db-folder");
+    const { moveFolder, moveNote, isFolder, isNote } = await import(
+      "~/lib/db-folder"
+    );
 
     // Check item type and move it accordingly
     if (await isFolder(id)) {
@@ -263,19 +265,12 @@ export function Tree(props: TreeProps) {
     },
     {
       label: "Move to Root",
-      action: async (nodeId) => {
-        const result = await moveItemToRoot(nodeId);
-
-        if (result.success) {
-          // Update the tree after moving the item
-          // For a complete solution, we should refresh the tree data
-          // For now, we'll just clear the cut state if active
-          if (getCutId() === nodeId) {
-            setCutId("");
+      action: (nodeId) => {
+        moveNodeWithinTree(nodeId, "", true).then((success) => {
+          if (!success) {
+            console.error(`Failed to move item ${nodeId} to root`);
           }
-        } else {
-          console.error(`Failed to move item to root: ${result.message}`);
-        }
+        });
       },
     },
     {
@@ -655,42 +650,100 @@ export function Tree(props: TreeProps) {
     }
   }
 
-  function pasteCutItemIntoFocusedItem(): void {
-    const cutId = getCutId();
-    const targetId = focusedId();
-
-    if (!cutId || !targetId || cutId === targetId) return;
+  /**
+   * Moves a node within the tree and updates the UI
+   * @param nodeId - ID of the node to move
+   * @param targetId - ID of the target node or location
+   * @param moveToRoot - If true, moves to root instead of using targetId
+   * @returns Promise that resolves when the operation is complete
+   */
+  function moveNodeWithinTree(
+    nodeId: string,
+    targetId: string,
+    moveToRoot: boolean = false,
+  ): Promise<boolean> {
+    if (
+      !nodeId ||
+      (!targetId && !moveToRoot) ||
+      (nodeId === targetId && !moveToRoot)
+    ) {
+      return Promise.resolve(false);
+    }
 
     const nodeMap = nodes();
-    const cutNode = nodeMap[cutId];
-    const targetNode = nodeMap[targetId];
+    const sourceNode = nodeMap[nodeId];
 
-    if (!cutNode || !targetNode) return;
+    if (!sourceNode) {
+      return Promise.resolve(false);
+    }
 
     // Make a copy of the current nodes
     const newNodes = { ...nodeMap };
 
-    // Try to move the note first and only proceed if successful
-    moveItem(cutId, targetId).then((result) => {
-      if (result.success) {
-        // 1. Remove cut node from its parent's children
-        removeNodeFromTree(cutNode.parent, newNodes, cutId);
+    // Define the server operation to perform
+    const serverOperation = moveToRoot
+      ? moveItemToRoot(nodeId)
+      : moveItem(nodeId, targetId);
 
-        // 2. Add cut node to new location
-        insertItemIntoTree(targetNode, newNodes, cutNode);
+    // Execute server operation first
+    return serverOperation
+      .then((result) => {
+        if (!result.success) {
+          console.error(`Failed to move item: ${result.message}`);
+          return false;
+        }
 
-        // Update the cut node in the map
-        newNodes[cutId] = cutNode;
+        // 1. Remove node from its parent's children
+        removeNodeFromTree(sourceNode.parent, newNodes, nodeId);
+
+        // 2. Add node to new location
+        if (moveToRoot) {
+          // Add to root - we have to get the root node
+          const rootNodeId = props.collection.rootNode.id;
+          const rootNode = nodeMap[rootNodeId];
+
+          if (rootNode) {
+            // Update parent reference
+            sourceNode.parent = rootNodeId;
+            sourceNode.depth = 1; // Root level
+
+            // Add to root children
+            if (!rootNode.children) rootNode.children = [];
+            rootNode.children.push(sourceNode);
+            newNodes[rootNodeId] = rootNode;
+          }
+        } else {
+          // Add to target
+          const targetNode = nodeMap[targetId];
+          if (targetNode) {
+            insertItemIntoTree(targetNode, newNodes, sourceNode);
+          }
+        }
+
+        // Update the node in the map
+        newNodes[nodeId] = sourceNode;
 
         // Update the tree
         setNodes(newNodes);
 
-        // Clear cut ID
-        setCutId("");
-      } else {
-        console.error(`Failed to move item: ${result.message}`);
-      }
-    });
+        // Clear cut ID if it matches
+        if (getCutId() === nodeId) {
+          setCutId("");
+        }
+
+        return true;
+      })
+      .catch((error) => {
+        console.error("Error moving node:", error);
+        return false;
+      });
+  }
+
+  function pasteCutItemIntoFocusedItem(): void {
+    const cutId = getCutId();
+    const targetId = focusedId();
+
+    moveNodeWithinTree(cutId, targetId);
   }
 
   // Handle keyboard navigation
@@ -789,6 +842,12 @@ export function Tree(props: TreeProps) {
     }
 
     switch (e.key) {
+      case "0":
+        moveNodeWithinTree(focusedId(), "", true).then((success) => {
+          if (!success) {
+            console.error(`Failed to move item ${focusedId()} to root`);
+          }
+        });
       case "m":
         showContextMenuForFocused(e);
         break;
