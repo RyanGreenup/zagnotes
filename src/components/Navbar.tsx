@@ -215,4 +215,5 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
       */}
     </nav>
   );
+
 }
