@@ -44,28 +44,6 @@ interface TreeNodeItemProps {
   children?: JSX.Element;
 }
 
-function TreeNodeItem(props: TreeNodeItemProps) {
-  return (
-    <div
-      classList={{
-        "flex items-center px-2 py-1 cursor-pointer": true,
-        "bg-[var(--color-base-300)] text-[var(--color-primary)]":
-          props.isSelected(),
-        "hover:bg-[var(--color-base-200)]": !props.isSelected(),
-        "whitespace-nowrap w-max min-w-full": props.horizontalScroll,
-      }}
-      style={{
-        "padding-left": `${(props.node().depth || 0) * props.horizontalWidthRem}rem`,
-      }}
-      data-part="item"
-      data-focus={props.isSelected() ? "true" : undefined}
-      onClick={() => props.handleNodeClick(props.nodeId)}
-    >
-      {props.children}
-    </div>
-  );
-}
-
 // Main Tree Component
 export function Tree(props: TreeProps) {
   // Core state
@@ -74,6 +52,48 @@ export function Tree(props: TreeProps) {
   const [isTreeFocused, setIsTreeFocused] = createSignal(false);
   const treeRef = { current: null as HTMLDivElement | null };
   const navigate = useNavigate();
+
+  const getShowVerticalLines = () => {
+    return props.showVerticalLines || false;
+  };
+
+  // Build the closure for the nodes so the return statement is simpler but we can
+  // inherit the props from the container without passing them back in
+  const TreeNodeItem = (props: TreeNodeItemProps) => {
+    return (
+      <div
+        classList={{
+          "flex items-center px-2 py-1 cursor-pointer": true,
+          "bg-[var(--color-base-300)] text-[var(--color-primary)]":
+            props.isSelected(),
+          "hover:bg-[var(--color-base-200)]": !props.isSelected(),
+          "whitespace-nowrap w-max min-w-full": props.horizontalScroll,
+        }}
+        style={{
+          "padding-left": `${(props.node().depth || 0) * props.horizontalWidthRem}rem`,
+        }}
+        data-part="item"
+        data-focus={props.isSelected() ? "true" : undefined}
+        onClick={() => props.handleNodeClick(props.nodeId)}
+      >
+        {/*Show vertical lines by default */}
+        <Show when={getShowVerticalLines()}>
+          {renderVerticalLines(props.node().depth || 0)}
+        </Show>
+        {/*Add the Chevron Icon */}
+        <Show when={isFolder(props.node())}>
+          <RotatingChevronIcon
+            isExpanded={() => props.node().isExpanded || false}
+          />
+        </Show>
+        {/* Include children if provided */}
+        {props.children}
+
+        {/*Show the Node label */}
+        <ItemLabel node={props.node} />
+      </div>
+    );
+  };
 
   // Get expanded state from localStorage
   function getStoredExpanded(): Record<string, boolean> {
@@ -535,19 +555,7 @@ export function Tree(props: TreeProps) {
                       horizontalScroll={props.horizontalScroll}
                       handleNodeClick={handleNodeClick}
                       horizontalWidthRem={HORIZONTAL_WIDTH_REM}
-                    >
-                      {/*Show vertical lines by default */}
-                      <Show when={props.showVerticalLines !== false}>
-                        {renderVerticalLines(node().depth || 0)}
-                      </Show>
-                      {/*Add the Chevron Icon */}
-                      <Show when={isFolder(node())}>
-                        <RotatingChevronIcon
-                          isExpanded={() => node().isExpanded || false}
-                        />
-                      </Show>
-                      <ItemLabel node={node} />
-                    </TreeNodeItem>
+                    />
                   </li>
                 </Show>
               );
