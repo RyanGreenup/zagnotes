@@ -461,6 +461,44 @@ export function Tree(props: TreeProps) {
     );
   }
 
+  interface RotatingChevronProps {
+    isExpanded: () => boolean;
+  }
+  function RotatingChevronIcon(props: RotatingChevronProps) {
+    return (
+      <span
+        class="mr-1 inline-flex justify-center items-center w-4 h-4 transition-transform duration-150"
+        style={{
+          transform: props.isExpanded() ? "rotate(90deg)" : "rotate(0deg)",
+        }}
+        data-part="branch-indicator"
+      >
+        <ChevronRight class="w-4 h-4" />
+      </span>
+    );
+  }
+
+  const horizontalScroll = () => props.horizontalScroll || false;
+
+  interface itemLabelProps {
+    node: () => TreeNode;
+  }
+
+  function ItemLabel(props: itemLabelProps) {
+    return (
+      <span
+        classList={{
+          "flex items-center gap-2": true,
+          "whitespace-nowrap": horizontalScroll(),
+          truncate: !horizontalScroll(),
+        }}
+        data-part={isFolder(props.node()) ? "branch-text" : "item-text"}
+      >
+        <span class="truncate">{getNodeName(props.node())}</span>
+      </span>
+    );
+  }
+
   // Render tree
   return (
     <div
@@ -502,28 +540,13 @@ export function Tree(props: TreeProps) {
                       <Show when={props.showVerticalLines !== false}>
                         {renderVerticalLines(node().depth || 0)}
                       </Show>
+                      {/*Add the Chevron Icon */}
                       <Show when={isFolder(node())}>
-                        <span
-                          class="mr-1 inline-flex justify-center items-center w-4 h-4 transition-transform duration-150"
-                          style={{
-                            transform: node().isExpanded
-                              ? "rotate(90deg)"
-                              : "rotate(0deg)",
-                          }}
-                          data-part="branch-indicator"
-                        >
-                          <ChevronRight class="w-4 h-4" />
-                        </span>
+                        <RotatingChevronIcon
+                          isExpanded={() => node().isExpanded || false}
+                        />
                       </Show>
-
-                      <span
-                        class={`flex items-center gap-2 ${props.horizontalScroll ? "whitespace-nowrap" : "truncate"}`}
-                        data-part={
-                          isFolder(node()) ? "branch-text" : "item-text"
-                        }
-                      >
-                        <span class="truncate">{getNodeName(node())}</span>
-                      </span>
+                      <ItemLabel node={node} />
                     </TreeNodeItem>
                   </li>
                 </Show>
