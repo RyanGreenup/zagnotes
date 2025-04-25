@@ -32,6 +32,35 @@ export interface ContextMenuItem {
   isNote?: boolean; // If true, only show for notes
 }
 
+// MenuItem component for individual options
+interface MenuItemProps {
+  item: ContextMenuItem;
+  isSelected: boolean;
+  index: () => number;
+  nodeId: string;
+  onSelect: (index: number) => void;
+  onAction: (item: ContextMenuItem, nodeId: string) => void;
+}
+
+function MenuItem(props: MenuItemProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => props.onAction(props.item, props.nodeId)}
+      classList={{
+        "w-full text-left px-4 py-2 text-sm flex items-center gap-2": true,
+        "bg-[var(--color-base-300)] text-[var(--color-primary)]": props.isSelected,
+        "hover:bg-[var(--color-base-200)]": !props.isSelected,
+      }}
+      disabled={!!props.item.disabled}
+      onMouseEnter={() => props.onSelect(props.index())}
+    >
+      {props.item.icon && <span class="w-4 h-4">{props.item.icon}</span>}
+      <span>{props.item.label}</span>
+    </button>
+  );
+}
+
 // Context Menu Component
 export function ContextMenu(props: ContextMenuProps) {
   // Track the selected menu item index
@@ -115,6 +144,12 @@ export function ContextMenu(props: ContextMenuProps) {
     }
   }
 
+  // Handle menu item action
+  function handleMenuItemAction(item: ContextMenuItem, nodeId: string) {
+    item.action(nodeId);
+    props.onClose();
+  }
+
   // Scroll selected item into view
   createEffect(() => {
     if (!isServer && menuRef.current) {
@@ -153,26 +188,14 @@ export function ContextMenu(props: ContextMenuProps) {
         <For each={filteredItems()}>
           {(item, index) => (
             <>
-              <button
-                type="button"
-                onClick={() => {
-                  item.action(props.nodeId);
-                  props.onClose();
-                }}
-                classList={{
-                  "w-full text-left px-4 py-2 text-sm flex items-center gap-2":
-                    true,
-                  "bg-[var(--color-base-300)] text-[var(--color-primary)]":
-                    selectedIndex() === index(),
-                  "hover:bg-[var(--color-base-200)]":
-                    selectedIndex() !== index(),
-                }}
-                disabled={!!item.disabled}
-                onMouseEnter={() => setSelectedIndex(index())}
-              >
-                {item.icon && <span class="w-4 h-4">{item.icon}</span>}
-                <span>{item.label}</span>
-              </button>
+              <MenuItem
+                item={item}
+                isSelected={selectedIndex() === index()}
+                index={index}
+                nodeId={props.nodeId}
+                onSelect={setSelectedIndex}
+                onAction={handleMenuItemAction}
+              />
               {item.separator && (
                 <div class="h-px bg-[var(--color-base-300)] my-1 mx-2"></div>
               )}
