@@ -43,7 +43,8 @@ export default function Sidebar() {
   const handleMouseMove = (e: MouseEvent) => {
     if (!isResizing()) return;
     const newWidth = e.clientX;
-    if (newWidth > 200 && newWidth < 500) { // Min and max width constraints
+    const maxWidth = window.innerWidth * 0.8
+    if (newWidth > 200 && newWidth < maxWidth) { // Min and max width constraints
       setWidth(newWidth);
     }
   };
@@ -80,7 +81,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      class="h-full flex-shrink-0 transition-all duration-500 ease-in-out flex flex-col relative"
+      class="h-full flex-shrink-0 flex flex-col relative"
       style={{
         width: `${width()}px`,
         "background-color": "var(--color-base-200)",
@@ -93,8 +94,8 @@ export default function Sidebar() {
     >
       <Tabs.Root defaultValue={TabEnum.NOTE_TREE} class="flex flex-col h-full">
         {/* Tabs List -- Buttons showing the tabs*/}
-        <Tabs.List 
-          class="flex-shrink-0 sticky top-0 z-10" 
+        <Tabs.List
+          class="flex-shrink-0 sticky top-0 z-10"
           style={{
             "height": "var(--navbar-height)",
             "background-color": "var(--color-base-200)"
@@ -148,8 +149,8 @@ export default function Sidebar() {
           </Tabs.Content>
         </div>
       </Tabs.Root>
-      <div 
-        class="resize-handle" 
+      <div
+        class="resize-handle"
         onMouseDown={handleMouseDown}
       />
     </aside>
