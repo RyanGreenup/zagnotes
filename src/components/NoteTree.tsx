@@ -13,6 +13,8 @@ import {
 import { isServer, Portal } from "solid-js/web";
 import "./NoteTree.css";
 import { Node } from "./treeCollection";
+import { ContextMenu } from "./ContextMenu";
+import type { ContextMenuItem } from "./ContextMenu";
 
 // Types
 interface TreeNode extends Node {
@@ -34,26 +36,6 @@ interface TreeProps {
 
 type NodeMap = Record<string, TreeNode>;
 
-// Context menu types
-interface ContextMenuItem {
-  label: string;
-  action: (nodeId: string) => void;
-  icon?: JSX.Element;
-  separator?: boolean;
-  disabled?: boolean | ((node: TreeNode) => boolean);
-  isFolder?: boolean; // If true, only show for folders
-  isNote?: boolean;   // If true, only show for notes
-}
-
-interface ContextMenuProps {
-  items: ContextMenuItem[];
-  x: number;
-  y: number;
-  nodeId: string;
-  node: TreeNode;
-  onClose: () => void;
-}
-
 // TreeNodeItem component
 interface TreeNodeItemProps {
   node: () => TreeNode;
@@ -66,109 +48,8 @@ interface TreeNodeItemProps {
   children?: JSX.Element;
 }
 
-// Context Menu Component
-function ContextMenu(props: ContextMenuProps) {
-  const filteredItems = createMemo(() => {
-    return props.items.filter(item => {
-      // Skip items that don't match the node type (folder/note)
-      if (item.isFolder && !isFolder(props.node)) return false;
-      if (item.isNote && isFolder(props.node)) return false;
-      
-      // Check disabled state
-      if (typeof item.disabled === 'function') {
-        return !item.disabled(props.node);
-      }
-      return !item.disabled;
-    });
-  });
-
-  function handleClickOutside(e: MouseEvent) {
-    props.onClose();
-  }
-
-  // Position the menu to ensure it stays in viewport
-  const style = createMemo(() => {
-    // Get viewport dimensions
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    
-    // Menu dimensions (rough estimate - could be improved)
-    const menuWidth = 200;
-    const menuHeight = filteredItems().length * 36;
-    
-    // Calculate position to keep menu in viewport
-    let x = props.x;
-    let y = props.y;
-    
-    // Adjust horizontal position if needed
-    if (x + menuWidth > vw) {
-      x = vw - menuWidth - 5;
-    }
-    
-    // Adjust vertical position if needed
-    if (y + menuHeight > vh) {
-      y = vh - menuHeight - 5;
-    }
-    
-    return {
-      left: `${x}px`,
-      top: `${y}px`
-    };
-  });
-
-  // Close on ESC key
-  function handleKeyDown(e: KeyboardEvent) {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      props.onClose();
-    }
-  }
-
-  onMount(() => {
-    document.addEventListener('click', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-  });
-
-  onCleanup(() => {
-    document.removeEventListener('click', handleClickOutside);
-    document.removeEventListener('keydown', handleKeyDown);
-  });
-
-  return (
-    <div 
-      class="fixed z-50 min-w-[200px] bg-[var(--color-base-100)] shadow-lg rounded-md text-[var(--color-base-content)] border border-[var(--color-base-300)]"
-      style={style()}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div class="py-1">
-        <For each={filteredItems()}>
-          {(item) => (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  item.action(props.nodeId);
-                  props.onClose();
-                }}
-                class="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-[var(--color-base-200)]"
-                disabled={!!item.disabled}
-              >
-                {item.icon && <span class="w-4 h-4">{item.icon}</span>}
-                <span>{item.label}</span>
-              </button>
-              {item.separator && (
-                <div class="h-px bg-[var(--color-base-300)] my-1 mx-2"></div>
-              )}
-            </>
-          )}
-        </For>
-      </div>
-    </div>
-  );
-}
-
 // Helper function to check if a node is a folder
-function isFolder(node: TreeNode): boolean {
+export function isFolder(node: TreeNode): boolean {
   return Boolean(node.children && node.children.length > 0);
 }
 
@@ -180,7 +61,7 @@ export function Tree(props: TreeProps) {
   const [isTreeFocused, setIsTreeFocused] = createSignal(false);
   const treeRef = { current: null as HTMLDivElement | null };
   const navigate = useNavigate();
-  
+
   // Context menu state
   const [contextMenu, setContextMenu] = createSignal<{
     show: boolean;
@@ -195,30 +76,20 @@ export function Tree(props: TreeProps) {
     nodeId: "",
     node: {} as TreeNode,
   });
-  
+
   // Context menu items
   const contextMenuItems: ContextMenuItem[] = [
     {
       label: "Open",
       action: (nodeId) => {
         if (isFolder(nodes()[nodeId])) {
+          console.log(`Toggle ${nodeId}`);
           toggleNode(nodeId);
         } else {
+          console.log(`Navigate ${nodeId}`);
           navigate(`/note/${nodeId}`);
         }
-      }
-    },
-    {
-      label: "Expand",
-      action: (nodeId) => toggleNode(nodeId),
-      isFolder: true,
-      disabled: (node) => !!node.isExpanded
-    },
-    {
-      label: "Collapse",
-      action: (nodeId) => toggleNode(nodeId),
-      isFolder: true,
-      disabled: (node) => !node.isExpanded
+      },
     },
     {
       label: "New Note",
@@ -227,57 +98,58 @@ export function Tree(props: TreeProps) {
         console.log(`Create new note in ${nodeId}`);
       },
       isFolder: true,
-      separator: true
+      separator: true,
     },
     {
       label: "Rename",
       action: (nodeId) => {
         console.log(`Rename ${nodeId}`);
-      }
+      },
     },
     {
       label: "Delete",
       action: (nodeId) => {
         console.log(`Delete ${nodeId}`);
       },
-      separator: true
+      separator: true,
     },
     {
       label: "Copy Link",
       action: (nodeId) => {
         const url = `/note/${nodeId}`;
         if (isServer) return;
-        navigator.clipboard.writeText(window.location.origin + url)
+        navigator.clipboard
+          .writeText(window.location.origin + url)
           .then(() => console.log("URL copied to clipboard"))
-          .catch(err => console.error("Failed to copy URL", err));
+          .catch((err) => console.error("Failed to copy URL", err));
       },
-      isNote: true
-    }
+      isNote: true,
+    },
   ];
-  
+
   // Handle right-click on node
   function handleNodeRightClick(id: string, e: MouseEvent): void {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const node = nodes()[id];
     if (!node) return;
-    
+
     setContextMenu({
       show: true,
       x: e.clientX,
       y: e.clientY,
       nodeId: id,
-      node
+      node,
     });
-    
+
     // Also set this as the focused node
     setFocusedId(id);
   }
-  
+
   // Close context menu
   function closeContextMenu(): void {
-    setContextMenu(prev => ({ ...prev, show: false }));
+    setContextMenu((prev) => ({ ...prev, show: false }));
   }
 
   const getShowVerticalLines = () => {
@@ -794,7 +666,7 @@ export function Tree(props: TreeProps) {
           </Show>
         </ul>
       </div>
-      
+
       {/* Context Menu */}
       <Show when={contextMenu().show && !isServer}>
         <Portal>
