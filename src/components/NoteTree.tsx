@@ -70,7 +70,7 @@ export function Tree(props: TreeProps) {
           "whitespace-nowrap w-max min-w-full": props.horizontalScroll,
         }}
         style={{
-          "padding-left": `${(props.node().depth || 0) * props.horizontalWidthRem}rem`,
+          "padding-left": `${((props.node().depth || 0) - 1) * props.horizontalWidthRem}rem`,
         }}
         data-part="item"
         data-focus={props.isSelected() ? "true" : undefined}
@@ -473,7 +473,7 @@ export function Tree(props: TreeProps) {
           <div
             class="absolute w-[1px] h-full bg-[var(--color-base-300)] opacity-95 top-0 z-0 pointer-events-none"
             style={{
-              left: `${index() * HORIZONTAL_WIDTH_REM}rem`,
+              left: `${(index() - 1) * HORIZONTAL_WIDTH_REM}rem`,
             }}
           />
         )}
