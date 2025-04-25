@@ -155,64 +155,60 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
   };
 
   return (
-    <nav
-      class="fixed w-full z-10"
-      style={{
-        "background-color": "var(--color-base-100)",
-        "border-bottom": "var(--border) solid var(--color-base-300)",
-      }}
-    >
-      <style>{styles}</style>
-      {/* Desktop Navbar */}
-      <div
-        class="h-full flex items-center justify-between md:px-4"
+    <>
+      {/* Top Navbar */}
+      <nav
+        class="fixed top-0 w-full z-10"
         style={{
-          height: "var(--navbar-height)",
-          padding: "0 var(--navbar-padding-x)",
+          "background-color": "var(--color-base-100)",
+          "border-bottom": "var(--border) solid var(--color-base-300)",
         }}
       >
-        {/* Left side - Logo and mobile menu button */}
-        <div class="flex items-center gap-1">
-          <NavButton
-            onClick={props.toggleSidebar}
-            icon={Menu}
-            size="md"
-            rounded="md"
-            ariaLabel="Toggle sidebar"
-            class="md:hidden"
-          />
-          {/*
-          <AppLogo />
-          */}
-
-          <EditButton />
+        <style>{styles}</style>
+        <div
+          class="h-full flex items-center justify-between md:px-4"
+          style={{
+            height: "var(--navbar-height)",
+            padding: "0 var(--navbar-padding-x)",
+          }}
+        >
+          <div class="flex items-center gap-1">
+            <NavButton
+              onClick={props.toggleSidebar}
+              icon={Menu}
+              size="md"
+              rounded="md"
+              ariaLabel="Toggle sidebar"
+              class="md:hidden"
+            />
+          </div>
+          <div class="flex items-center gap-1">
+            <NavButton icon={MoreVertical} rounded="full" size="md" />
+            <NavButton icon={Users} rounded="full" size="md" />
+          </div>
         </div>
+      </nav>
 
-        {/* Center - Search bar (Desktop only) */}
-        {/*
-        <div class="hidden md:block flex-1 max-w-md mx-4">
-          <SearchBar value={searchQuery()} onInput={handleSearchInput} />
-        </div>
-        */}
-
-        {/* Right side - User menu */}
-        <div class="flex items-center gap-1">
-          <NavButton icon={MoreVertical} rounded="full" size="md" />
-          <NavButton icon={Users} rounded="full" size="md" />
-        </div>
-      </div>
-
-      {/* Mobile search bar */}
-      {/*
-      <div
-        class="px-4 py-2 md:hidden"
+      {/* Bottom Navbar */}
+      <nav
+        class="fixed bottom-0 w-full z-10"
         style={{
+          "background-color": "var(--color-base-100)",
           "border-top": "var(--border) solid var(--color-base-300)",
         }}
       >
-        <SearchBar value={searchQuery()} onInput={handleSearchInput} />
-      </div>
-      */}
-    </nav>
+        <div
+          class="h-full flex items-center justify-end md:px-4"
+          style={{
+            height: "var(--navbar-height)",
+            padding: "0 var(--navbar-padding-x)",
+          }}
+        >
+          <div class="flex items-center gap-1">
+            <EditButton />
+          </div>
+        </div>
+      </nav>
+    </>
   );
 }

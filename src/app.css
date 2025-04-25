@@ -84,7 +84,7 @@ My Themes for later migration away from Daisy UI
   --line-height-base: 1.5;
 
   /* Layout dimensions */
-  --navbar-height: 3rem;
+  --navbar-height: 2rem;
   --navbar-height-mobile: 3.5rem;
   --navbar-padding-x: 1rem;
   --navbar-padding-y: 0.5rem;
@@ -261,61 +261,117 @@ a[href]:hover {
 
 
 
+/* Base alert styles with theme-aware colors */
 .markdown-alert {
   position: relative;
-  padding: 16px;
-  margin: 20px 0;
-  border: 1px solid #dfe1e6; /* Default border color */
-  border-radius: 4px;
-  background-color: #f4f5f7; /* Default background color */
+  padding: 1rem;
+  margin: 1.25rem 0;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-box);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
+  transition: all 0.2s ease;
 }
 
-/* Used to style the title part of the alert, specifically enhancing icons and text */
+/* Alert title styling */
 .markdown-alert-title {
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
-  color: #333333; /* Default text color */
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
 }
 
-/* SVG icon styling in the title */
+/* SVG icon styling */
 .markdown-alert-title .octicon {
-  fill: #0056b3; /* Default icon color */
-  margin-right: 8px;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
 }
 
-/* Specific style for notes */
-.markdown-alert-note {
-  border-color: #b8d4ff;
-  background-color: #e6f3ff;
-}
-
-.markdown-alert-note .markdown-alert-title {
-  color: #0056b3;
-}
-
-.markdown-alert-note .octicon {
-  fill: #0056b3;
-}
-
-/* Paragraph or content within the alert */
+/* Paragraph styling within alerts */
 .markdown-alert p {
   margin: 0;
   line-height: 1.5;
+  font-size: 0.9rem;
 }
 
-/* To ensure responsive behavior */
-@media (max-width: 600px) {
-  .markdown-alert {
-    padding: 12px;
-  }
+/* Note alert - Blue */
+.markdown-alert-note {
+  border-color: var(--color-info);
+  background-color: color-mix(in oklab, var(--color-info) 10%, var(--color-base-100));
+}
 
-  .markdown-alert-title .octicon {
-    width: 20px;
-    height: 20px;
+.markdown-alert-note .markdown-alert-title {
+  color: var(--color-info);
+}
+
+.markdown-alert-note .octicon {
+  fill: var(--color-info);
+}
+
+/* Warning alert - Yellow/Orange */
+.markdown-alert-warning {
+  border-color: var(--color-warning);
+  background-color: color-mix(in oklab, var(--color-warning) 10%, var(--color-base-100));
+}
+
+.markdown-alert-warning .markdown-alert-title {
+  color: color-mix(in oklab, var(--color-warning) 90%, var(--color-warning-content));
+}
+
+.markdown-alert-warning .octicon {
+  fill: var(--color-warning);
+}
+
+/* Important alert - Red */
+.markdown-alert-important {
+  border-color: var(--color-error);
+  background-color: color-mix(in oklab, var(--color-error) 10%, var(--color-base-100));
+}
+
+.markdown-alert-important .markdown-alert-title {
+  color: var(--color-error);
+}
+
+.markdown-alert-important .octicon {
+  fill: var(--color-error);
+}
+
+/* Tip/Success alert - Green */
+.markdown-alert-tip {
+  border-color: var(--color-success);
+  background-color: color-mix(in oklab, var(--color-success) 10%, var(--color-base-100));
+}
+
+.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-success);
+}
+
+.markdown-alert-tip .octicon {
+  fill: var(--color-success);
+}
+
+/* Caution alert - Orange */
+.markdown-alert-caution {
+  border-color: var(--color-warning);
+  background-color: color-mix(in oklab, var(--color-warning) 10%, var(--color-base-100));
+}
+
+.markdown-alert-caution .markdown-alert-title {
+  color: color-mix(in oklab, var(--color-warning) 90%, var(--color-warning-content));
+}
+
+.markdown-alert-caution .octicon {
+  fill: var(--color-warning);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .markdown-alert {
+    padding: 0.75rem;
+    margin: 1rem 0;
   }
 }
 

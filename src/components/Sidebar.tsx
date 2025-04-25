@@ -1,4 +1,4 @@
-import { createSignal, onMount } from "solid-js";
+import { createSignal } from "solid-js";
 import NavLink from "./NavLink";
 import { Tabs } from "@ark-ui/solid/tabs";
 import SectionHeader from "./SectionHeader";
@@ -12,11 +12,9 @@ import {
   Link2,
   ExternalLink,
   Search,
-  Pin,
   FileStack,
 } from "lucide-solid";
 import "./TabFocus.css";
-import Card from "./Card";
 import RecentNotes from "./RecentNotes";
 import SearchBar from "./SearchBar";
 import Backlinks from "./BackLinks";
@@ -30,14 +28,6 @@ import PinnedNotes from "./PinnedNotes";
  * @returns Sidebar component
  */
 export default function Sidebar() {
-  const [isVisible, setIsVisible] = createSignal(false);
-  // Removed icon_class as it's now handled in CSS
-
-  onMount(() => {
-    // Trigger entrance animation after component mounts
-    setTimeout(() => setIsVisible(true), 100);
-  });
-
   enum TabEnum {
     NOTE_TREE = "note_tree",
     BACKLINKS = "backlinks",
@@ -48,20 +38,16 @@ export default function Sidebar() {
   }
 
   return (
-    <aside
-      class="h-full w-64 flex-shrink-0 transition-all duration-500 ease-in-out flex flex-col"
-      classList={{
-        "translate-x-0 opacity-100": isVisible(),
-        "-translate-x-full opacity-0": !isVisible(),
-      }}
-      style={{
-        "background-color": "var(--color-base-200)",
-        "border-right": "var(--border) solid var(--color-base-300)",
-      }}
-    >
+    <aside class="h-full flex-shrink-0 flex flex-col relative">
       <Tabs.Root defaultValue={TabEnum.NOTE_TREE} class="flex flex-col h-full">
-        {/* Tabs List -- Buttons showing the tabs*/}
-        <Tabs.List class="flex-shrink-0">
+        {/* Tabs List */}
+        <Tabs.List
+          class="flex-shrink-0 sticky top-0 z-10 overflow-x-auto scrollbar-thin"
+          style={{
+            "height": "var(--navbar-height)",
+            "background-color": "var(--color-base-200)"
+          }}
+        >
           <Tabs.Trigger value="note_tree" title="Note Tree">
             <FolderTree />
             <span class="sr-only">Note Tree</span>
@@ -88,8 +74,8 @@ export default function Sidebar() {
           </Tabs.Trigger>
         </Tabs.List>
 
-        {/* Tab Content, what's shown when tab is selected*/}
-        <div class="flex-grow overflow-auto">
+        {/* Tab Content */}
+        <div class="flex-grow overflow-auto" style={{"height": "calc(100% - var(--navbar-height))"}}>
           <Tabs.Content value="note_tree" class="h-full">
             <NoteTree />
           </Tabs.Content>
