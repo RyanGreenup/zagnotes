@@ -27,7 +27,7 @@ async function getNoteBody(id: string) {
   try {
     const { getNote } = await import("~/lib/db");
     const note = await getNote(id);
-    
+
     // Return the note body or a default message if not found
     return note?.body || `Note with ID ${id} not found`;
   } catch (error) {
