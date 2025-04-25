@@ -1,20 +1,16 @@
-import { useNavigate } from "@solidjs/router";
-import { ChevronRight } from "lucide-solid";
+import { TreeNode } from "@ark-ui/solid";
 import {
   createEffect,
+  createMemo,
   createSignal,
   For,
   JSX,
   onCleanup,
   onMount,
-  Show,
-  createMemo,
 } from "solid-js";
-import { isServer, Portal } from "solid-js/web";
-import "./NoteTree.css";
-import { Node } from "./treeCollection";
-import { TreeNode } from "@ark-ui/solid";
+import { isServer } from "solid-js/web";
 import { isFolder } from "./NoteTree";
+import "./NoteTree.css";
 
 interface ContextMenuProps {
   items: ContextMenuItem[];
@@ -148,7 +144,7 @@ export function ContextMenu(props: ContextMenuProps) {
   return (
     <div
       ref={(el) => (menuRef.current = el)}
-      class="fixed z-50 min-w-[200px] bg-[var(--color-base-100)] shadow-lg rounded-md text-[var(--color-base-content)] border border-[var(--color-base-300)] outline-none"
+      class="fixed z-50 min-w-36 bg-[var(--color-base-100)] shadow-lg rounded-md text-[var(--color-base-content)] border border-[var(--color-base-300)] outline-none"
       style={style()}
       onClick={(e) => e.stopPropagation()}
       tabIndex={0} // Make focusable
