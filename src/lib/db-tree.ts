@@ -3,6 +3,7 @@
  * Provides functions for working with hierarchical note/folder structure
  */
 import { getDbConnection } from './db-connection';
+import { DbResponse, formatErrorResponse } from './index';
 
 /**
  * Tree node interface
@@ -196,7 +197,7 @@ function cleanTree(node: any): TreeNode {
 export async function createFolder(
   title: string,
   parentId?: string
-): Promise<{ id: string; success: boolean; message: string }> {
+): Promise<{ id: string } & DbResponse> {
   const db = await getDbConnection();
 
   try {
@@ -216,8 +217,7 @@ export async function createFolder(
     console.error('Error creating folder:', error);
     return {
       id: '',
-      success: false,
-      message: `Error creating folder: ${error instanceof Error ? error.message : String(error)}`
+      ...formatErrorResponse(error, 'creating folder')
     };
   }
 }
@@ -233,7 +233,7 @@ export async function moveItem(
   id: string,
   parentId: string | null,
   type: 'note' | 'folder'
-): Promise<{ success: boolean; message: string }> {
+): Promise<DbResponse> {
   const db = await getDbConnection();
 
   try {
@@ -280,9 +280,6 @@ export async function moveItem(
     return { success: true, message: `${type === 'folder' ? 'Folder' : 'Note'} moved successfully` };
   } catch (error) {
     console.error(`Error moving ${type}:`, error);
-    return {
-      success: false,
-      message: `Error moving ${type}: ${error instanceof Error ? error.message : String(error)}`
-    };
+    return formatErrorResponse(error, `moving ${type}`);
   }
 }

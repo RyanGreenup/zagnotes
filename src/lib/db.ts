@@ -3,6 +3,7 @@
  * Provides functions for interacting with individual notes
  */
 import { getDbConnection } from './db-connection';
+import { DbResponse, formatErrorResponse } from './index';
 
 /**
  * Get a note by ID
@@ -33,7 +34,7 @@ export async function saveNote(
   id: string,
   content: string,
   title?: string
-): Promise<{ success: boolean; message: string }> {
+): Promise<DbResponse> {
   const db = await getDbConnection();
 
   try {
@@ -69,9 +70,6 @@ export async function saveNote(
     return { success: true, message: "Note saved successfully" };
   } catch (error) {
     console.error(`Error saving note ${id}:`, error);
-    return {
-      success: false,
-      message: `Error saving note: ${error instanceof Error ? error.message : String(error)}`
-    };
+    return formatErrorResponse(error, 'saving note');
   }
 }

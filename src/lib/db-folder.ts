@@ -3,6 +3,7 @@
  * Provides functions for working with folders
  */
 import { getDbConnection } from "./db-connection";
+import { DbResponse, formatErrorResponse } from "./index";
 
 /**
  * Folder interface
@@ -66,7 +67,7 @@ export async function getFolder(id: string): Promise<Folder | null> {
 export async function updateFolder(
   id: string,
   title: string,
-): Promise<{ success: boolean; message: string }> {
+): Promise<DbResponse> {
   const db = await getDbConnection();
 
   try {
@@ -83,10 +84,7 @@ export async function updateFolder(
     return { success: true, message: "Folder updated successfully" };
   } catch (error) {
     console.error(`Error updating folder ${id}:`, error);
-    return {
-      success: false,
-      message: `Error updating folder: ${error instanceof Error ? error.message : String(error)}`,
-    };
+    return formatErrorResponse(error, 'updating folder');
   }
 }
 
@@ -99,7 +97,7 @@ export async function updateFolder(
 export async function moveFolder(
   id: string,
   target_parent_folder_id: string,
-): Promise<{ success: boolean; message: string }> {
+): Promise<DbResponse> {
   const db = await getDbConnection();
 
   try {
@@ -122,10 +120,7 @@ export async function moveFolder(
       `Error updating folder ${id} to parent id of ${target_parent_folder_id}:`,
       error,
     );
-    return {
-      success: false,
-      message: `Error updating folder: ${error instanceof Error ? error.message : String(error)}`,
-    };
+    return formatErrorResponse(error, 'updating folder');
   }
 }
 
@@ -138,7 +133,7 @@ export async function moveFolder(
 export async function moveNote(
   id: string,
   target_parent_folder_id: string,
-): Promise<{ success: boolean; message: string }> {
+): Promise<DbResponse> {
   const db = await getDbConnection();
 
   try {
@@ -161,10 +156,7 @@ export async function moveNote(
       `Error updating note ${id} to parent id of ${target_parent_folder_id}:`,
       error,
     );
-    return {
-      success: false,
-      message: `Error updating folder: ${error instanceof Error ? error.message : String(error)}`,
-    };
+    return formatErrorResponse(error, 'updating note');
   }
 }
 
@@ -218,7 +210,7 @@ export async function isNote(id: string): Promise<boolean> {
 export async function deleteFolder(
   id: string,
   recursive: boolean = false,
-): Promise<{ success: boolean; message: string }> {
+): Promise<DbResponse> {
   const db = await getDbConnection();
 
   try {
@@ -280,9 +272,6 @@ export async function deleteFolder(
     return { success: true, message: "Folder deleted successfully" };
   } catch (error) {
     console.error(`Error deleting folder ${id}:`, error);
-    return {
-      success: false,
-      message: `Error deleting folder: ${error instanceof Error ? error.message : String(error)}`,
-    };
+    return formatErrorResponse(error, 'deleting folder');
   }
 }
