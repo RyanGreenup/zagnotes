@@ -93,7 +93,13 @@ export default function Sidebar() {
     >
       <Tabs.Root defaultValue={TabEnum.NOTE_TREE} class="flex flex-col h-full">
         {/* Tabs List -- Buttons showing the tabs*/}
-        <Tabs.List class="flex-shrink-0" style={{"height": "var(--navbar-height)"}} >
+        <Tabs.List 
+          class="flex-shrink-0 sticky top-0 z-10" 
+          style={{
+            "height": "var(--navbar-height)",
+            "background-color": "var(--color-base-200)"
+          }}
+        >
           <Tabs.Trigger value="note_tree" title="Note Tree">
             <FolderTree />
             <span class="sr-only">Note Tree</span>
@@ -121,7 +127,7 @@ export default function Sidebar() {
         </Tabs.List>
 
         {/* Tab Content, what's shown when tab is selected*/}
-        <div class="flex-grow overflow-auto">
+        <div class="flex-grow overflow-auto" style={{"height": "calc(100% - var(--navbar-height))"}}>
           <Tabs.Content value="note_tree" class="h-full">
             <NoteTree />
           </Tabs.Content>

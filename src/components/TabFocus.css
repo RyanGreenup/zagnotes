@@ -7,6 +7,22 @@
   background-color: var(--color-base-200);
   padding: 0.5rem 0.5rem 0;
   gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  scroll-snap-type: x mandatory;
+  white-space: nowrap;
+}
+
+/* Hide scrollbar for Chrome/Safari */
+[role="tablist"]::-webkit-scrollbar {
+  display: none;
+}
+
+/* Individual tab styling */
+[role="tab"] {
+  scroll-snap-align: start;
+  flex-shrink: 0;
 }
 
 /* Individual tab styling */
