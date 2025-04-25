@@ -446,6 +446,12 @@ export function Tree(props: TreeProps) {
       setCutId(focusedId);
     }
 
+    function handlePasteEvent(e: KeyboardEvent): void {
+      e.preventDefault();
+      console.log("Pasting Item from ", getCutId(), "under ", focusedId());
+    }
+
+
     function focusUp(e: KeyboardEvent): void {
       e.preventDefault();
       if (currentIndex > 0) {
@@ -517,6 +523,9 @@ export function Tree(props: TreeProps) {
         break;
       case "x":
         handleCutEvent(e);
+        break;
+      case "p":
+        handlePasteEvent(e);
         break;
       case "ArrowDown":
         focusDown(e);
