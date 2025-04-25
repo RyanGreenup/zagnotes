@@ -1,4 +1,4 @@
-import { createSignal, onMount, onCleanup } from "solid-js";
+import { createSignal } from "solid-js";
 import NavLink from "./NavLink";
 import { Tabs } from "@ark-ui/solid/tabs";
 import SectionHeader from "./SectionHeader";
@@ -12,11 +12,9 @@ import {
   Link2,
   ExternalLink,
   Search,
-  Pin,
   FileStack,
 } from "lucide-solid";
 import "./TabFocus.css";
-import Card from "./Card";
 import RecentNotes from "./RecentNotes";
 import SearchBar from "./SearchBar";
 import Backlinks from "./BackLinks";
@@ -30,46 +28,6 @@ import PinnedNotes from "./PinnedNotes";
  * @returns Sidebar component
  */
 export default function Sidebar() {
-  const [isVisible, setIsVisible] = createSignal(false);
-  const [width, setWidth] = createSignal(256); // Default width
-  const [isResizing, setIsResizing] = createSignal(false);
-
-  const handleMouseDown = (e: MouseEvent) => {
-    setIsResizing(true);
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isResizing()) return;
-    const newWidth = e.clientX;
-    const maxWidth = window.innerWidth * 0.8
-    if (newWidth > 200 && newWidth < maxWidth) { // Min and max width constraints
-      setWidth(newWidth);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsResizing(false);
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-  };
-
-  onMount(() => {
-    if (typeof window !== 'undefined') {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-    setTimeout(() => setIsVisible(true), 100);
-  });
-
-  onCleanup(() => {
-    if (typeof window !== 'undefined') {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    }
-  });
-
   enum TabEnum {
     NOTE_TREE = "note_tree",
     BACKLINKS = "backlinks",
@@ -80,22 +38,11 @@ export default function Sidebar() {
   }
 
   return (
-    <aside
-      class="h-full flex-shrink-0 flex flex-col relative w-96 md:w-[var(--sidebar-width)]"
-      style={{
-        "--sidebar-width": `${width()}px`,
-        "background-color": "var(--color-base-200)",
-        "border-right": "var(--border) solid var(--color-base-300)",
-      }}
-      classList={{
-        "translate-x-0 opacity-100": isVisible(),
-        "-translate-x-full opacity-0": !isVisible(),
-      }}
-    >
+    <aside class="h-full flex-shrink-0 flex flex-col relative">
       <Tabs.Root defaultValue={TabEnum.NOTE_TREE} class="flex flex-col h-full">
-        {/* Tabs List -- Buttons showing the tabs*/}
+        {/* Tabs List */}
         <Tabs.List
-          class="flex-shrink-0 sticky top-0 z-10"
+          class="flex-shrink-0 sticky top-0 z-10 overflow-x-auto scrollbar-thin"
           style={{
             "height": "var(--navbar-height)",
             "background-color": "var(--color-base-200)"
@@ -127,7 +74,7 @@ export default function Sidebar() {
           </Tabs.Trigger>
         </Tabs.List>
 
-        {/* Tab Content, what's shown when tab is selected*/}
+        {/* Tab Content */}
         <div class="flex-grow overflow-auto" style={{"height": "calc(100% - var(--navbar-height))"}}>
           <Tabs.Content value="note_tree" class="h-full">
             <NoteTree />
@@ -149,10 +96,6 @@ export default function Sidebar() {
           </Tabs.Content>
         </div>
       </Tabs.Root>
-      <div
-        class="hidden md:block resize-handle"
-        onMouseDown={handleMouseDown}
-      />
     </aside>
   );
 }
