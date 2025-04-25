@@ -58,15 +58,21 @@ interface MoveItemResult {
   message: string;
 }
 
-export async function moveItem(id: string, targetParentId: string): Promise<MoveItemResult> {
+export async function moveItem(
+  id: string,
+  targetParentId: string,
+): Promise<MoveItemResult> {
+  "use server";
   try {
-    const { moveNote, moveFolder, isFolder, isNote } = await import("~/lib/db-folder");
+    const { moveNote, moveFolder, isFolder, isNote } = await import(
+      "~/lib/db-folder"
+    );
 
     // Validate that target is a folder
     if (!(await isFolder(targetParentId))) {
       return {
         success: false,
-        message: `Target ${targetParentId} is not a folder`
+        message: `Target ${targetParentId} is not a folder`,
       };
     }
 
@@ -80,18 +86,20 @@ export async function moveItem(id: string, targetParentId: string): Promise<Move
     // Fallback case - we don't know what type it is but we'll try folder
     return await moveFolder(id, targetParentId);
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     // Log the error for debugging
-    console.error(`Error moving item ${id} to ${targetParentId}: ${errorMessage}`);
+    console.error(
+      `Error moving item ${id} to ${targetParentId}: ${errorMessage}`,
+    );
 
     return {
       success: false,
-      message: `Error moving item ${id} to ${targetParentId}`
+      message: `Error moving item ${id} to ${targetParentId}`,
     };
   }
 }
-
 
 // Main Tree Component
 export function Tree(props: TreeProps) {
