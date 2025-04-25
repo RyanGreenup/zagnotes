@@ -1,16 +1,16 @@
+import { useNavigate } from "@solidjs/router";
+import { ChevronRight } from "lucide-solid";
 import {
-  createSignal,
   createEffect,
-  onMount,
-  onCleanup,
+  createSignal,
   For,
+  onCleanup,
+  onMount,
   Show,
 } from "solid-js";
-import { useNavigate } from "@solidjs/router";
 import { isServer } from "solid-js/web";
 import "./NoteTree.css";
 import { Node } from "./treeCollection";
-import { ChevronRight } from "lucide-solid";
 
 // Types
 interface TreeNode extends Node {
@@ -150,7 +150,7 @@ export function Tree(props: TreeProps) {
         const selectedId = props.selectedValues[0];
         setFocusedId(selectedId);
         setPrevSelectedId(selectedId);
-        
+
         // Expand all parent nodes to reveal the selected node
         // This only happens on initial load or when URL changes
         setTimeout(() => expandParents(selectedId), 0); // Using setTimeout to ensure nodes state is set
@@ -170,36 +170,40 @@ export function Tree(props: TreeProps) {
   function expandParents(nodeId: string): void {
     const nodeMap = nodes();
     let currentNode = nodeMap[nodeId];
-    
+
     // Skip if node doesn't exist
     if (!currentNode) return;
-    
+
     // Get current expanded state
     const expanded = getStoredExpanded();
     let hasChanges = false;
 
     // Traverse up the tree and expand all parent nodes
-    while (currentNode && currentNode.parent && currentNode.parent !== props.collection.rootNode.id) {
+    while (
+      currentNode &&
+      currentNode.parent &&
+      currentNode.parent !== props.collection.rootNode.id
+    ) {
       const parentId = currentNode.parent;
       const parentNode = nodeMap[parentId];
-      
+
       // If parent exists and is not expanded, expand it
       if (parentNode && !parentNode.isExpanded) {
         // Update node in the map
         setNodes({
           ...nodes(),
-          [parentId]: { ...parentNode, isExpanded: true }
+          [parentId]: { ...parentNode, isExpanded: true },
         });
-        
+
         // Update expanded state for persistence
         expanded[parentId] = true;
         hasChanges = true;
       }
-      
+
       // Move up to the next parent
       currentNode = parentNode;
     }
-    
+
     // Save expanded state if changes were made
     if (hasChanges) {
       saveExpanded(expanded);
@@ -208,15 +212,15 @@ export function Tree(props: TreeProps) {
 
   // Track the previous selected ID to detect changes from URL params
   const [prevSelectedId, setPrevSelectedId] = createSignal<string>("");
-  
+
   // Update focus when selected values change (typically from URL params)
   createEffect(() => {
     if (props.selectedValues?.length) {
       const selectedId = props.selectedValues[0];
-      
+
       // Set the focused ID
       setFocusedId(selectedId);
-      
+
       // Only expand parents when the selection changes due to URL params
       // This prevents re-expansion after user manually collapses folders
       if (prevSelectedId() !== selectedId) {
@@ -404,12 +408,17 @@ export function Tree(props: TreeProps) {
     }
   });
 
+  const HORIZONTAL_WIDTH_REM = 1;
+
   // Render tree
   return (
     <div
       ref={(el) => (treeRef.current = el)}
-      class="tree-view rounded-md bg-[var(--color-base-100)] text-[var(--color-base-content)]"
-      style={props.horizontalScroll ? { "width": "max-content", "min-width": "100%" } : {}}
+      classList={{
+        "tree-view rounded-md bg-[var(--color-base-100)] text-[var(--color-base-content)]":
+          true,
+        "w-max min-w-full": props.horizontalScroll,
+      }}
       tabIndex={0}
       data-scope="tree-view"
       aria-label="Note Tree"
@@ -436,14 +445,11 @@ export function Tree(props: TreeProps) {
                         "bg-[var(--color-base-300)] text-[var(--color-primary)]":
                           isSelected(),
                         "hover:bg-[var(--color-base-200)]": !isSelected(),
+                        "whitespace-nowrap w-max min-w-full":
+                          props.horizontalScroll,
                       }}
                       style={{
-                        "padding-left": `${(node().depth || 0) * 1.25}rem`,
-                        ...(props.horizontalScroll ? {
-                          "white-space": "nowrap",
-                          "width": "max-content",
-                          "min-width": "100%"
-                        } : {})
+                        "padding-left": `${(node().depth || 0) * HORIZONTAL_WIDTH_REM}rem`,
                       }}
                       data-part="item"
                       data-focus={isSelected() ? "true" : undefined}
