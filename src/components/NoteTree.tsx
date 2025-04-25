@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { ChevronRight } from "lucide-solid";
+import { ChevronRight, RemoveFormattingIcon, ScissorsIcon } from "lucide-solid";
 import {
   createEffect,
   createSignal,
@@ -58,6 +58,7 @@ export function Tree(props: TreeProps) {
   // Core state
   const [nodes, setNodes] = createSignal<NodeMap>({});
   const [focusedId, setFocusedId] = createSignal<string>("");
+  const [getCutId, setCutId] = createSignal<string>("");
   const [isTreeFocused, setIsTreeFocused] = createSignal(false);
   const treeRef = { current: null as HTMLDivElement | null };
   const navigate = useNavigate();
@@ -159,6 +160,8 @@ export function Tree(props: TreeProps) {
   // Build the closure for the nodes so the return statement is simpler but we can
   // inherit the props from the container without passing them back in
   const TreeNodeItem = (props: TreeNodeItemProps) => {
+    const isCut = createMemo(() => getCutId() === props.nodeId);
+
     return (
       <div
         id={`${props.nodeId}`}
@@ -168,12 +171,15 @@ export function Tree(props: TreeProps) {
             props.isSelected(),
           "hover:bg-[var(--color-base-200)]": !props.isSelected(),
           "whitespace-nowrap w-max min-w-full": props.horizontalScroll,
+          "opacity-80 text-[var(--color-accent)] border-l-2 border-[var(--color-accent)] bg-[var(--color-accent-focus)] bg-opacity-5":
+            isCut(),
         }}
         style={{
           "padding-left": `${((props.node().depth || 0) - 1) * props.horizontalWidthRem}rem`,
         }}
         data-part="item"
         data-focus={props.isSelected() ? "true" : undefined}
+        data-cut={isCut() ? "true" : undefined}
         onClick={() => props.handleNodeClick(props.nodeId)}
         onContextMenu={(e) => props.handleNodeRightClick(props.nodeId, e)}
       >
@@ -435,6 +441,11 @@ export function Tree(props: TreeProps) {
       }
     }
 
+    function handleCutEvent(e: KeyboardEvent): void {
+      e.preventDefault();
+      setCutId(focusedId);
+    }
+
     function focusUp(e: KeyboardEvent): void {
       e.preventDefault();
       if (currentIndex > 0) {
@@ -503,6 +514,9 @@ export function Tree(props: TreeProps) {
     switch (e.key) {
       case "m":
         showContextMenuForFocused(e);
+        break;
+      case "x":
+        handleCutEvent(e);
         break;
       case "ArrowDown":
         focusDown(e);
@@ -637,16 +651,25 @@ export function Tree(props: TreeProps) {
   }
 
   function ItemLabel(props: itemLabelProps) {
+    const isCut = createMemo(() => getCutId() === props.node().id);
+
     return (
       <span
         classList={{
           "flex items-center gap-2": true,
           "whitespace-nowrap": horizontalScroll(),
           truncate: !horizontalScroll(),
+          "text-[var(--color-accent)] font-medium": isCut(),
         }}
         data-part={isFolder(props.node()) ? "branch-text" : "item-text"}
+        data-cut={isCut() ? "true" : undefined}
       >
-        <span class="truncate">{getNodeName(props.node())}</span>
+        <span class="truncate flex items-center gap-1">
+          <Show when={isCut()}>
+            <ScissorsIcon class="h-4 w-4" />
+          </Show>
+          {getNodeName(props.node())}
+        </span>
       </span>
     );
   }
