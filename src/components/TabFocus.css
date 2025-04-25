@@ -8,15 +8,29 @@
   padding: 0.5rem 0.5rem 0;
   gap: 0.25rem;
   overflow-x: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--color-base-300) transparent;
   scroll-snap-type: x mandatory;
   white-space: nowrap;
+  -ms-overflow-style: -ms-autohiding-scrollbar; /* IE/Edge */
 }
 
-/* Hide scrollbar for Chrome/Safari */
+/* Custom scrollbar for Chrome/Safari */
 [role="tablist"]::-webkit-scrollbar {
-  display: none;
+  height: 4px;
+}
+
+[role="tablist"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[role="tablist"]::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 2px;
+}
+
+[role="tablist"]:hover::-webkit-scrollbar-thumb {
+  background-color: var(--color-base-300);
 }
 
 /* Individual tab styling */
