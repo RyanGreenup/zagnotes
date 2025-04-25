@@ -161,6 +161,7 @@ export function Tree(props: TreeProps) {
   const TreeNodeItem = (props: TreeNodeItemProps) => {
     return (
       <div
+        id={`${props.nodeId}`}
         classList={{
           "flex items-center px-2 py-1 cursor-pointer": true,
           "bg-[var(--color-base-300)] text-[var(--color-primary)]":
@@ -471,7 +472,38 @@ export function Tree(props: TreeProps) {
       }
     }
 
+    function showContextMenuForFocused(e: KeyboardEvent): void {
+      e.preventDefault();
+
+      // NOTE the tree sets items to the note-id, I was unable
+      // To use `tree-item-${focusedId()}`, the ids did align in the DOM
+      // Alternatively, the second (OBOB) element worked, but this would be slower
+      // because it's not the first item and walks the DOM.
+      // const nodeElement = document.querySelectorAll(`[data-focus="true"][data-part="item"]`)[1];
+      const nodeElement = document.getElementById(focusedId());
+      if (!nodeElement) return;
+
+      // Get position for the context menu (at mouse position or element center if triggered by keyboard)
+      const rect = nodeElement.getBoundingClientRect();
+
+      // Use the center of the element for the context menu position
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+
+      // Show context menu at that position
+      setContextMenu({
+        show: true,
+        x,
+        y,
+        nodeId: currentId,
+        node,
+      });
+    }
+
     switch (e.key) {
+      case "m":
+        showContextMenuForFocused(e);
+        break;
       case "ArrowDown":
         focusDown(e);
         break;

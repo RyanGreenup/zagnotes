@@ -49,7 +49,8 @@ function MenuItem(props: MenuItemProps) {
       onClick={() => props.onAction(props.item, props.nodeId)}
       classList={{
         "w-full text-left px-4 py-2 text-sm flex items-center gap-2": true,
-        "bg-[var(--color-base-300)] text-[var(--color-primary)]": props.isSelected,
+        "bg-[var(--color-base-300)] text-[var(--color-primary)]":
+          props.isSelected,
         "hover:bg-[var(--color-base-200)]": !props.isSelected,
       }}
       disabled={!!props.item.disabled}
