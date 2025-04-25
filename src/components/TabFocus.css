@@ -45,6 +45,24 @@
   box-shadow: 0 0 0 2px var(--color-primary);
 }
 
+/* Resize handle */
+.resize-handle {
+  position: absolute;
+  right: -4px;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  z-index: 10;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  background-color: var(--color-primary);
+}
+
 /* Tab content container */
 [role="tabpanel"] {
   background-color: var(--color-base-100);

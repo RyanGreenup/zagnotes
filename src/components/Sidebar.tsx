@@ -1,4 +1,4 @@
-import { createSignal, onMount } from "solid-js";
+import { createSignal, onMount, onCleanup } from "solid-js";
 import NavLink from "./NavLink";
 import { Tabs } from "@ark-ui/solid/tabs";
 import SectionHeader from "./SectionHeader";
@@ -31,6 +31,39 @@ import PinnedNotes from "./PinnedNotes";
  */
 export default function Sidebar() {
   const [isVisible, setIsVisible] = createSignal(false);
+  const [width, setWidth] = createSignal(256); // Default width
+  const [isResizing, setIsResizing] = createSignal(false);
+
+  const handleMouseDown = (e: MouseEvent) => {
+    setIsResizing(true);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isResizing()) return;
+    const newWidth = e.clientX;
+    if (newWidth > 200 && newWidth < 500) { // Min and max width constraints
+      setWidth(newWidth);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsResizing(false);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  };
+
+  onMount(() => {
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    setTimeout(() => setIsVisible(true), 100);
+  });
+
+  onCleanup(() => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  });
   // Removed icon_class as it's now handled in CSS
 
   onMount(() => {
@@ -49,7 +82,12 @@ export default function Sidebar() {
 
   return (
     <aside
-      class="h-full w-64 flex-shrink-0 transition-all duration-500 ease-in-out flex flex-col"
+      class="h-full flex-shrink-0 transition-all duration-500 ease-in-out flex flex-col relative"
+      style={{
+        width: `${width()}px`,
+        "background-color": "var(--color-base-200)",
+        "border-right": "var(--border) solid var(--color-base-300)",
+      }}
       classList={{
         "translate-x-0 opacity-100": isVisible(),
         "-translate-x-full opacity-0": !isVisible(),
@@ -110,6 +148,10 @@ export default function Sidebar() {
           </Tabs.Content>
         </div>
       </Tabs.Root>
+      <div 
+        class="resize-handle" 
+        onMouseDown={handleMouseDown}
+      />
     </aside>
   );
 }
