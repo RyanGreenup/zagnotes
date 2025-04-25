@@ -19,6 +19,7 @@
   transition: background-color 0.1s ease;
   cursor: pointer;
   height: 1.5rem;
+  position: relative;
 }
 
 /* Hover state for items */
@@ -109,6 +110,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: var(--font-size-base);
+}
+
+/* Tree vertical lines */
+.tree-depth-line {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background-color: var(--color-base-300);
+  opacity: 0.4;
+  top: 0;
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* Ensure the tree container shows scrollbars when content exceeds width */

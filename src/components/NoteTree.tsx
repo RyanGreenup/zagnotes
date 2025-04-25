@@ -455,6 +455,17 @@ export function Tree(props: TreeProps) {
                       data-focus={isSelected() ? "true" : undefined}
                       onClick={() => handleNodeClick(nodeId)}
                     >
+                      {/* Vertical depth lines */}
+                      <For each={Array.from({ length: node().depth || 0 })}>
+                        {(_, index) => (
+                          <div
+                            class="tree-depth-line"
+                            style={{
+                              left: `${index() * HORIZONTAL_WIDTH_REM}rem`,
+                            }}
+                          />
+                        )}
+                      </For>
                       <Show when={isFolder(node())}>
                         <span
                           class="mr-1 inline-flex justify-center items-center w-4 h-4 transition-transform duration-150"
