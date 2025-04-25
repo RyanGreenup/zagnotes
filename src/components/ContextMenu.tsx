@@ -38,6 +38,10 @@ export interface ContextMenuItem {
 
 // Context Menu Component
 export function ContextMenu(props: ContextMenuProps) {
+  // Track the selected menu item index
+  const [selectedIndex, setSelectedIndex] = createSignal(0);
+  const menuRef = { current: null as HTMLDivElement | null };
+
   const filteredItems = createMemo(() => {
     return props.items.filter((item) => {
       // Skip items that don't match the node type (folder/note)
@@ -86,17 +90,54 @@ export function ContextMenu(props: ContextMenuProps) {
     };
   });
 
-  // Close on ESC key
+  // Handle keyboard navigation
   function handleKeyDown(e: KeyboardEvent) {
+    const items = filteredItems();
+
     if (e.key === "Escape") {
       e.preventDefault();
       props.onClose();
+      return;
+    }
+
+    if (items.length === 0) return;
+
+    // Arrow up/down navigation
+    if (e.key === "ArrowDown" || e.key === "j") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev + 1) % items.length);
+    } else if (e.key === "ArrowUp" || e.key === "k") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev - 1 + items.length) % items.length);
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      const currentItem = items[selectedIndex()];
+      if (currentItem && !currentItem.disabled) {
+        currentItem.action(props.nodeId);
+        props.onClose();
+      }
     }
   }
+
+  // Scroll selected item into view
+  createEffect(() => {
+    if (!isServer && menuRef.current) {
+      const index = selectedIndex();
+      const buttons = menuRef.current.querySelectorAll("button");
+      if (buttons[index]) {
+        buttons[index].scrollIntoView({ block: "nearest" });
+      }
+    }
+  });
 
   onMount(() => {
     document.addEventListener("click", handleClickOutside);
     document.addEventListener("keydown", handleKeyDown);
+
+    // Focus the menu to ensure keyboard events work
+    if (menuRef.current) {
+      menuRef.current.focus();
+    }
   });
 
   onCleanup(() => {
@@ -106,13 +147,15 @@ export function ContextMenu(props: ContextMenuProps) {
 
   return (
     <div
-      class="fixed z-50 min-w-[200px] bg-[var(--color-base-100)] shadow-lg rounded-md text-[var(--color-base-content)] border border-[var(--color-base-300)]"
+      ref={(el) => (menuRef.current = el)}
+      class="fixed z-50 min-w-[200px] bg-[var(--color-base-100)] shadow-lg rounded-md text-[var(--color-base-content)] border border-[var(--color-base-300)] outline-none"
       style={style()}
       onClick={(e) => e.stopPropagation()}
+      tabIndex={0} // Make focusable
     >
       <div class="py-1">
         <For each={filteredItems()}>
-          {(item) => (
+          {(item, index) => (
             <>
               <button
                 type="button"
@@ -120,8 +163,16 @@ export function ContextMenu(props: ContextMenuProps) {
                   item.action(props.nodeId);
                   props.onClose();
                 }}
-                class="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-[var(--color-base-200)]"
+                classList={{
+                  "w-full text-left px-4 py-2 text-sm flex items-center gap-2":
+                    true,
+                  "bg-[var(--color-base-300)] text-[var(--color-primary)]":
+                    selectedIndex() === index(),
+                  "hover:bg-[var(--color-base-200)]":
+                    selectedIndex() !== index(),
+                }}
                 disabled={!!item.disabled}
+                onMouseEnter={() => setSelectedIndex(index())}
               >
                 {item.icon && <span class="w-4 h-4">{item.icon}</span>}
                 <span>{item.label}</span>
