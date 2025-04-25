@@ -70,6 +70,7 @@ export default function ServerNoteTree() {
                 collection={createCollection(treeData()!)}
                 selectedValues={selectedItem()}
                 horizontalScroll={false}
+                showVerticalLines={true}
               />
             </div>
           </div>

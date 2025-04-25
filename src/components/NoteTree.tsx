@@ -27,6 +27,7 @@ interface TreeProps {
   };
   selectedValues?: string[];
   horizontalScroll?: boolean;
+  showVerticalLines?: boolean;
 }
 
 type NodeMap = Record<string, TreeNode>;
@@ -456,16 +457,18 @@ export function Tree(props: TreeProps) {
                       onClick={() => handleNodeClick(nodeId)}
                     >
                       {/* Vertical depth lines */}
-                      <For each={Array.from({ length: node().depth || 0 })}>
-                        {(_, index) => (
-                          <div
-                            class="tree-depth-line"
-                            style={{
-                              left: `${index() * HORIZONTAL_WIDTH_REM}rem`,
-                            }}
-                          />
-                        )}
-                      </For>
+                      <Show when={props.showVerticalLines !== false}>
+                        <For each={Array.from({ length: node().depth || 0 })}>
+                          {(_, index) => (
+                            <div
+                              class="absolute w-[1px] h-full bg-[var(--color-base-300)] opacity-30 top-0 z-0 pointer-events-none"
+                              style={{
+                                left: `${index() * HORIZONTAL_WIDTH_REM}rem`,
+                              }}
+                            />
+                          )}
+                        </For>
+                      </Show>
                       <Show when={isFolder(node())}>
                         <span
                           class="mr-1 inline-flex justify-center items-center w-4 h-4 transition-transform duration-150"
