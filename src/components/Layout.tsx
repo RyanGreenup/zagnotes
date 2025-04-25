@@ -39,7 +39,7 @@ export default function Layout(props: { children: JSX.Element }) {
 
         {/* Mobile sidebar */}
         <div
-          class={`fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform md:hidden h-full ${
+          class={`fixed z-30 inset-y-0 left-0 w-96 transition duration-300 transform md:hidden h-full ${
             sidebarOpen() ? "translate-x-0" : "-translate-x-full"
           }`}
           style={{

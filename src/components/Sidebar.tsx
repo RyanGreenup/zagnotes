@@ -81,9 +81,9 @@ export default function Sidebar() {
 
   return (
     <aside
-      class="h-full flex-shrink-0 flex flex-col relative"
+      class="h-full flex-shrink-0 flex flex-col relative w-96 md:w-[var(--sidebar-width)]"
       style={{
-        width: `${width()}px`,
+        "--sidebar-width": `${width()}px`,
         "background-color": "var(--color-base-200)",
         "border-right": "var(--border) solid var(--color-base-300)",
       }}
