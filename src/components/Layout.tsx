@@ -15,7 +15,7 @@ export default function Layout(props: { children: JSX.Element }) {
 
   return (
     <div
-      class="flex flex-col h-screen"
+      class="flex flex-col "
       style={{
         "background-color": "var(--color-base-100)",
         color: "var(--color-base-content)",
@@ -23,7 +23,8 @@ export default function Layout(props: { children: JSX.Element }) {
     >
       <Navbar toggleSidebar={toggleSidebar} />
 
-      <div class="flex flex-1 pt-16">
+      {/* Must be maybe 4 times the rem of --navbar height */}
+      <div class="flex flex-1" style={{"padding-top": "var(--navbar-height)"}}>
         {/* Mobile sidebar overlay */}
         <Show when={sidebarOpen()}>
           <div

@@ -61,7 +61,7 @@ export default function Sidebar() {
     >
       <Tabs.Root defaultValue={TabEnum.NOTE_TREE} class="flex flex-col h-full">
         {/* Tabs List -- Buttons showing the tabs*/}
-        <Tabs.List class="flex-shrink-0">
+        <Tabs.List class="flex-shrink-0" style={{"height": "var(--navbar-height)"}} >
           <Tabs.Trigger value="note_tree" title="Note Tree">
             <FolderTree />
             <span class="sr-only">Note Tree</span>
