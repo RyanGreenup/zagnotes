@@ -55,20 +55,18 @@ export default function Sidebar() {
   };
 
   onMount(() => {
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    if (typeof window !== 'undefined') {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
     setTimeout(() => setIsVisible(true), 100);
   });
 
   onCleanup(() => {
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-  });
-  // Removed icon_class as it's now handled in CSS
-
-  onMount(() => {
-    // Trigger entrance animation after component mounts
-    setTimeout(() => setIsVisible(true), 100);
+    if (typeof window !== 'undefined') {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    }
   });
 
   enum TabEnum {
@@ -91,10 +89,6 @@ export default function Sidebar() {
       classList={{
         "translate-x-0 opacity-100": isVisible(),
         "-translate-x-full opacity-0": !isVisible(),
-      }}
-      style={{
-        "background-color": "var(--color-base-200)",
-        "border-right": "var(--border) solid var(--color-base-300)",
       }}
     >
       <Tabs.Root defaultValue={TabEnum.NOTE_TREE} class="flex flex-col h-full">
