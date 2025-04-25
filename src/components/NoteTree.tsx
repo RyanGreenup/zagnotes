@@ -173,6 +173,9 @@ export function Tree(props: TreeProps) {
       const nodeMap: NodeMap = {};
 
       function processNode(node: any, depth = 0, parent = ""): void {
+        // Start timing this function call
+        const startTime = performance.now();
+
         // Ensure node has all necessary properties
         const id = node.id || `node-${Math.random().toString(36).slice(2, 9)}`;
         const processedNode: TreeNode = {
@@ -193,6 +196,12 @@ export function Tree(props: TreeProps) {
           node.children.forEach((child: any) =>
             processNode(child, depth + 1, id),
           );
+        }
+
+        // End timing and log the result (only for the root call to avoid console spam)
+        const endTime = performance.now();
+        if (depth === 0) {
+          console.log(`Tree processing time: ${endTime - startTime}ms`);
         }
       }
 
