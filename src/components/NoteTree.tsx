@@ -1,20 +1,20 @@
 import { useNavigate } from "@solidjs/router";
-import { ChevronRight } from "lucide-solid";
+import { ChevronRight, ScissorsIcon } from "lucide-solid";
 import {
   createEffect,
+  createMemo,
   createSignal,
   For,
   JSX,
   onCleanup,
   onMount,
   Show,
-  createMemo,
 } from "solid-js";
 import { isServer, Portal } from "solid-js/web";
+import type { ContextMenuItem } from "./ContextMenu";
+import { ContextMenu } from "./ContextMenu";
 import "./NoteTree.css";
 import { Node } from "./treeCollection";
-import { ContextMenu } from "./ContextMenu";
-import type { ContextMenuItem } from "./ContextMenu";
 
 // Types
 interface TreeNode extends Node {
@@ -53,11 +53,60 @@ export function isFolder(node: TreeNode): boolean {
   return Boolean(node.children && node.children.length > 0);
 }
 
+interface MoveItemResult {
+  success: boolean;
+  message: string;
+}
+
+export async function moveItem(
+  id: string,
+  targetParentId: string,
+): Promise<MoveItemResult> {
+  "use server";
+  try {
+    const { moveNote, moveFolder, isFolder, isNote } = await import(
+      "~/lib/db-folder"
+    );
+
+    // Validate that target is a folder
+    if (!(await isFolder(targetParentId))) {
+      return {
+        success: false,
+        message: `Target ${targetParentId} is not a folder`,
+      };
+    }
+
+    // Move the item based on its type
+    if (await isFolder(id)) {
+      return await moveFolder(id, targetParentId);
+    } else if (await isNote(id)) {
+      return await moveNote(id, targetParentId);
+    }
+
+    // Fallback case - we don't know what type it is but we'll try folder
+    return await moveFolder(id, targetParentId);
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    // Log the error for debugging
+    console.error(
+      `Error moving item ${id} to ${targetParentId}: ${errorMessage}`,
+    );
+
+    return {
+      success: false,
+      message: `Error moving item ${id} to ${targetParentId}`,
+    };
+  }
+}
+
 // Main Tree Component
 export function Tree(props: TreeProps) {
   // Core state
   const [nodes, setNodes] = createSignal<NodeMap>({});
   const [focusedId, setFocusedId] = createSignal<string>("");
+  const [getCutId, setCutId] = createSignal<string>("");
   const [isTreeFocused, setIsTreeFocused] = createSignal(false);
   const treeRef = { current: null as HTMLDivElement | null };
   const navigate = useNavigate();
@@ -125,6 +174,22 @@ export function Tree(props: TreeProps) {
       },
       isNote: true,
     },
+    {
+      label: "Cut",
+      action: (nodeId) => {
+        setCutId(nodeId)
+      },
+      isNote: true,
+    },
+    {
+      label: "Paste",
+      action: (nodeId) => {
+          // TODO Need to refactor the handlePasteEvent function to call something else that
+          // only depends on nodeId
+          // handlePasteEvent(nodeId)
+      },
+      isNote: true,
+    },
   ];
 
   // Handle right-click on node
@@ -159,6 +224,8 @@ export function Tree(props: TreeProps) {
   // Build the closure for the nodes so the return statement is simpler but we can
   // inherit the props from the container without passing them back in
   const TreeNodeItem = (props: TreeNodeItemProps) => {
+    const isCut = createMemo(() => getCutId() === props.nodeId);
+
     return (
       <div
         id={`${props.nodeId}`}
@@ -168,12 +235,15 @@ export function Tree(props: TreeProps) {
             props.isSelected(),
           "hover:bg-[var(--color-base-200)]": !props.isSelected(),
           "whitespace-nowrap w-max min-w-full": props.horizontalScroll,
+          "opacity-80 text-[var(--color-accent)] border-l-2 border-[var(--color-accent)] bg-[var(--color-accent-focus)] bg-opacity-5":
+            isCut(),
         }}
         style={{
           "padding-left": `${((props.node().depth || 0) - 1) * props.horizontalWidthRem}rem`,
         }}
         data-part="item"
         data-focus={props.isSelected() ? "true" : undefined}
+        data-cut={isCut() ? "true" : undefined}
         onClick={() => props.handleNodeClick(props.nodeId)}
         onContextMenu={(e) => props.handleNodeRightClick(props.nodeId, e)}
       >
@@ -428,11 +498,118 @@ export function Tree(props: TreeProps) {
     const visible = getVisibleNodes();
     const currentIndex = visible.indexOf(currentId);
 
+    /**
+     * Removes a node from its parent's children array in the node map
+     * Used during cut/paste operations to detach a node from its original location
+     *
+     * @param parent_id - The ID of the parent node containing the node to remove
+     * @param newNodes - The working copy of the node map being modified
+     * @param cutId - The ID of the node to remove from its parent
+     */
+    function removeNodeFromTree(
+      parent_id: string | undefined,
+      newNodes: { [x: string]: TreeNode },
+      cutId: string,
+    ) {
+      if (parent_id) {
+        const parentNode = newNodes[parent_id];
+        if (parentNode && parentNode.children) {
+          parentNode.children = parentNode.children.filter(
+            (child) => child.id !== cutId,
+          );
+          newNodes[parent_id] = parentNode;
+        }
+      }
+    }
+
     function focusDown(e: KeyboardEvent): void {
       e.preventDefault();
       if (currentIndex < visible.length - 1) {
         setFocusedId(visible[currentIndex + 1]);
       }
+    }
+
+    function handleCutEvent(e: KeyboardEvent): void {
+      e.preventDefault();
+      setCutId(focusedId());
+    }
+
+    function insertItemIntoTree(
+      targetNode: TreeNode,
+      newNodes: { [x: string]: TreeNode },
+      cutNode: TreeNode,
+    ) {
+      const targetId = targetNode.id;
+      if (isFolder(targetNode)) {
+        // If target is a folder, add as a child
+        if (!targetNode.children) targetNode.children = [];
+        targetNode.children.push(cutNode);
+        newNodes[targetId] = targetNode;
+
+        // Update parent reference
+        cutNode.parent = targetId;
+        cutNode.depth = (targetNode.depth || 0) + 1;
+      } else {
+        // If target is a note, add as sibling
+        const parentId = targetNode.parent;
+        if (parentId) {
+          const parentNode = newNodes[parentId];
+          if (parentNode && parentNode.children) {
+            // Find index of target node in parent's children
+            const targetIndex = parentNode.children.findIndex(
+              (child) => child.id === targetId,
+            );
+            if (targetIndex !== -1) {
+              // Insert cut node after target node
+              parentNode.children.splice(targetIndex + 1, 0, cutNode);
+              newNodes[parentId] = parentNode;
+
+              // Update parent reference
+              cutNode.parent = parentId;
+              cutNode.depth = targetNode.depth;
+            }
+          }
+        }
+      }
+    }
+
+    function handlePasteEvent(e: KeyboardEvent): void {
+      e.preventDefault();
+      const cutId = getCutId();
+      const targetId = focusedId();
+
+      if (!cutId || !targetId || cutId === targetId) return;
+
+      const nodeMap = nodes();
+      const cutNode = nodeMap[cutId];
+      const targetNode = nodeMap[targetId];
+
+      if (!cutNode || !targetNode) return;
+
+      // Make a copy of the current nodes
+      const newNodes = { ...nodeMap };
+
+      // Try to move the note first and only proceed if successful
+      moveItem(cutId, targetId).then((result) => {
+        if (result.success) {
+          // 1. Remove cut node from its parent's children
+          removeNodeFromTree(cutNode.parent, newNodes, cutId);
+
+          // 2. Add cut node to new location
+          insertItemIntoTree(targetNode, newNodes, cutNode);
+
+          // Update the cut node in the map
+          newNodes[cutId] = cutNode;
+
+          // Update the tree
+          setNodes(newNodes);
+
+          // Clear cut ID
+          setCutId("");
+        } else {
+          console.error(`Failed to move item: ${result.message}`);
+        }
+      });
     }
 
     function focusUp(e: KeyboardEvent): void {
@@ -503,6 +680,12 @@ export function Tree(props: TreeProps) {
     switch (e.key) {
       case "m":
         showContextMenuForFocused(e);
+        break;
+      case "x":
+        handleCutEvent(e);
+        break;
+      case "p":
+        handlePasteEvent(e);
         break;
       case "ArrowDown":
         focusDown(e);
@@ -637,16 +820,25 @@ export function Tree(props: TreeProps) {
   }
 
   function ItemLabel(props: itemLabelProps) {
+    const isCut = createMemo(() => getCutId() === props.node().id);
+
     return (
       <span
         classList={{
           "flex items-center gap-2": true,
           "whitespace-nowrap": horizontalScroll(),
           truncate: !horizontalScroll(),
+          "text-[var(--color-accent)] font-medium": isCut(),
         }}
         data-part={isFolder(props.node()) ? "branch-text" : "item-text"}
+        data-cut={isCut() ? "true" : undefined}
       >
-        <span class="truncate">{getNodeName(props.node())}</span>
+        <span class="truncate flex items-center gap-1">
+          <Show when={isCut()}>
+            <ScissorsIcon class="h-4 w-4" />
+          </Show>
+          {getNodeName(props.node())}
+        </span>
       </span>
     );
   }
