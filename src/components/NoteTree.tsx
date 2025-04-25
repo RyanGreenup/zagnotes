@@ -15,6 +15,7 @@ import type { ContextMenuItem } from "./ContextMenu";
 import { ContextMenu } from "./ContextMenu";
 import "./NoteTree.css";
 import { Node } from "./treeCollection";
+import type { DbResponse } from "~/lib";
 
 // Types
 interface TreeNode extends Node {
@@ -53,15 +54,12 @@ export function isFolder(node: TreeNode): boolean {
   return Boolean(node.children && node.children.length > 0);
 }
 
-interface MoveItemResult {
-  success: boolean;
-  message: string;
-}
+// Interface is now imported from lib
 
 export async function moveItem(
   id: string,
   targetParentId: string,
-): Promise<MoveItemResult> {
+): Promise<DbResponse> {
   "use server";
   try {
     const { moveNote, moveFolder, isFolder, isNote } = await import(
@@ -97,6 +95,91 @@ export async function moveItem(
     return {
       success: false,
       message: `Error moving item ${id} to ${targetParentId}`,
+    };
+  }
+}
+
+/**
+ * Create a new note in the database
+ * @param title The title of the new note
+ * @param parentId The parent folder ID (or empty string for root)
+ * @param initialBody Optional initial content for the note
+ * @returns Object with note ID and success information
+ */
+export async function createNewNote(
+  title: string,
+  parentId: string,
+  initialBody: string = ""
+): Promise<{ id: string } & DbResponse> {
+  "use server";
+  try {
+    // Import createNote function from the library
+    const { createNote, isFolder } = await import("~/lib");
+
+    // Validate parent folder exists if provided
+    if (parentId) {
+      if (!(await isFolder(parentId))) {
+        return {
+          id: "",
+          success: false,
+          message: `Parent folder ${parentId} not found or is not a folder`,
+        };
+      }
+    }
+
+    // Create the note
+    const result = await createNote(title, initialBody, parentId || "");
+
+    return result;
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    // Log the error for debugging
+    console.error(
+      `Error creating note "${title}" in folder ${parentId}: ${errorMessage}`,
+    );
+
+    return {
+      id: "",
+      success: false,
+      message: `Error creating note: ${errorMessage}`,
+    };
+  }
+}
+
+/**
+ * Move an item (note or folder) to the root level
+ * @param id The ID of the item to move
+ * @returns Success status
+ */
+export async function moveItemToRoot(id: string): Promise<DbResponse> {
+  "use server";
+  try {
+    // Import required functions
+    const { moveFolder, moveNote, isFolder, isNote } = await import("~/lib/db-folder");
+
+    // Check item type and move it accordingly
+    if (await isFolder(id)) {
+      return await moveFolder(id, "");
+    } else if (await isNote(id)) {
+      return await moveNote(id, "");
+    }
+
+    return {
+      success: false,
+      message: "Item not found or is neither a note nor a folder",
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    // Log the error for debugging
+    console.error(`Error moving item ${id} to root: ${errorMessage}`);
+
+    return {
+      success: false,
+      message: `Error moving item to root: ${errorMessage}`,
     };
   }
 }
@@ -142,9 +225,18 @@ export function Tree(props: TreeProps) {
     },
     {
       label: "New Note",
-      action: (nodeId) => {
-        // Implementation would depend on app's note creation functionality
-        console.log(`Create new note in ${nodeId}`);
+      action: async (nodeId) => {
+        // Create a new note in the selected folder
+        const defaultTitle = "New Note";
+        const result = await createNewNote(defaultTitle, nodeId);
+
+        if (result.success) {
+          // Update the tree to show the new note
+          // For now, we'll just navigate to the new note
+          navigate(`/note/${result.id}`);
+        } else {
+          console.error(`Failed to create note: ${result.message}`);
+        }
       },
       isFolder: true,
       separator: true,
@@ -167,6 +259,23 @@ export function Tree(props: TreeProps) {
       label: "Rename",
       action: (nodeId) => {
         console.log(`Rename ${nodeId}`);
+      },
+    },
+    {
+      label: "Move to Root",
+      action: async (nodeId) => {
+        const result = await moveItemToRoot(nodeId);
+
+        if (result.success) {
+          // Update the tree after moving the item
+          // For a complete solution, we should refresh the tree data
+          // For now, we'll just clear the cut state if active
+          if (getCutId() === nodeId) {
+            setCutId("");
+          }
+        } else {
+          console.error(`Failed to move item to root: ${result.message}`);
+        }
       },
     },
     {

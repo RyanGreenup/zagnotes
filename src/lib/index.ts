@@ -54,3 +54,11 @@ export {
   createFolder,
   moveItem
 } from './db-tree';
+
+// Note operations
+export {
+  type Note,
+  createNote,
+  getFullNote,
+  deleteNote
+} from './db-notes';
