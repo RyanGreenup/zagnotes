@@ -4,6 +4,7 @@ import {
   createEffect,
   createSignal,
   For,
+  JSX,
   onCleanup,
   onMount,
   Show,
@@ -31,6 +32,39 @@ interface TreeProps {
 }
 
 type NodeMap = Record<string, TreeNode>;
+
+// TreeNodeItem component
+interface TreeNodeItemProps {
+  node: () => TreeNode;
+  nodeId: string;
+  isSelected: () => boolean;
+  horizontalScroll?: boolean;
+  horizontalWidthRem: number;
+  handleNodeClick: (id: string) => void;
+  children?: JSX.Element;
+}
+
+function TreeNodeItem(props: TreeNodeItemProps) {
+  return (
+    <div
+      classList={{
+        "flex items-center px-2 py-1 cursor-pointer": true,
+        "bg-[var(--color-base-300)] text-[var(--color-primary)]":
+          props.isSelected(),
+        "hover:bg-[var(--color-base-200)]": !props.isSelected(),
+        "whitespace-nowrap w-max min-w-full": props.horizontalScroll,
+      }}
+      style={{
+        "padding-left": `${(props.node().depth || 0) * props.horizontalWidthRem}rem`,
+      }}
+      data-part="item"
+      data-focus={props.isSelected() ? "true" : undefined}
+      onClick={() => props.handleNodeClick(props.nodeId)}
+    >
+      {props.children}
+    </div>
+  );
+}
 
 // Main Tree Component
 export function Tree(props: TreeProps) {
@@ -456,21 +490,13 @@ export function Tree(props: TreeProps) {
                     aria-expanded={node().isExpanded}
                     data-state={node().isExpanded ? "open" : "closed"}
                   >
-                    <div
-                      classList={{
-                        "flex items-center px-2 py-1 cursor-pointer": true,
-                        "bg-[var(--color-base-300)] text-[var(--color-primary)]":
-                          isSelected(),
-                        "hover:bg-[var(--color-base-200)]": !isSelected(),
-                        "whitespace-nowrap w-max min-w-full":
-                          props.horizontalScroll,
-                      }}
-                      style={{
-                        "padding-left": `${(node().depth || 0) * HORIZONTAL_WIDTH_REM}rem`,
-                      }}
-                      data-part="item"
-                      data-focus={isSelected() ? "true" : undefined}
-                      onClick={() => handleNodeClick(nodeId)}
+                    <TreeNodeItem
+                      node={node}
+                      nodeId={nodeId}
+                      isSelected={isSelected}
+                      horizontalScroll={props.horizontalScroll}
+                      handleNodeClick={handleNodeClick}
+                      horizontalWidthRem={HORIZONTAL_WIDTH_REM}
                     >
                       {/*Show vertical lines by default */}
                       <Show when={props.showVerticalLines !== false}>
@@ -498,7 +524,7 @@ export function Tree(props: TreeProps) {
                       >
                         <span class="truncate">{getNodeName(node())}</span>
                       </span>
-                    </div>
+                    </TreeNodeItem>
                   </li>
                 </Show>
               );
