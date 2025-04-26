@@ -202,7 +202,17 @@ export function Tree(props: TreeProps) {
       label: "Delete",
       action: (nodeId) => {
         if (confirm(`Are you sure you want to delete this item?`)) {
-          removeNodeFromUI(nodeId, nodes(), setNodes, setCutId, getCutId, focusedId(), setFocusedId, getVisibleNodes, deleteItem).then((success) => {
+          removeNodeFromUI(
+            nodeId,
+            nodes(),
+            setNodes,
+            setCutId,
+            getCutId,
+            focusedId(),
+            setFocusedId,
+            getVisibleNodes,
+            deleteItem,
+          ).then((success) => {
             if (!success) {
               console.error(`Failed to delete item ${nodeId}`);
             }
@@ -518,7 +528,6 @@ export function Tree(props: TreeProps) {
     setFocusedId(currentFocused);
   }
 
-
   function pasteCutItemIntoFocusedItem(): void {
     const cutId = getCutId();
     const targetId = focusedId();
@@ -664,7 +673,17 @@ export function Tree(props: TreeProps) {
       if (!nodeId) return;
 
       if (confirm(`Are you sure you want to delete this item?`)) {
-        removeNodeFromUI(nodeId, nodes(), setNodes, setCutId, getCutId, focusedId(), setFocusedId, getVisibleNodes, deleteItem).then((success) => {
+        removeNodeFromUI(
+          nodeId,
+          nodes(),
+          setNodes,
+          setCutId,
+          getCutId,
+          focusedId(),
+          setFocusedId,
+          getVisibleNodes,
+          deleteItem,
+        ).then((success) => {
           if (!success) {
             console.error(`Failed to delete item ${nodeId}`);
           }

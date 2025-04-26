@@ -183,11 +183,11 @@ export function moveNodeWithinTree(
 
 /**
  * Removes a node from the tree UI after it's been deleted from the database
- * 
+ *
  * @param nodeId - ID of the node to remove
  * @param nodes - Current node map
  * @param setNodes - Function to update node state
- * @param setCutId - Function to update cut ID state 
+ * @param setCutId - Function to update cut ID state
  * @param getCutId - Function to get current cut ID
  * @param focusedId - ID of the currently focused node
  * @param setFocusedId - Function to update the focused node
@@ -204,7 +204,7 @@ export function removeNodeFromUI(
   focusedId: string,
   setFocusedId: Setter<string>,
   getVisibleNodes: () => string[],
-  deleteItemFunc: (nodeId: string) => Promise<DbResponse>
+  deleteItemFunc: (nodeId: string) => Promise<DbResponse>,
 ): Promise<boolean> {
   const nodeToDelete = nodes[nodeId];
 
