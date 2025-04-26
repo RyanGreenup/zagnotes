@@ -15,20 +15,11 @@ import type { ContextMenuItem } from "~/components/ContextMenu";
 import { ContextMenu } from "~/components/ContextMenu";
 import "./NoteTree.css";
 import { Node } from "~/components/treeCollection";
-import {
-  deleteItem,
-  moveItem,
-  promoteItem,
-  promoteNote,
-} from "~/lib/utils/folders";
-import type { DbResponse } from "~/lib";
-import { createNewNote, getNoteParent } from "~/lib/db-notes";
+import { deleteItem, moveItem, promoteItem } from "~/lib/utils/folders";
+import { createNewNote } from "~/lib/db-notes";
 import { moveItemToRoot } from "~/lib/utils/folders";
 import {
   insertItemIntoTree,
-  isFolder,
-  updateTreeNodes,
-  removeNodeFromParent,
   moveNodeWithinTree,
   removeNodeFromUI,
   promoteTreeItem,
