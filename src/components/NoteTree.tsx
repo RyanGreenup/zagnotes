@@ -28,6 +28,8 @@ import {
   insertItemIntoTree,
   isFolder,
   updateTreeNodes,
+  removeNodeFromParent,
+  moveNodeWithinTree,
   type NodeMap,
 } from "./Tree/utils/insert_item";
 
@@ -177,7 +179,7 @@ export function Tree(props: TreeProps) {
     {
       label: "Move to Root",
       action: (nodeId) => {
-        moveNodeWithinTree(nodeId, "", nodes(), true).then((success) => {
+        moveNodeWithinTree(nodeId, "", nodes(), setNodes, setCutId, getCutId, props.collection.rootNode.id, moveItem, moveItemToRoot, true).then((success) => {
           if (!success) {
             console.error(`Failed to move item ${nodeId} to root`);
           }
@@ -504,124 +506,7 @@ export function Tree(props: TreeProps) {
     setFocusedId(currentFocused);
   }
 
-  /**
-   * Removes a node from its parent's children array in the node map
-   * Used during cut/paste operations to detach a node from its original location
-   *
-   * @param parent_id - The ID of the parent node containing the node to remove
-   * @param newNodes - The working copy of the node map being modified
-   * @param nodeId - The ID of the node to remove from its parent
-   */
-  function removeNodeFromParent(
-    parent_id: string | undefined,
-    newNodes: { [x: string]: TreeNode },
-    nodeId: string,
-  ) {
-    if (parent_id) {
-      const parentNode = newNodes[parent_id];
-      if (parentNode && parentNode.children) {
-        parentNode.children = parentNode.children.filter(
-          (child) => child.id !== nodeId,
-        );
-        newNodes[parent_id] = parentNode;
-      }
-    }
-  }
 
-  /**
-   * Moves a node within the tree and updates the UI
-   * @param nodeId - ID of the node to move
-   * @param targetId - ID of the target node or location
-   * @param moveToRoot - If true, moves to root instead of using targetId
-   * @returns Promise that resolves when the operation is complete
-   */
-  function moveNodeWithinTree(
-    nodeId: string,
-    targetId: string,
-    nodeMap: NodeMap,
-    moveToRoot: boolean = false,
-  ): Promise<boolean> {
-    if (
-      !nodeId ||
-      (!targetId && !moveToRoot) ||
-      (nodeId === targetId && !moveToRoot)
-    ) {
-      return Promise.resolve(false);
-    }
-
-    const sourceNode = nodeMap[nodeId];
-
-    if (!sourceNode) {
-      return Promise.resolve(false);
-    }
-
-    // Make a copy of the current nodes
-    const newNodes = { ...nodeMap };
-
-    // Define the server operation to perform
-    const serverOperation = moveToRoot
-      ? moveItemToRoot(nodeId)
-      : moveItem(nodeId, targetId);
-
-    // Execute server operation first
-    return serverOperation
-      .then((result) => {
-        if (!result.success) {
-          console.error(`Failed to move item: ${result.message}`);
-          return false;
-        }
-
-        // Update the tree using our common function
-        updateTreeNodes(
-          nodes(),
-          setNodes,
-          (nodeMap) => {
-            const newNodes = { ...nodeMap };
-
-            // 1. Remove node from its parent's children
-            removeNodeFromParent(sourceNode.parent, newNodes, nodeId);
-
-            // 2. Add node to new location
-            if (moveToRoot) {
-              // Add to root - we have to get the root node
-              const rootNodeId = props.collection.rootNode.id;
-              const rootNode = nodeMap[rootNodeId];
-
-              if (rootNode) {
-                // Update parent reference
-                sourceNode.parent = rootNodeId;
-                sourceNode.depth = 1; // Root level
-
-                // Add to root children
-                if (!rootNode.children) rootNode.children = [];
-                rootNode.children.push(sourceNode);
-                newNodes[rootNodeId] = rootNode;
-              }
-            } else {
-              // Add to target
-              const targetNode = nodeMap[targetId];
-              if (targetNode) {
-                insertItemIntoTree(targetNode, newNodes, sourceNode);
-              }
-            }
-
-            // Update the node in the map
-            newNodes[nodeId] = sourceNode;
-
-            return newNodes;
-          },
-          setCutId,
-          getCutId(),
-          nodeId,
-        );
-
-        return true;
-      })
-      .catch((error) => {
-        console.error("Error moving node:", error);
-        return false;
-      });
-  }
 
   /**
    * Removes a node from the tree UI after it's been deleted from the database
@@ -693,7 +578,7 @@ export function Tree(props: TreeProps) {
     const cutId = getCutId();
     const targetId = focusedId();
 
-    moveNodeWithinTree(cutId, targetId, nodes());
+    moveNodeWithinTree(cutId, targetId, nodes(), setNodes, setCutId, getCutId, props.collection.rootNode.id, moveItem, moveItemToRoot);
   }
 
   async function promoteTreeItem(id: string) {
@@ -703,7 +588,7 @@ export function Tree(props: TreeProps) {
       const parent_id = promotion_result.parent_id;
       if (parent_id) {
         console.log("Parent ID Itentified");
-        moveNodeWithinTree(id, parent_id, nodes(), false);
+        moveNodeWithinTree(id, parent_id, nodes(), setNodes, setCutId, getCutId, props.collection.rootNode.id, moveItem, moveItemToRoot, false);
       } else {
         console.log("No Parent ID Returned");
       }
@@ -826,7 +711,7 @@ export function Tree(props: TreeProps) {
         handleDeleteKeyEvent(e);
         break;
       case "0":
-        moveNodeWithinTree(focusedId(), "", nodes(), true).then((success) => {
+        moveNodeWithinTree(focusedId(), "", nodes(), setNodes, setCutId, getCutId, props.collection.rootNode.id, moveItem, moveItemToRoot, true).then((success) => {
           if (!success) {
             console.error(`Failed to move item ${focusedId()} to root`);
           }

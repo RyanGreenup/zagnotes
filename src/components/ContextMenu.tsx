@@ -10,6 +10,7 @@ import {
 } from "solid-js";
 import { isServer } from "solid-js/web";
 import "./NoteTree.css";
+import { isFolder } from "./Tree/utils/insert_item";
 
 interface ContextMenuProps {
   items: ContextMenuItem[];
@@ -70,8 +71,8 @@ export function ContextMenu(props: ContextMenuProps) {
   const filteredItems = createMemo(() => {
     return props.items.filter((item) => {
       // Skip items that don't match the node type (folder/note)
-      if (item.isFolder && !hasChildren(props.node)) return false;
-      if (item.isNote && hasChildren(props.node)) return false;
+      if (item.isFolder && !isFolder(props.node)) return false;
+      if (item.isNote && isFolder(props.node)) return false;
 
       // Check disabled state
       if (typeof item.disabled === "function") {
