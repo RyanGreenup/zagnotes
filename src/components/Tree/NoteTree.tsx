@@ -20,7 +20,6 @@ import {
   isFolder,
   toggleNode,
   getStoredExpanded,
-  saveExpanded,
   expandParents,
 } from "./utils/expand_and_collapse_item";
 import { generateContextMenuItems } from "./utils/generate_context_items";
