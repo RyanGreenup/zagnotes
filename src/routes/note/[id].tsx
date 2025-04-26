@@ -1,19 +1,15 @@
 import { useParams, useSearchParams } from "@solidjs/router";
-import Card from "~/components/Card";
+import { Save, Undo } from "lucide-solid";
 import {
+  createEffect,
   createResource,
+  createSignal,
   Show,
   Suspense,
-  createSignal,
-  createEffect,
 } from "solid-js";
-import NoteEditor from "~/components/NoteEditor";
+import Card from "~/components/Card";
 import CodeMirrorNoteEditor from "~/components/CodeMirrorNoteEditor";
-import MyCkEditor from "~/components/MyCkEditor";
 import Preview from "~/components/Preview";
-import { Tabs } from "@ark-ui/solid";
-import { Edit, EyeIcon, Notebook, PackageIcon, Save, Undo } from "lucide-solid";
-import Button from "~/components/Button";
 import ToolbarButton from "~/components/ToolbarButton";
 
 /**
@@ -29,7 +25,11 @@ async function getNoteBody(id: string) {
     const note = await getNote(id);
 
     // Return the note body or a default message if not found
-    return note?.body || `Note with ID ${id} not found`;
+    if (note !== null) {
+      return note.body;
+    } else {
+      return `Note with ID ${id} not found`;
+    }
   } catch (error) {
     console.error("Error fetching note body:", error);
     return `Error fetching note: ${error instanceof Error ? error.message : String(error)}`;
