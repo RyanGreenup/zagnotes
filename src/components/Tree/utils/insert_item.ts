@@ -1,4 +1,8 @@
 import { TreeNode } from "@ark-ui/solid";
+import { Setter } from "solid-js";
+
+// Type definitions
+export type NodeMap = Record<string, TreeNode>;
 
 /**
  * Checks if the given node is a folder by verifying it has children.
@@ -8,6 +12,39 @@ import { TreeNode } from "@ark-ui/solid";
  */
 export function isFolder(node: TreeNode): boolean {
   return Boolean(node.children && node.children.length > 0);
+}
+
+/**
+ * Common function to update the tree UI when nodes are modified
+ * 
+ * @param nodes - Current node map
+ * @param setNodes - Function to update node state
+ * @param operation - Function that modifies the node map
+ * @param setCutId - Function to update cut ID state (optional)
+ * @param cutId - Current cut ID (optional)
+ * @param nodeId - Node ID to check for clearing cut state (optional)
+ * @returns Updated node map
+ */
+export function updateTreeNodes(
+  nodes: NodeMap,
+  setNodes: Setter<NodeMap>,
+  operation: (nodes: NodeMap) => NodeMap,
+  setCutId?: Setter<string>,
+  cutId?: string,
+  nodeId?: string,
+): NodeMap {
+  const currentNodes = nodes;
+  const newNodes = operation(currentNodes);
+
+  // Update the tree state
+  setNodes(newNodes);
+
+  // Clear cut ID if needed and matches
+  if (setCutId && nodeId && cutId === nodeId) {
+    setCutId("");
+  }
+
+  return newNodes;
 }
 
 export function insertItemIntoTree(

@@ -24,7 +24,12 @@ import {
 import type { DbResponse } from "~/lib";
 import { createNewNote, getNoteParent } from "~/lib/db-notes";
 import { moveItemToRoot } from "~/lib/utils/folders";
-import { insertItemIntoTree, isFolder } from "./Tree/utils/insert_item";
+import { 
+  insertItemIntoTree, 
+  isFolder, 
+  updateTreeNodes,
+  type NodeMap 
+} from "./Tree/utils/insert_item";
 
 // Types
 interface TreeNode extends Node {
@@ -43,8 +48,6 @@ interface TreeProps {
   horizontalScroll?: boolean;
   showVerticalLines?: boolean;
 }
-
-type NodeMap = Record<string, TreeNode>;
 
 // TreeNodeItem component
 interface TreeNodeItemProps {
@@ -525,29 +528,6 @@ export function Tree(props: TreeProps) {
     }
   }
 
-  /**
-   * Common function to update the tree UI when nodes are modified
-   * @param operation Function that modifies the node map
-   * @param nodeId Node ID to check for clearing cut state
-   * @returns Updated node map
-   */
-  function updateTreeNodes(
-    operation: (nodes: NodeMap) => NodeMap,
-    nodeId?: string,
-  ): NodeMap {
-    const currentNodes = nodes();
-    const newNodes = operation(currentNodes);
-
-    // Update the tree state
-    setNodes(newNodes);
-
-    // Clear cut ID if needed and matches
-    if (nodeId && getCutId() === nodeId) {
-      setCutId("");
-    }
-
-    return newNodes;
-  }
 
   /**
    * Moves a node within the tree and updates the UI
@@ -593,41 +573,48 @@ export function Tree(props: TreeProps) {
         }
 
         // Update the tree using our common function
-        updateTreeNodes((nodeMap) => {
-          const newNodes = { ...nodeMap };
+        updateTreeNodes(
+          nodes(), 
+          setNodes, 
+          (nodeMap) => {
+            const newNodes = { ...nodeMap };
 
-          // 1. Remove node from its parent's children
-          removeNodeFromParent(sourceNode.parent, newNodes, nodeId);
+            // 1. Remove node from its parent's children
+            removeNodeFromParent(sourceNode.parent, newNodes, nodeId);
 
-          // 2. Add node to new location
-          if (moveToRoot) {
-            // Add to root - we have to get the root node
-            const rootNodeId = props.collection.rootNode.id;
-            const rootNode = nodeMap[rootNodeId];
+            // 2. Add node to new location
+            if (moveToRoot) {
+              // Add to root - we have to get the root node
+              const rootNodeId = props.collection.rootNode.id;
+              const rootNode = nodeMap[rootNodeId];
 
-            if (rootNode) {
-              // Update parent reference
-              sourceNode.parent = rootNodeId;
-              sourceNode.depth = 1; // Root level
+              if (rootNode) {
+                // Update parent reference
+                sourceNode.parent = rootNodeId;
+                sourceNode.depth = 1; // Root level
 
-              // Add to root children
-              if (!rootNode.children) rootNode.children = [];
-              rootNode.children.push(sourceNode);
-              newNodes[rootNodeId] = rootNode;
+                // Add to root children
+                if (!rootNode.children) rootNode.children = [];
+                rootNode.children.push(sourceNode);
+                newNodes[rootNodeId] = rootNode;
+              }
+            } else {
+              // Add to target
+              const targetNode = nodeMap[targetId];
+              if (targetNode) {
+                insertItemIntoTree(targetNode, newNodes, sourceNode);
+              }
             }
-          } else {
-            // Add to target
-            const targetNode = nodeMap[targetId];
-            if (targetNode) {
-              insertItemIntoTree(targetNode, newNodes, sourceNode);
-            }
-          }
 
-          // Update the node in the map
-          newNodes[nodeId] = sourceNode;
+            // Update the node in the map
+            newNodes[nodeId] = sourceNode;
 
-          return newNodes;
-        }, nodeId);
+            return newNodes;
+          }, 
+          setCutId,
+          getCutId(),
+          nodeId
+        );
 
         return true;
       })
@@ -659,17 +646,24 @@ export function Tree(props: TreeProps) {
         }
 
         // Update the tree using our common function
-        const newNodes = updateTreeNodes((nodeMap) => {
-          const newNodes = { ...nodeMap };
+        const newNodes = updateTreeNodes(
+          nodes(), 
+          setNodes, 
+          (nodeMap) => {
+            const newNodes = { ...nodeMap };
 
-          // Remove node from its parent's children
-          removeNodeFromParent(nodeToDelete.parent, newNodes, nodeId);
+            // Remove node from its parent's children
+            removeNodeFromParent(nodeToDelete.parent, newNodes, nodeId);
 
-          // Remove the node itself from the map
-          delete newNodes[nodeId];
+            // Remove the node itself from the map
+            delete newNodes[nodeId];
 
-          return newNodes;
-        }, nodeId);
+            return newNodes;
+          }, 
+          setCutId,
+          getCutId(),
+          nodeId
+        );
 
         // If the deleted node was focused, move focus to parent or first available node
         if (focusedId() === nodeId) {
