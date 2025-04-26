@@ -1,9 +1,7 @@
-import { TreeNode } from "@ark-ui/solid";
 import { Setter } from "solid-js";
 import type { DbResponse } from "~/lib";
+import { TreeNode, NodeMap } from "./types";
 
-// Type definitions
-export type NodeMap = Record<string, TreeNode>;
 export type SetterFunction<T> = (value: T) => void;
 
 /**

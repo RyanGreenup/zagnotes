@@ -1,9 +1,6 @@
-import { TreeNode } from "@ark-ui/solid";
 import { Accessor, Setter } from "solid-js";
 import { isServer } from "solid-js/web";
-
-// Type definitions
-export type NodeMap = Record<string, TreeNode>;
+import { TreeNode, NodeMap } from "./types";
 
 /**
  * Checks if the given node is a folder by verifying it has children.

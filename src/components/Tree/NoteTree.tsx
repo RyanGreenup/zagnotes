@@ -1,7 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import { ChevronRight, ScissorsIcon } from "lucide-solid";
 import {
-    Accessor,
+  Accessor,
   createEffect,
   createMemo,
   createSignal,
@@ -14,13 +14,8 @@ import {
 import { isServer, Portal } from "solid-js/web";
 import { ContextMenu } from "~/components/ContextMenu";
 import "./NoteTree.css";
-import { Node } from "~/components/treeCollection";
 import { deleteItem, moveItem, moveItemToRoot } from "~/lib/utils/folders";
-import {
-  moveNodeWithinTree,
-  removeNodeFromUI,
-  type NodeMap,
-} from "./utils/insert_item";
+import { moveNodeWithinTree } from "./utils/insert_item";
 import {
   isFolder,
   toggleNode,
@@ -29,14 +24,11 @@ import {
   expandParents,
 } from "./utils/expand_and_collapse_item";
 import { generateContextMenuItems } from "./utils/generate_context_items";
+import { createKeyboardHandlers } from "./utils/keyboard_handlers";
+import { TreeNode, NodeMap } from "./utils/types";
 import RotatingChevronIcon from "./components/Chevron";
 
-// Types
-interface TreeNode extends Node {
-  isExpanded?: boolean;
-  depth?: number;
-  parent?: string;
-}
+// Tree component Props
 
 interface TreeProps {
   collection: {
@@ -297,192 +289,38 @@ export function Tree(props: TreeProps) {
     );
   }
 
-  // Handle keyboard navigation
-  function handleKeyDown(e: KeyboardEvent): void {
-    // Only handle keyboard events when the tree is focused
-    if (!isTreeFocused()) return;
-
-    const currentId = focusedId();
-    if (!currentId) return;
-
-    const nodeMap = nodes();
-    const node = nodeMap[currentId];
-    const visible = getVisibleNodes();
-    const currentIndex = visible.indexOf(currentId);
-
-    function focusUp(e: KeyboardEvent): void {
-      e.preventDefault();
-      if (currentIndex > 0) {
-        setFocusedId(visible[currentIndex - 1]);
-      }
-    }
-
-    function focusDown(e: KeyboardEvent): void {
-      e.preventDefault();
-      if (currentIndex < visible.length - 1) {
-        setFocusedId(visible[currentIndex + 1]);
-      }
-    }
-
-    function handleCutEvent(e: KeyboardEvent): void {
-      e.preventDefault();
-      setCutId(focusedId());
-    }
-
-    function handlePasteEvent(e: KeyboardEvent): void {
-      e.preventDefault();
-      pasteCutItemIntoFocusedItem();
-    }
-
-    function expandFocused(e: KeyboardEvent): void {
-      e.preventDefault();
-      // Expand folder if collapsed
-      if (isFolder(node) && !node.isExpanded) {
-        toggleNode(currentId, nodes, setNodes, focusedId(), setFocusedId);
-      }
-    }
-
-    function collapseFocused(e: KeyboardEvent): void {
-      e.preventDefault();
-      if (isFolder(node) && node.isExpanded) {
-        // Collapse folder
-        toggleNode(currentId, nodes, setNodes, focusedId(), setFocusedId);
-      } else if (node.parent && node.parent !== props.collection.rootNode.id) {
-        // Move focus to parent
-        setFocusedId(node.parent);
-      }
-    }
-
-    function expandSpaceFocused(e: KeyboardEvent): void {
-      e.preventDefault();
-      if (isFolder(node)) {
-        // Allow users to toggle folders freely, even if they contain the current page
-        toggleNode(currentId, nodes, setNodes, focusedId(), setFocusedId);
-      } else {
-        // For note nodes, just navigate - URL params will trigger the expansion
-        navigate(`/note/${currentId}`);
-      }
-    }
-
-    function showContextMenuForFocused(e: KeyboardEvent): void {
-      e.preventDefault();
-
-      // NOTE the tree sets items to the note-id, I was unable
-      // To use `tree-item-${focusedId()}`, the ids did align in the DOM
-      // Alternatively, the second (OBOB) element worked, but this would be slower
-      // because it's not the first item and walks the DOM.
-      // const nodeElement = document.querySelectorAll(`[data-focus="true"][data-part="item"]`)[1];
-      const nodeElement = document.getElementById(focusedId());
-      if (!nodeElement) return;
-
-      // Get position for the context menu (at mouse position or element center if triggered by keyboard)
-      const rect = nodeElement.getBoundingClientRect();
-
-      // Use the center of the element for the context menu position
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-
-      // Show context menu at that position
-      setContextMenu({
-        show: true,
-        x,
-        y,
-        nodeId: currentId,
-        node,
-      });
-    }
-
-    function handleDeleteKeyEvent(e: KeyboardEvent): void {
-      e.preventDefault();
-      const nodeId = focusedId();
-      if (!nodeId) return;
-
-      if (confirm(`Are you sure you want to delete this item?`)) {
-        removeNodeFromUI(
-          nodeId,
-          nodes(),
-          setNodes,
-          setCutId,
-          getCutId,
-          focusedId(),
-          setFocusedId,
-          getVisibleNodes,
-          deleteItem,
-        ).then((success) => {
-          if (!success) {
-            console.error(`Failed to delete item ${nodeId}`);
-          }
-        });
-      }
-    }
-
-    switch (e.key) {
-      case "Delete":
-        handleDeleteKeyEvent(e);
-        break;
-      case "0":
-        moveNodeWithinTree(
-          focusedId(),
-          "",
-          nodes(),
-          setNodes,
-          setCutId,
-          getCutId,
-          props.collection.rootNode.id,
-          moveItem,
-          moveItemToRoot,
-          true,
-        ).then((success) => {
-          if (!success) {
-            console.error(`Failed to move item ${focusedId()} to root`);
-          }
-        });
-      case "m":
-        showContextMenuForFocused(e);
-        break;
-      case "x":
-        handleCutEvent(e);
-        break;
-      case "p":
-        handlePasteEvent(e);
-        break;
-      case "ArrowDown":
-        focusDown(e);
-        break;
-
-      case "j":
-        focusDown(e);
-        break;
-
-      case "ArrowUp":
-        focusUp(e);
-        break;
-
-      case "k":
-        focusUp(e);
-        break;
-
-      case "ArrowRight":
-        expandFocused(e);
-        break;
-
-      case "l":
-        expandFocused(e);
-        break;
-
-      case "ArrowLeft":
-        collapseFocused(e);
-        break;
-
-      case "h":
-        collapseFocused(e);
-        break;
-
-      case "Enter":
-      case " ":
-        expandSpaceFocused(e);
-        break;
-    }
+  // Set up keyboard handlers
+  const keyboardHandlers = createKeyboardHandlers(
+    isTreeFocused,
+    focusedId,
+    setFocusedId,
+    nodes,
+    setNodes,
+    getCutId,
+    setCutId,
+    getVisibleNodes,
+    navigate,
+    props.collection.rootNode.id,
+    moveItem,
+    moveItemToRoot,
+    deleteItem,
+    pasteCutItemIntoFocusedItem
+  );
+  
+  // Function to handle showing context menu by keyboard
+  function showContextMenuForFocused(e: KeyboardEvent): void {
+    e.preventDefault();
+    const menuPosition = keyboardHandlers.showContextMenuForNode(e);
+    if (!menuPosition) return;
+    
+    // Show context menu at that position
+    setContextMenu({
+      show: true,
+      x: menuPosition.x,
+      y: menuPosition.y,
+      nodeId: menuPosition.nodeId,
+      node: menuPosition.node,
+    });
   }
 
   // Handle node click
@@ -502,11 +340,14 @@ export function Tree(props: TreeProps) {
     }
   }
 
+  // Track cleanup callback from keyboard handlers
+  let cleanupKeyboardHandlers: () => void;
+  
   // Setup focus and keyboard event handlers
   onMount(() => {
     if (!isServer) {
-      // Global keyboard event listener
-      document.addEventListener("keydown", handleKeyDown);
+      // Set up keyboard event handlers
+      cleanupKeyboardHandlers = keyboardHandlers.setupKeyboardListeners(treeRef.current);
 
       // Set up focus tracking if we have a reference
       if (treeRef.current) {
@@ -523,9 +364,12 @@ export function Tree(props: TreeProps) {
 
   onCleanup(() => {
     if (!isServer) {
-      // Clean up event listeners
-      document.removeEventListener("keydown", handleKeyDown);
+      // Clean up keyboard event listeners
+      if (cleanupKeyboardHandlers) {
+        cleanupKeyboardHandlers();
+      }
 
+      // Clean up focus event listeners
       if (treeRef.current) {
         treeRef.current.removeEventListener("focusin", () =>
           setIsTreeFocused(true),
