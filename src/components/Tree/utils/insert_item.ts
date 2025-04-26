@@ -4,6 +4,7 @@ import type { DbResponse } from "~/lib";
 
 // Type definitions
 export type NodeMap = Record<string, TreeNode>;
+export type SetterFunction<T> = (value: T) => void;
 
 /**
  * Checks if the given node is a folder by verifying it has children.
@@ -176,6 +177,90 @@ export function moveNodeWithinTree(
     })
     .catch((error) => {
       console.error("Error moving node:", error);
+      return false;
+    });
+}
+
+/**
+ * Removes a node from the tree UI after it's been deleted from the database
+ * 
+ * @param nodeId - ID of the node to remove
+ * @param nodes - Current node map
+ * @param setNodes - Function to update node state
+ * @param setCutId - Function to update cut ID state 
+ * @param getCutId - Function to get current cut ID
+ * @param focusedId - ID of the currently focused node
+ * @param setFocusedId - Function to update the focused node
+ * @param getVisibleNodes - Function to get visible nodes
+ * @param deleteItemFunc - Function to delete item from the database
+ * @returns Promise that resolves when the operation is complete
+ */
+export function removeNodeFromUI(
+  nodeId: string,
+  nodes: NodeMap,
+  setNodes: Setter<NodeMap>,
+  setCutId: Setter<string>,
+  getCutId: () => string,
+  focusedId: string,
+  setFocusedId: Setter<string>,
+  getVisibleNodes: () => string[],
+  deleteItemFunc: (nodeId: string) => Promise<DbResponse>
+): Promise<boolean> {
+  const nodeToDelete = nodes[nodeId];
+
+  if (!nodeToDelete) {
+    return Promise.resolve(false);
+  }
+
+  // First delete from database
+  return deleteItemFunc(nodeId)
+    .then((result) => {
+      if (!result.success) {
+        console.error(`Failed to delete item: ${result.message}`);
+        return false;
+      }
+
+      // Update the tree using our common function
+      const newNodes = updateTreeNodes(
+        nodes,
+        setNodes,
+        (nodeMap) => {
+          const newNodes = { ...nodeMap };
+
+          // Remove node from its parent's children
+          removeNodeFromParent(nodeToDelete.parent, newNodes, nodeId);
+
+          // Remove the node itself from the map
+          delete newNodes[nodeId];
+
+          return newNodes;
+        },
+        setCutId,
+        getCutId(),
+        nodeId,
+      );
+
+      // If the deleted node was focused, move focus to parent or first available node
+      if (focusedId === nodeId) {
+        if (nodeToDelete.parent && newNodes[nodeToDelete.parent]) {
+          setFocusedId(nodeToDelete.parent);
+        } else {
+          const visibleNodes = getVisibleNodes();
+          if (visibleNodes.length > 0) {
+            setFocusedId(visibleNodes[0]);
+          }
+        }
+      }
+
+      // Clear cut ID if it matches
+      if (getCutId() === nodeId) {
+        setCutId("");
+      }
+
+      return true;
+    })
+    .catch((error) => {
+      console.error("Error deleting node:", error);
       return false;
     });
 }
