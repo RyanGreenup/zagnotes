@@ -1,8 +1,18 @@
+import { TreeNode } from "@ark-ui/solid";
 import { Accessor, Setter } from "solid-js";
-import { NavigateFunction } from "@solidjs/router";
+import { DbResponse } from "~/lib";
 import { isFolder, toggleNode } from "./expand_and_collapse_item";
 import { moveNodeWithinTree, removeNodeFromUI } from "./insert_item";
-import { TreeNode, NodeMap } from "./types";
+import { NodeMap } from "./types";
+
+/**
+ * Function responsible for navigating between routes in the application
+ * This should be the output of the `useNavigate` function.
+ *
+ * @param route - The destination route path to navigate to
+ * @returns void
+ */
+type RouteNavigator = (route: string) => void;
 
 /**
  * Handles keyboard navigation and interaction for the tree component
@@ -16,12 +26,12 @@ export function createKeyboardHandlers(
   getCutId: Accessor<string>,
   setCutId: Setter<string>,
   getVisibleNodes: () => string[],
-  navigate: NavigateFunction,
+  navigate: RouteNavigator,
   rootNodeId: string,
-  moveItem: (sourceId: string, targetId: string) => Promise<boolean>,
-  moveItemToRoot: (sourceId: string) => Promise<boolean>,
-  deleteItem: (id: string) => Promise<boolean>,
-  pasteCutItemIntoFocusedItem: () => void
+  moveItem: (sourceId: string, targetId: string) => Promise<DbResponse>,
+  moveItemToRoot: (sourceId: string) => Promise<DbResponse>,
+  deleteItem: (id: string) => Promise<DbResponse>,
+  pasteCutItemIntoFocusedItem: () => void,
 ) {
   /**
    * Main keyboard event handler
@@ -124,7 +134,7 @@ export function createKeyboardHandlers(
     e.preventDefault();
     const currentId = focusedId();
     const node = nodes()[currentId];
-    
+
     // Expand folder if collapsed
     if (isFolder(node) && !node.isExpanded) {
       toggleNode(currentId, nodes, setNodes, focusedId(), setFocusedId);
@@ -138,7 +148,7 @@ export function createKeyboardHandlers(
     e.preventDefault();
     const currentId = focusedId();
     const node = nodes()[currentId];
-    
+
     if (isFolder(node) && node.isExpanded) {
       // Collapse folder
       toggleNode(currentId, nodes, setNodes, focusedId(), setFocusedId);
@@ -155,7 +165,7 @@ export function createKeyboardHandlers(
     e.preventDefault();
     const currentId = focusedId();
     const node = nodes()[currentId];
-    
+
     if (isFolder(node)) {
       // Allow users to toggle folders freely, even if they contain the current page
       toggleNode(currentId, nodes, setNodes, focusedId(), setFocusedId);
@@ -165,31 +175,38 @@ export function createKeyboardHandlers(
     }
   }
 
+  interface ContextMenuInfo {
+    nodeId: string | number; // The ID of the focused node
+    node: TreeNode; // The actual node object
+    x: number; // X-coordinate for the context menu position
+    y: number; // Y-coordinate for the context menu position
+  }
+
   /**
    * Show context menu for currently focused node
    */
-  function showContextMenuForFocused(e: KeyboardEvent): void {
+  function showContextMenuForFocused(e: KeyboardEvent): ContextMenuInfo | null {
     e.preventDefault();
-    
+
     // This is a placeholder since the actual context menu handling
     // needs DOM interaction that should remain in the component
-    
+
     // Implementation needs component context (setContextMenu)
     // Signal to the component to show the context menu
-    
+
     // The function signature would look like:
     // showContextMenu(focusedId(), nodes()[focusedId()]);
-    
-    // This function returns the element ID and position, but the actual 
+
+    // This function returns the element ID and position, but the actual
     // context menu display needs to happen in the component
     const nodeElement = document.getElementById(focusedId());
-    if (!nodeElement) return;
+    if (!nodeElement) return null;
 
     // Get position for the context menu (at the element center)
     const rect = nodeElement.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
-    
+
     // Return the information needed to show the context menu
     return { nodeId: focusedId(), node: nodes()[focusedId()], x, y };
   }
@@ -258,6 +275,6 @@ export function createKeyboardHandlers(
       }
       return () => {}; // No-op cleanup if element is null
     },
-    showContextMenuForNode: showContextMenuForFocused
+    showContextMenuForNode: showContextMenuForFocused,
   };
 }

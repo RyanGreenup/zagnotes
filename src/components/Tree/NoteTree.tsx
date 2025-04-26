@@ -239,7 +239,16 @@ export function Tree(props: TreeProps) {
 
         // Expand all parent nodes to reveal the selected node
         // This only happens on initial load or when URL changes
-        setTimeout(() => expandParents(selectedId, nodes, setNodes, props.collection.rootNode.id), 0); // Using setTimeout to ensure nodes state is set
+        setTimeout(
+          () =>
+            expandParents(
+              selectedId,
+              nodes,
+              setNodes,
+              props.collection.rootNode.id,
+            ),
+          0,
+        ); // Using setTimeout to ensure nodes state is set
       } else {
         const visible = getVisibleNodes();
         if (visible.length > 0) {
@@ -250,7 +259,6 @@ export function Tree(props: TreeProps) {
       console.error("Error initializing tree:", error);
     }
   });
-
 
   // Track the previous selected ID to detect changes from URL params
   const [prevSelectedId, setPrevSelectedId] = createSignal<string>("");
@@ -266,7 +274,12 @@ export function Tree(props: TreeProps) {
       // Only expand parents when the selection changes due to URL params
       // This prevents re-expansion after user manually collapses folders
       if (prevSelectedId() !== selectedId) {
-        expandParents(selectedId, nodes, setNodes, props.collection.rootNode.id);
+        expandParents(
+          selectedId,
+          nodes,
+          setNodes,
+          props.collection.rootNode.id,
+        );
         setPrevSelectedId(selectedId);
       }
     }
@@ -304,21 +317,21 @@ export function Tree(props: TreeProps) {
     moveItem,
     moveItemToRoot,
     deleteItem,
-    pasteCutItemIntoFocusedItem
+    pasteCutItemIntoFocusedItem,
   );
-  
+
   // Function to handle showing context menu by keyboard
   function showContextMenuForFocused(e: KeyboardEvent): void {
     e.preventDefault();
     const menuPosition = keyboardHandlers.showContextMenuForNode(e);
     if (!menuPosition) return;
-    
+
     // Show context menu at that position
     setContextMenu({
       show: true,
       x: menuPosition.x,
       y: menuPosition.y,
-      nodeId: menuPosition.nodeId,
+      nodeId: String(menuPosition.nodeId),
       node: menuPosition.node,
     });
   }
@@ -342,12 +355,14 @@ export function Tree(props: TreeProps) {
 
   // Track cleanup callback from keyboard handlers
   let cleanupKeyboardHandlers: () => void;
-  
+
   // Setup focus and keyboard event handlers
   onMount(() => {
     if (!isServer) {
       // Set up keyboard event handlers
-      cleanupKeyboardHandlers = keyboardHandlers.setupKeyboardListeners(treeRef.current);
+      cleanupKeyboardHandlers = keyboardHandlers.setupKeyboardListeners(
+        treeRef.current,
+      );
 
       // Set up focus tracking if we have a reference
       if (treeRef.current) {
