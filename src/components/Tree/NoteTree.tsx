@@ -14,8 +14,12 @@ import { isServer, Portal } from "solid-js/web";
 import { ContextMenu } from "~/components/ContextMenu";
 import "./NoteTree.css";
 import { Node } from "~/components/treeCollection";
-import { moveItemToRoot } from "~/lib/utils/folders";
-import { moveNodeWithinTree, type NodeMap } from "./utils/insert_item";
+import { deleteItem, moveItem, moveItemToRoot } from "~/lib/utils/folders";
+import {
+  moveNodeWithinTree,
+  removeNodeFromUI,
+  type NodeMap,
+} from "./utils/insert_item";
 import {
   isFolder,
   toggleNode,
