@@ -389,7 +389,7 @@ export function Tree(props: TreeProps) {
       e.preventDefault();
       // Expand folder if collapsed
       if (isFolder(node) && !node.isExpanded) {
-        toggleNode(currentId, nodes(), setNodes, focusedId(), setFocusedId);
+        toggleNode(currentId, nodes, setNodes, focusedId(), setFocusedId);
       }
     }
 
@@ -397,7 +397,7 @@ export function Tree(props: TreeProps) {
       e.preventDefault();
       if (isFolder(node) && node.isExpanded) {
         // Collapse folder
-        toggleNode(currentId, nodes(), setNodes, focusedId(), setFocusedId);
+        toggleNode(currentId, nodes, setNodes, focusedId(), setFocusedId);
       } else if (node.parent && node.parent !== props.collection.rootNode.id) {
         // Move focus to parent
         setFocusedId(node.parent);
@@ -408,7 +408,7 @@ export function Tree(props: TreeProps) {
       e.preventDefault();
       if (isFolder(node)) {
         // Allow users to toggle folders freely, even if they contain the current page
-        toggleNode(currentId, nodes(), setNodes, focusedId(), setFocusedId);
+        toggleNode(currentId, nodes, setNodes, focusedId(), setFocusedId);
       } else {
         // For note nodes, just navigate - URL params will trigger the expansion
         navigate(`/note/${currentId}`);
@@ -546,7 +546,7 @@ export function Tree(props: TreeProps) {
     // Toggle folder or navigate to note
     if (isFolder(node)) {
       // Allow users to toggle folders freely, even if they contain the current page
-      toggleNode(id, nodes(), setNodes, focusedId(), setFocusedId);
+      toggleNode(id, nodes, setNodes, focusedId(), setFocusedId);
     } else {
       // For note nodes, just navigate - URL params will trigger the expansion
       navigate(`/note/${id}`);

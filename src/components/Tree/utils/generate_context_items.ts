@@ -16,14 +16,15 @@ import {
   moveItemToRoot,
   promoteItem,
 } from "~/lib/utils/folders";
+import { Accessor, Setter } from "solid-js";
 
 export function generateContextMenuItems(
-  nodes: () => NodeMap,
-  setNodes: (nodes: NodeMap) => void,
-  focusedId: () => string,
-  setFocusedId: (id: string) => void,
-  setCutId: (id: string) => void,
-  getCutId: () => string,
+  nodes: Accessor<NodeMap>,
+  setNodes: Setter<NodeMap>,
+  focusedId: Accessor<string>,
+  setFocusedId: Setter<string>,
+  setCutId: Setter<string>,
+  getCutId: Accessor<string>,
   rootNodeId: string,
   navigate: ReturnType<typeof useNavigate>,
   getVisibleNodes: () => string[],
@@ -35,7 +36,7 @@ export function generateContextMenuItems(
       action: (nodeId) => {
         if (isFolder(nodes()[nodeId])) {
           console.log(`Toggle ${nodeId}`);
-          toggleNode(nodeId, nodes(), setNodes, focusedId(), setFocusedId);
+          toggleNode(nodeId, nodes, setNodes, focusedId(), setFocusedId);
         } else {
           console.log(`Navigate ${nodeId}`);
           navigate(`/note/${nodeId}`);

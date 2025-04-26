@@ -1,5 +1,5 @@
 import { TreeNode } from "@ark-ui/solid";
-import { Setter } from "solid-js";
+import { Accessor, Setter } from "solid-js";
 import { isServer } from "solid-js/web";
 
 // Type definitions
@@ -55,12 +55,12 @@ export function saveExpanded(expanded: Record<string, boolean>): void {
  */
 export function toggleNode(
   id: string,
-  nodes: NodeMap,
+  nodes: Accessor<NodeMap>,
   setNodes: Setter<NodeMap>,
   focusedId: string,
   setFocusedId: Setter<string>,
 ): void {
-  const nodeMap = nodes;
+  const nodeMap = nodes();
   const node = nodeMap[id];
 
   // Only folders can be toggled
