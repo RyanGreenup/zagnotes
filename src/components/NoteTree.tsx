@@ -274,10 +274,10 @@ export function Tree(props: TreeProps) {
           // Create a copy of the current nodes
           const nodeMap = nodes();
           const newNodes = { ...nodeMap };
-          
+
           // Get the parent folder node
           const parentNode = nodeMap[nodeId];
-          
+
           if (parentNode) {
             // Create a new tree node for the note
             const newNoteNode: TreeNode = {
@@ -285,18 +285,18 @@ export function Tree(props: TreeProps) {
               name: defaultTitle,
               type: "file",
               parent: nodeId,
-              depth: (parentNode.depth || 0) + 1
+              depth: (parentNode.depth || 0) + 1,
             };
-            
+
             // Insert the new note into the tree
             insertItemIntoTree(parentNode, newNodes, newNoteNode);
-            
+
             // Update the tree
             setNodes(newNodes);
-            
+
             // Set focus to the new note
             setFocusedId(result.id);
-            
+
             // Navigate to the new note
             navigate(`/note/${result.id}`);
           } else {
@@ -344,12 +344,11 @@ export function Tree(props: TreeProps) {
       label: "Delete",
       action: (nodeId) => {
         if (confirm(`Are you sure you want to delete this item?`)) {
-          removeNodeFromUI(nodeId)
-            .then(success => {
-              if (!success) {
-                console.error(`Failed to delete item ${nodeId}`);
-              }
-            });
+          removeNodeFromUI(nodeId).then((success) => {
+            if (!success) {
+              console.error(`Failed to delete item ${nodeId}`);
+            }
+          });
         }
       },
       separator: true,
@@ -684,7 +683,7 @@ export function Tree(props: TreeProps) {
       }
     }
   }
-  
+
   /**
    * Common function to update the tree UI when nodes are modified
    * @param operation Function that modifies the node map
@@ -693,19 +692,19 @@ export function Tree(props: TreeProps) {
    */
   function updateTreeNodes(
     operation: (nodes: NodeMap) => NodeMap,
-    nodeId?: string
+    nodeId?: string,
   ): NodeMap {
     const currentNodes = nodes();
     const newNodes = operation(currentNodes);
-    
+
     // Update the tree state
     setNodes(newNodes);
-    
+
     // Clear cut ID if needed and matches
     if (nodeId && getCutId() === nodeId) {
       setCutId("");
     }
-    
+
     return newNodes;
   }
 
@@ -794,7 +793,7 @@ export function Tree(props: TreeProps) {
         // Update the tree using our common function
         updateTreeNodes((nodeMap) => {
           const newNodes = { ...nodeMap };
-          
+
           // 1. Remove node from its parent's children
           removeNodeFromParent(sourceNode.parent, newNodes, nodeId);
 
@@ -824,7 +823,7 @@ export function Tree(props: TreeProps) {
 
           // Update the node in the map
           newNodes[nodeId] = sourceNode;
-          
+
           return newNodes;
         }, nodeId);
 
@@ -835,7 +834,7 @@ export function Tree(props: TreeProps) {
         return false;
       });
   }
-  
+
   /**
    * Removes a node from the tree UI after it's been deleted from the database
    * @param nodeId - ID of the node to remove
@@ -844,32 +843,32 @@ export function Tree(props: TreeProps) {
   function removeNodeFromUI(nodeId: string): Promise<boolean> {
     const nodeMap = nodes();
     const nodeToDelete = nodeMap[nodeId];
-    
+
     if (!nodeToDelete) {
       return Promise.resolve(false);
     }
-    
+
     // First delete from database
     return deleteItem(nodeId)
-      .then(result => {
+      .then((result) => {
         if (!result.success) {
           console.error(`Failed to delete item: ${result.message}`);
           return false;
         }
-        
+
         // Update the tree using our common function
         const newNodes = updateTreeNodes((nodeMap) => {
           const newNodes = { ...nodeMap };
-          
+
           // Remove node from its parent's children
           removeNodeFromParent(nodeToDelete.parent, newNodes, nodeId);
-          
+
           // Remove the node itself from the map
           delete newNodes[nodeId];
-          
+
           return newNodes;
         }, nodeId);
-        
+
         // If the deleted node was focused, move focus to parent or first available node
         if (focusedId() === nodeId) {
           if (nodeToDelete.parent && newNodes[nodeToDelete.parent]) {
@@ -881,15 +880,15 @@ export function Tree(props: TreeProps) {
             }
           }
         }
-        
+
         // Clear cut ID if it matches
         if (getCutId() === nodeId) {
           setCutId("");
         }
-        
+
         return true;
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error deleting node:", error);
         return false;
       });
@@ -996,19 +995,18 @@ export function Tree(props: TreeProps) {
         node,
       });
     }
-    
+
     function handleDeleteKeyEvent(e: KeyboardEvent): void {
       e.preventDefault();
       const nodeId = focusedId();
       if (!nodeId) return;
-      
+
       if (confirm(`Are you sure you want to delete this item?`)) {
-        removeNodeFromUI(nodeId)
-          .then(success => {
-            if (!success) {
-              console.error(`Failed to delete item ${nodeId}`);
-            }
-          });
+        removeNodeFromUI(nodeId).then((success) => {
+          if (!success) {
+            console.error(`Failed to delete item ${nodeId}`);
+          }
+        });
       }
     }
 
