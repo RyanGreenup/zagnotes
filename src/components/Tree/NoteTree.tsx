@@ -11,10 +11,10 @@ import {
   Show,
 } from "solid-js";
 import { isServer, Portal } from "solid-js/web";
-import type { ContextMenuItem } from "./ContextMenu";
-import { ContextMenu } from "./ContextMenu";
+import type { ContextMenuItem } from "~/components/ContextMenu";
+import { ContextMenu } from "~/components/ContextMenu";
 import "./NoteTree.css";
-import { Node } from "./treeCollection";
+import { Node } from "~/components/treeCollection";
 import {
   deleteItem,
   moveItem,
@@ -33,7 +33,7 @@ import {
   removeNodeFromUI,
   promoteTreeItem,
   type NodeMap,
-} from "./Tree/utils/insert_item";
+} from "./utils/insert_item";
 
 // Types
 interface TreeNode extends Node {

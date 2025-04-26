@@ -5,7 +5,7 @@ import {
   createSignal,
   createEffect,
 } from "solid-js";
-import { RootProvider as GenericTreeView } from "./NoteTree";
+import { RootProvider as GenericTreeView } from "./Tree/NoteTree";
 import { fetchTreeData, createCollection } from "./treeCollection";
 import Card from "./Card";
 import SectionHeader from "./SectionHeader";
