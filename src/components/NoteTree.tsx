@@ -24,11 +24,11 @@ import {
 import type { DbResponse } from "~/lib";
 import { createNewNote, getNoteParent } from "~/lib/db-notes";
 import { moveItemToRoot } from "~/lib/utils/folders";
-import { 
-  insertItemIntoTree, 
-  isFolder, 
+import {
+  insertItemIntoTree,
+  isFolder,
   updateTreeNodes,
-  type NodeMap 
+  type NodeMap,
 } from "./Tree/utils/insert_item";
 
 // Types
@@ -528,7 +528,6 @@ export function Tree(props: TreeProps) {
     }
   }
 
-
   /**
    * Moves a node within the tree and updates the UI
    * @param nodeId - ID of the node to move
@@ -574,8 +573,8 @@ export function Tree(props: TreeProps) {
 
         // Update the tree using our common function
         updateTreeNodes(
-          nodes(), 
-          setNodes, 
+          nodes(),
+          setNodes,
           (nodeMap) => {
             const newNodes = { ...nodeMap };
 
@@ -610,10 +609,10 @@ export function Tree(props: TreeProps) {
             newNodes[nodeId] = sourceNode;
 
             return newNodes;
-          }, 
+          },
           setCutId,
           getCutId(),
-          nodeId
+          nodeId,
         );
 
         return true;
@@ -647,8 +646,8 @@ export function Tree(props: TreeProps) {
 
         // Update the tree using our common function
         const newNodes = updateTreeNodes(
-          nodes(), 
-          setNodes, 
+          nodes(),
+          setNodes,
           (nodeMap) => {
             const newNodes = { ...nodeMap };
 
@@ -659,10 +658,10 @@ export function Tree(props: TreeProps) {
             delete newNodes[nodeId];
 
             return newNodes;
-          }, 
+          },
           setCutId,
           getCutId(),
-          nodeId
+          nodeId,
         );
 
         // If the deleted node was focused, move focus to parent or first available node

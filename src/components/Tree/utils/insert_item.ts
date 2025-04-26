@@ -16,7 +16,7 @@ export function isFolder(node: TreeNode): boolean {
 
 /**
  * Common function to update the tree UI when nodes are modified
- * 
+ *
  * @param nodes - Current node map
  * @param setNodes - Function to update node state
  * @param operation - Function that modifies the node map
