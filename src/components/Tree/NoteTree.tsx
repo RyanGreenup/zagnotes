@@ -25,6 +25,12 @@ import {
   promoteTreeItem,
   type NodeMap,
 } from "./utils/insert_item";
+import {
+  isFolder,
+  toggleNode,
+  getStoredExpanded,
+  saveExpanded,
+} from "./utils/manipulate_tree";
 
 // Types
 interface TreeNode extends Node {
@@ -88,7 +94,7 @@ export function Tree(props: TreeProps) {
       action: (nodeId) => {
         if (isFolder(nodes()[nodeId])) {
           console.log(`Toggle ${nodeId}`);
-          toggleNode(nodeId);
+          toggleNode(nodeId, nodes(), setNodes, focusedId(), setFocusedId);
         } else {
           console.log(`Navigate ${nodeId}`);
           navigate(`/note/${nodeId}`);
@@ -316,32 +322,6 @@ export function Tree(props: TreeProps) {
     );
   };
 
-  // Get expanded state from localStorage
-  function getStoredExpanded(): Record<string, boolean> {
-    if (isServer) return {};
-    try {
-      const stored = localStorage.getItem("tree-expanded-state");
-      return stored ? JSON.parse(stored) : {};
-    } catch (e) {
-      return {};
-    }
-  }
-
-  // Save expanded state to localStorage
-  function saveExpanded(expanded: Record<string, boolean>): void {
-    if (isServer) return;
-    try {
-      localStorage.setItem("tree-expanded-state", JSON.stringify(expanded));
-    } catch (e) {
-      console.error("Failed to save tree state");
-    }
-  }
-
-  // Helper function to check if a node is a folder
-  function isFolder(node: TreeNode): boolean {
-    return Boolean(node.children && node.children.length > 0);
-  }
-
   // Get node name safely
   function getNodeName(node: TreeNode): string {
     if (props.collection.nodeToString) {
@@ -506,35 +486,6 @@ export function Tree(props: TreeProps) {
     }
   });
 
-  // Toggle node expansion - central function for all expansion operations
-  function toggleNode(id: string): void {
-    const nodeMap = nodes();
-    const node = nodeMap[id];
-
-    // Only folders can be toggled
-    if (!node || !isFolder(node)) return;
-
-    // Remember current focused item
-    const currentFocused = focusedId();
-
-    // Toggle expansion state
-    const newIsExpanded = !node.isExpanded;
-
-    // Update node state
-    setNodes({
-      ...nodeMap,
-      [id]: { ...node, isExpanded: newIsExpanded },
-    });
-
-    // Persist expanded state
-    const expanded = getStoredExpanded();
-    expanded[id] = newIsExpanded;
-    saveExpanded(expanded);
-
-    // Ensure focus is maintained
-    setFocusedId(currentFocused);
-  }
-
   function pasteCutItemIntoFocusedItem(): void {
     const cutId = getCutId();
     const targetId = focusedId();
@@ -593,7 +544,7 @@ export function Tree(props: TreeProps) {
       e.preventDefault();
       // Expand folder if collapsed
       if (isFolder(node) && !node.isExpanded) {
-        toggleNode(currentId);
+        toggleNode(currentId, nodes(), setNodes, focusedId(), setFocusedId);
       }
     }
 
@@ -601,7 +552,7 @@ export function Tree(props: TreeProps) {
       e.preventDefault();
       if (isFolder(node) && node.isExpanded) {
         // Collapse folder
-        toggleNode(currentId);
+        toggleNode(currentId, nodes(), setNodes, focusedId(), setFocusedId);
       } else if (node.parent && node.parent !== props.collection.rootNode.id) {
         // Move focus to parent
         setFocusedId(node.parent);
@@ -612,7 +563,7 @@ export function Tree(props: TreeProps) {
       e.preventDefault();
       if (isFolder(node)) {
         // Allow users to toggle folders freely, even if they contain the current page
-        toggleNode(currentId);
+        toggleNode(currentId, nodes(), setNodes, focusedId(), setFocusedId);
       } else {
         // For note nodes, just navigate - URL params will trigger the expansion
         navigate(`/note/${currentId}`);
@@ -750,7 +701,7 @@ export function Tree(props: TreeProps) {
     // Toggle folder or navigate to note
     if (isFolder(node)) {
       // Allow users to toggle folders freely, even if they contain the current page
-      toggleNode(id);
+      toggleNode(id, nodes(), setNodes, focusedId(), setFocusedId);
     } else {
       // For note nodes, just navigate - URL params will trigger the expansion
       navigate(`/note/${id}`);
