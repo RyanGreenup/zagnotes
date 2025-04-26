@@ -16,6 +16,7 @@ import { ContextMenu } from "./ContextMenu";
 import "./NoteTree.css";
 import { Node } from "./treeCollection";
 import type { DbResponse } from "~/lib";
+import { getNoteParent } from "~/lib/db-notes";
 
 // Types
 interface TreeNode extends Node {
@@ -114,24 +115,39 @@ export async function createNewNote(
   "use server";
   try {
     // Import the necessary functions from the correct modules
-    const { createNote } = await import("~/lib");
-    const { isFolder } = await import("~/lib/db-folder");
+    const { createNote } = await import("~/lib/db-notes");
+    const { isFolder, isNote } = await import("~/lib/db-folder");
 
-    // Validate parent folder exists if provided
-    if (parentId) {
-      if (!(await isFolder(parentId))) {
+    // Determine the effective parent folder
+    let effectiveParentId = parentId;
+
+    // If parent ID is a note, make the new note a sibling by using the note's parent
+    if (parentId && (await isNote(parentId))) {
+      const noteParentId = await getNoteParent(parentId);
+
+      // Use the note's parent or return error if not found
+      if (noteParentId === null) {
         return {
           id: "",
           success: false,
-          message: `Parent folder ${parentId} not found or is not a folder`,
+          message: `Could not determine parent folder for note ${parentId}`,
         };
       }
+
+      effectiveParentId = noteParentId;
     }
 
-    // Create the note
-    const result = await createNote(title, initialBody, parentId || "");
+    // Validate that the parent is a folder (if a parent was specified)
+    if (effectiveParentId && !(await isFolder(effectiveParentId))) {
+      return {
+        id: "",
+        success: false,
+        message: `Parent ${effectiveParentId} is not a valid folder`,
+      };
+    }
 
-    return result;
+    // Create the note with the effective parent (empty string if no parent)
+    return await createNote(title, initialBody, effectiveParentId || "");
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
@@ -307,7 +323,6 @@ export function Tree(props: TreeProps) {
           console.error(`Failed to create note: ${result.message}`);
         }
       },
-      isFolder: true,
       separator: true,
     },
     {
