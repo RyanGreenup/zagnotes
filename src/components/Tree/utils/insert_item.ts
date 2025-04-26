@@ -1,5 +1,5 @@
 import { TreeNode } from "@ark-ui/solid";
-import { Setter } from "solid-js";
+import { Accessor, Setter } from "solid-js";
 import type { DbResponse } from "~/lib";
 
 // Type definitions
@@ -28,14 +28,14 @@ export function hasChildren(node: TreeNode): boolean {
  * @returns Updated node map
  */
 export function updateTreeNodes(
-  nodes: NodeMap,
+  nodes: Accessor<NodeMap>,
   setNodes: Setter<NodeMap>,
   operation: (nodes: NodeMap) => NodeMap,
   setCutId?: Setter<string>,
   cutId?: string,
   nodeId?: string,
 ): NodeMap {
-  const currentNodes = nodes;
+  const currentNodes = nodes();
   const newNodes = operation(currentNodes);
 
   // Update the tree state
@@ -91,10 +91,10 @@ export function removeNodeFromParent(
 export function moveNodeWithinTree(
   nodeId: string,
   targetId: string,
-  nodeMap: NodeMap,
+  nodes: Accessor<NodeMap>,
   setNodes: Setter<NodeMap>,
   setCutId: Setter<string>,
-  getCutId: () => string,
+  getCutId: Accessor<string>,
   rootNodeId: string,
   moveItemFunc: (nodeId: string, targetId: string) => Promise<DbResponse>,
   moveItemToRootFunc: (nodeId: string) => Promise<DbResponse>,
@@ -107,6 +107,8 @@ export function moveNodeWithinTree(
   ) {
     return Promise.resolve(false);
   }
+
+  const nodeMap = nodes();
 
   const sourceNode = nodeMap[nodeId];
 
@@ -132,7 +134,7 @@ export function moveNodeWithinTree(
 
       // Update the tree using our common function
       updateTreeNodes(
-        nodeMap,
+        nodes,
         setNodes,
         (nodeMap) => {
           const newNodes = { ...nodeMap };
@@ -197,16 +199,16 @@ export function moveNodeWithinTree(
  */
 export function removeNodeFromUI(
   nodeId: string,
-  nodes: NodeMap,
+  nodes: Accessor<NodeMap>,
   setNodes: Setter<NodeMap>,
   setCutId: Setter<string>,
-  getCutId: () => string,
-  focusedId: string,
+  getCutId: Accessor<string>,
+  focusedId: Accessor<string>,
   setFocusedId: Setter<string>,
   getVisibleNodes: () => string[],
   deleteItemFunc: (nodeId: string) => Promise<DbResponse>,
 ): Promise<boolean> {
-  const nodeToDelete = nodes[nodeId];
+  const nodeToDelete = nodes()[nodeId];
 
   if (!nodeToDelete) {
     return Promise.resolve(false);

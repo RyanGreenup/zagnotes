@@ -30,7 +30,9 @@ import {
   toggleNode,
   getStoredExpanded,
   saveExpanded,
+  getVisibleNodes,
 } from "./utils/expand_and_collapse_item";
+import { generate_context_menu } from "./context_menu/items";
 
 // Types
 interface TreeNode extends Node {
@@ -88,6 +90,17 @@ export function Tree(props: TreeProps) {
   });
 
   // Context menu items
+  const contextMenuItems: ContextMenuItem[] = generate_context_menu(
+    nodes,
+    (route: string) => navigate(route),
+    setNodes,
+    focusedId,
+    setFocusedId,
+    setCutId,
+    getCutId,
+    props.collection.rootNode.id,
+  );
+  /*
   const contextMenuItems: ContextMenuItem[] = [
     {
       label: "Open",
@@ -223,7 +236,7 @@ export function Tree(props: TreeProps) {
             getCutId,
             focusedId(),
             setFocusedId,
-            getVisibleNodes,
+            () => getVisibleNodes(nodes(), props.collection.rootNode.id),
             deleteItem,
           ).then((success) => {
             if (!success) {
@@ -247,6 +260,7 @@ export function Tree(props: TreeProps) {
       isNote: true,
     },
   ];
+  */
 
   // Handle right-click on node
   function handleNodeRightClick(id: string, e: MouseEvent): void {
@@ -334,36 +348,6 @@ export function Tree(props: TreeProps) {
     return node.name;
   }
 
-  // Get visible nodes in display order
-  function getVisibleNodes(): string[] {
-    const nodeMap = nodes();
-    const rootId = props.collection.rootNode.id;
-    const result: string[] = [];
-    const stack: string[] = [rootId];
-
-    while (stack.length > 0) {
-      const id = stack.pop()!;
-      const node = nodeMap[id];
-
-      if (!node) continue;
-
-      // Skip root node from visible list
-      if (id !== rootId) {
-        result.push(id);
-      }
-
-      // Add children if expanded
-      if (node.isExpanded && node.children) {
-        // Add in reverse order for correct display
-        for (let i = node.children.length - 1; i >= 0; i--) {
-          stack.push(node.children[i].id);
-        }
-      }
-    }
-
-    return result;
-  }
-
   // Initialize the tree
   createEffect(() => {
     if (!props.collection?.rootNode) return;
@@ -411,7 +395,7 @@ export function Tree(props: TreeProps) {
         // This only happens on initial load or when URL changes
         setTimeout(() => expandParents(selectedId), 0); // Using setTimeout to ensure nodes state is set
       } else {
-        const visible = getVisibleNodes();
+        const visible = getVisibleNodes(nodes(), props.collection.rootNode.id);
         if (visible.length > 0) {
           setFocusedId(visible[0]);
         }
@@ -493,7 +477,7 @@ export function Tree(props: TreeProps) {
     moveNodeWithinTree(
       cutId,
       targetId,
-      nodes(),
+      nodes,
       setNodes,
       setCutId,
       getCutId,
@@ -513,7 +497,7 @@ export function Tree(props: TreeProps) {
 
     const nodeMap = nodes();
     const node = nodeMap[currentId];
-    const visible = getVisibleNodes();
+    const visible = getVisibleNodes(nodes, props.collection.rootNode.id);
     const currentIndex = visible.indexOf(currentId);
 
     function focusUp(e: KeyboardEvent): void {
@@ -544,7 +528,7 @@ export function Tree(props: TreeProps) {
       e.preventDefault();
       // Expand folder if collapsed
       if (isFolder(node) && !node.isExpanded) {
-        toggleNode(currentId, nodes(), setNodes, focusedId(), setFocusedId);
+        toggleNode(currentId, nodes, setNodes, focusedId, setFocusedId);
       }
     }
 
@@ -552,7 +536,7 @@ export function Tree(props: TreeProps) {
       e.preventDefault();
       if (isFolder(node) && node.isExpanded) {
         // Collapse folder
-        toggleNode(currentId, nodes(), setNodes, focusedId(), setFocusedId);
+        toggleNode(currentId, nodes, setNodes, focusedId, setFocusedId);
       } else if (node.parent && node.parent !== props.collection.rootNode.id) {
         // Move focus to parent
         setFocusedId(node.parent);
@@ -563,7 +547,7 @@ export function Tree(props: TreeProps) {
       e.preventDefault();
       if (isFolder(node)) {
         // Allow users to toggle folders freely, even if they contain the current page
-        toggleNode(currentId, nodes(), setNodes, focusedId(), setFocusedId);
+        toggleNode(currentId, nodes, setNodes, focusedId, setFocusedId);
       } else {
         // For note nodes, just navigate - URL params will trigger the expansion
         navigate(`/note/${currentId}`);
@@ -606,13 +590,13 @@ export function Tree(props: TreeProps) {
       if (confirm(`Are you sure you want to delete this item?`)) {
         removeNodeFromUI(
           nodeId,
-          nodes(),
+          nodes,
           setNodes,
           setCutId,
           getCutId,
-          focusedId(),
+          focusedId,
           setFocusedId,
-          getVisibleNodes,
+          () => getVisibleNodes(nodes, props.collection.rootNode.id),
           deleteItem,
         ).then((success) => {
           if (!success) {
@@ -630,7 +614,7 @@ export function Tree(props: TreeProps) {
         moveNodeWithinTree(
           focusedId(),
           "",
-          nodes(),
+          nodes,
           setNodes,
           setCutId,
           getCutId,
@@ -701,7 +685,7 @@ export function Tree(props: TreeProps) {
     // Toggle folder or navigate to note
     if (isFolder(node)) {
       // Allow users to toggle folders freely, even if they contain the current page
-      toggleNode(id, nodes(), setNodes, focusedId(), setFocusedId);
+      toggleNode(id, nodes, setNodes, focusedId, setFocusedId);
     } else {
       // For note nodes, just navigate - URL params will trigger the expansion
       navigate(`/note/${id}`);
@@ -826,7 +810,7 @@ export function Tree(props: TreeProps) {
       >
         <ul class="py-1">
           <Show when={props.collection?.rootNode?.children}>
-            <For each={getVisibleNodes()}>
+            <For each={getVisibleNodes(nodes, props.collection.rootNode.id)}>
               {(nodeId) => {
                 const node = () => nodes()[nodeId];
                 const isSelected = () => nodeId === focusedId();

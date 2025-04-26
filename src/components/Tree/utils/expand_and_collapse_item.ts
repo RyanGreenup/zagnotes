@@ -1,5 +1,5 @@
 import { TreeNode } from "@ark-ui/solid";
-import { Setter } from "solid-js";
+import { Accessor, Setter } from "solid-js";
 import { isServer } from "solid-js/web";
 
 // Type definitions
@@ -55,19 +55,19 @@ export function saveExpanded(expanded: Record<string, boolean>): void {
  */
 export function toggleNode(
   id: string,
-  nodes: NodeMap,
+  nodes: Accessor<NodeMap>,
   setNodes: Setter<NodeMap>,
-  focusedId: string,
+  focusedId: Accessor<string>,
   setFocusedId: Setter<string>,
 ): void {
-  const nodeMap = nodes;
+  const nodeMap = nodes();
   const node = nodeMap[id];
 
   // Only folders can be toggled
   if (!node || !isFolder(node)) return;
 
   // Remember current focused item
-  const currentFocused = focusedId;
+  const currentFocused = focusedId();
 
   // Toggle expansion state
   const newIsExpanded = !node.isExpanded;
@@ -85,4 +85,36 @@ export function toggleNode(
 
   // Ensure focus is maintained
   setFocusedId(currentFocused);
+}
+
+// Get visible nodes in display order
+export function getVisibleNodes(
+  nodes: Accessor<NodeMap>,
+  rootId: string,
+): string[] {
+  const result: string[] = [];
+  const stack: string[] = [rootId];
+  const nodeMap = nodes();
+
+  while (stack.length > 0) {
+    const id = stack.pop()!;
+    const node = nodeMap[id];
+
+    if (!node) continue;
+
+    // Skip root node from visible list
+    if (id !== rootId) {
+      result.push(id);
+    }
+
+    // Add children if expanded
+    if (node.isExpanded && node.children) {
+      // Add in reverse order for correct display
+      for (let i = node.children.length - 1; i >= 0; i--) {
+        stack.push(node.children[i].id);
+      }
+    }
+  }
+
+  return result;
 }
