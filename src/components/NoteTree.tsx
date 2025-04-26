@@ -174,7 +174,7 @@ export function Tree(props: TreeProps) {
     {
       label: "Move to Root",
       action: (nodeId) => {
-        moveNodeWithinTree(nodeId, "", true).then((success) => {
+        moveNodeWithinTree(nodeId, "", nodes(), true).then((success) => {
           if (!success) {
             console.error(`Failed to move item ${nodeId} to root`);
           }
@@ -559,6 +559,7 @@ export function Tree(props: TreeProps) {
   function moveNodeWithinTree(
     nodeId: string,
     targetId: string,
+    nodeMap: NodeMap,
     moveToRoot: boolean = false,
   ): Promise<boolean> {
     if (
@@ -569,7 +570,6 @@ export function Tree(props: TreeProps) {
       return Promise.resolve(false);
     }
 
-    const nodeMap = nodes();
     const sourceNode = nodeMap[nodeId];
 
     if (!sourceNode) {
@@ -700,7 +700,7 @@ export function Tree(props: TreeProps) {
     const cutId = getCutId();
     const targetId = focusedId();
 
-    moveNodeWithinTree(cutId, targetId);
+    moveNodeWithinTree(cutId, targetId, nodes());
   }
 
   async function promoteTreeItem(id: string) {
@@ -710,7 +710,7 @@ export function Tree(props: TreeProps) {
       const parent_id = promotion_result.parent_id;
       if (parent_id) {
         console.log("Parent ID Itentified");
-        moveNodeWithinTree(id, parent_id, false);
+        moveNodeWithinTree(id, parent_id, nodes(), false);
       } else {
         console.log("No Parent ID Returned");
       }
@@ -833,7 +833,7 @@ export function Tree(props: TreeProps) {
         handleDeleteKeyEvent(e);
         break;
       case "0":
-        moveNodeWithinTree(focusedId(), "", true).then((success) => {
+        moveNodeWithinTree(focusedId(), "", nodes(), true).then((success) => {
           if (!success) {
             console.error(`Failed to move item ${focusedId()} to root`);
           }
