@@ -15,8 +15,10 @@ import type { ContextMenuItem } from "./ContextMenu";
 import { ContextMenu } from "./ContextMenu";
 import "./NoteTree.css";
 import { Node } from "./treeCollection";
+import { moveItem, promoteItem, promoteNote } from "~/lib/utils/folders";
 import type { DbResponse } from "~/lib";
 import { createNewNote, getNoteParent } from "~/lib/db-notes";
+import { moveItemToRoot } from "~/lib/utils/folders";
 
 // Types
 interface TreeNode extends Node {
@@ -53,90 +55,6 @@ interface TreeNodeItemProps {
 // Helper function to check if a node is a folder
 export function isFolder(node: TreeNode): boolean {
   return Boolean(node.children && node.children.length > 0);
-}
-
-// Interface is now imported from lib
-
-export async function moveItem(
-  id: string,
-  targetParentId: string,
-): Promise<DbResponse> {
-  "use server";
-  try {
-    const { moveNote, moveFolder, isFolder, isNote } = await import(
-      "~/lib/db-folder"
-    );
-
-    // Validate that target is a folder
-    if (!(await isFolder(targetParentId))) {
-      return {
-        success: false,
-        message: `Target ${targetParentId} is not a folder`,
-      };
-    }
-
-    // Move the item based on its type
-    if (await isFolder(id)) {
-      return await moveFolder(id, targetParentId);
-    } else if (await isNote(id)) {
-      return await moveNote(id, targetParentId);
-    }
-
-    // Fallback case - we don't know what type it is but we'll try folder
-    return await moveFolder(id, targetParentId);
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-
-    // Log the error for debugging
-    console.error(
-      `Error moving item ${id} to ${targetParentId}: ${errorMessage}`,
-    );
-
-    return {
-      success: false,
-      message: `Error moving item ${id} to ${targetParentId}`,
-    };
-  }
-}
-
-
-/**
- * Move an item (note or folder) to the root level
- * @param id The ID of the item to move
- * @returns Success status
- */
-export async function moveItemToRoot(id: string): Promise<DbResponse> {
-  "use server";
-  try {
-    // Import required functions
-    const { moveFolder, moveNote, isFolder, isNote } = await import(
-      "~/lib/db-folder"
-    );
-
-    // Check item type and move it accordingly
-    if (await isFolder(id)) {
-      return await moveFolder(id, "");
-    } else if (await isNote(id)) {
-      return await moveNote(id, "");
-    }
-
-    return {
-      success: false,
-      message: "Item not found or is neither a note nor a folder",
-    };
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-
-    // Log the error for debugging
-    console.error(`Error moving item ${id} to root: ${errorMessage}`);
-
-    return {
-      success: false,
-      message: `Error moving item to root: ${errorMessage}`,
-    };
-  }
 }
 
 /**
@@ -260,6 +178,14 @@ export function Tree(props: TreeProps) {
         }
       },
       separator: true,
+    },
+    {
+      label: "Promote",
+      action: (nodeId) => {
+        console.log("Staring promotion");
+        promoteTreeItem(nodeId);
+        console.log("Promotion complete");
+      },
     },
     {
       label: "Cut",
@@ -850,6 +776,22 @@ export function Tree(props: TreeProps) {
     const targetId = focusedId();
 
     moveNodeWithinTree(cutId, targetId);
+  }
+
+  async function promoteTreeItem(id: string) {
+    const promotion_result = await promoteItem(id);
+    if (promotion_result.success) {
+      console.log("DB Promotion successfull");
+      const parent_id = promotion_result.parent_id;
+      if (parent_id) {
+        console.log("Parent ID Itentified");
+        moveNodeWithinTree(id, parent_id, false);
+      } else {
+        console.log("No Parent ID Returned");
+      }
+    } else {
+      console.error(promotion_result.message);
+    }
   }
 
   // Handle keyboard navigation
