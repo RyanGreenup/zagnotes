@@ -30,7 +30,7 @@ import {
   toggleNode,
   getStoredExpanded,
   saveExpanded,
-} from "./utils/manipulate_tree";
+} from "./utils/expand_and_collapse_item";
 
 // Types
 interface TreeNode extends Node {
