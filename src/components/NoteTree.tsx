@@ -15,7 +15,12 @@ import type { ContextMenuItem } from "./ContextMenu";
 import { ContextMenu } from "./ContextMenu";
 import "./NoteTree.css";
 import { Node } from "./treeCollection";
-import { moveItem, promoteItem, promoteNote } from "~/lib/utils/folders";
+import {
+  deleteItem,
+  moveItem,
+  promoteItem,
+  promoteNote,
+} from "~/lib/utils/folders";
 import type { DbResponse } from "~/lib";
 import { createNewNote, getNoteParent } from "~/lib/db-notes";
 import { moveItemToRoot } from "~/lib/utils/folders";
@@ -55,43 +60,6 @@ interface TreeNodeItemProps {
 // Helper function to check if a node is a folder
 export function isFolder(node: TreeNode): boolean {
   return Boolean(node.children && node.children.length > 0);
-}
-
-/**
- * Delete a note or folder from the database
- * @param id The ID of the item to delete
- * @returns Success status
- */
-export async function deleteItem(id: string): Promise<DbResponse> {
-  "use server";
-  try {
-    // Import required functions
-    const { deleteFolder, isFolder, isNote } = await import("~/lib/db-folder");
-    const { deleteNote } = await import("~/lib");
-
-    // Check item type and delete accordingly
-    if (await isFolder(id)) {
-      return await deleteFolder(id, false); // Non-recursive by default
-    } else if (await isNote(id)) {
-      return await deleteNote(id);
-    }
-
-    return {
-      success: false,
-      message: "Item not found or is neither a note nor a folder",
-    };
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-
-    // Log the error for debugging
-    console.error(`Error deleting item ${id}: ${errorMessage}`);
-
-    return {
-      success: false,
-      message: `Error deleting item: ${errorMessage}`,
-    };
-  }
 }
 
 // Main Tree Component
