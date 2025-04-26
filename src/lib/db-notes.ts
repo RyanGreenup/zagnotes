@@ -1,3 +1,4 @@
+"use server";
 /**
  * Notes operations module
  * Provides functions for working with notes
@@ -83,6 +84,8 @@ export async function createNote(
   }
 }
 
+
+
 /**
  * Get a note by ID with full metadata
  * @param id Note ID
@@ -146,5 +149,74 @@ export async function deleteNote(id: string): Promise<DbResponse> {
   } catch (error) {
     console.error(`Error deleting note ${id}:`, error);
     return formatErrorResponse(error, 'deleting note');
+  }
+}
+
+
+/*
+Utilities
+*/
+
+/**
+ * Create a new note in the database as a sibling or child of a given note
+ * @param title The title of the new note
+ * @param parentId The parent folder ID (or empty string for root)
+ * @param initialBody Optional initial content for the note
+ * @returns Object with note ID and success information
+ */
+export async function createNewNote(
+  title: string,
+  parentId: string,
+  initialBody: string = "",
+): Promise<{ id: string } & DbResponse> {
+  try {
+    // Import the necessary functions from the correct modules
+    const { createNote } = await import("~/lib/db-notes");
+    const { isFolder, isNote } = await import("~/lib/db-folder");
+
+    // Determine the effective parent folder
+    let effectiveParentId = parentId;
+
+    // If parent ID is a note, make the new note a sibling by using the note's parent
+    if (parentId && (await isNote(parentId))) {
+      const noteParentId = await getNoteParent(parentId);
+
+      // Use the note's parent or return error if not found
+      if (noteParentId === null) {
+        return {
+          id: "",
+          success: false,
+          message: `Could not determine parent folder for note ${parentId}`,
+        };
+      }
+
+      effectiveParentId = noteParentId;
+    }
+
+    // Validate that the parent is a folder (if a parent was specified)
+    if (effectiveParentId && !(await isFolder(effectiveParentId))) {
+      return {
+        id: "",
+        success: false,
+        message: `Parent ${effectiveParentId} is not a valid folder`,
+      };
+    }
+
+    // Create the note with the effective parent (empty string if no parent)
+    return await createNote(title, initialBody, effectiveParentId || "");
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    // Log the error for debugging
+    console.error(
+      `Error creating note "${title}" in folder ${parentId}: ${errorMessage}`,
+    );
+
+    return {
+      id: "",
+      success: false,
+      message: `Error creating note: ${errorMessage}`,
+    };
   }
 }
