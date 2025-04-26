@@ -2,7 +2,11 @@ import { TreeNode } from "@ark-ui/solid";
 import { Accessor, Setter } from "solid-js";
 import { DbResponse } from "~/lib";
 import { isFolder, toggleNode } from "./expand_and_collapse_item";
-import { moveNodeWithinTree, removeNodeFromUI } from "./insert_item";
+import {
+  moveNodeWithinTree,
+  pasteCutItemIntoTarget,
+  removeNodeFromUI,
+} from "./insert_item";
 import { NodeMap } from "./types";
 
 /**
@@ -31,7 +35,6 @@ export function createKeyboardHandlers(
   moveItem: (sourceId: string, targetId: string) => Promise<DbResponse>,
   moveItemToRoot: (sourceId: string) => Promise<DbResponse>,
   deleteItem: (id: string) => Promise<DbResponse>,
-  pasteCutItemIntoFocusedItem: () => void,
 ) {
   /**
    * Main keyboard event handler
@@ -124,7 +127,17 @@ export function createKeyboardHandlers(
    */
   function handlePasteEvent(e: KeyboardEvent): void {
     e.preventDefault();
-    pasteCutItemIntoFocusedItem();
+    pasteCutItemIntoTarget(
+      getCutId(),
+      focusedId(),
+      nodes(),
+      setNodes,
+      setCutId,
+      getCutId,
+      rootNodeId,
+      moveItem,
+      moveItemToRoot,
+    );
   }
 
   /**

@@ -9,6 +9,7 @@ import {
   removeNodeFromUI,
   promoteTreeItem,
   type NodeMap,
+  pasteCutItemIntoTarget,
 } from "./insert_item";
 import {
   deleteItem,
@@ -28,7 +29,6 @@ export function generateContextMenuItems(
   rootNodeId: string,
   navigate: ReturnType<typeof useNavigate>,
   getVisibleNodes: () => string[],
-  pasteCutItemIntoFocusedItem: () => void,
 ): ContextMenuItem[] {
   return [
     {
@@ -121,7 +121,17 @@ export function generateContextMenuItems(
     {
       label: "Paste",
       action: () => {
-        pasteCutItemIntoFocusedItem();
+        pasteCutItemIntoTarget(
+          getCutId(),
+          focusedId(),
+          nodes(),
+          setNodes,
+          setCutId,
+          getCutId,
+          rootNodeId,
+          moveItem,
+          moveItemToRoot,
+        );
       },
     },
     {

@@ -94,6 +94,7 @@ export function moveNodeWithinTree(
   setCutId: Setter<string>,
   getCutId: () => string,
   rootNodeId: string,
+  // TODO this is a candidate for removal
   moveItemFunc: (nodeId: string, targetId: string) => Promise<DbResponse>,
   moveItemToRootFunc: (nodeId: string) => Promise<DbResponse>,
   moveToRoot: boolean = false,
@@ -356,4 +357,42 @@ export function insertItemIntoTree(
       }
     }
   }
+}
+
+/**
+ * Pastes a cut item into the focused target item
+ *
+ * @param cutId - ID of the item being moved (cut)
+ * @param targetId - ID of the target location (focused item)
+ * @param nodes - Current node map
+ * @param setNodes - Function to update node state
+ * @param setCutId - Function to update cut ID state
+ * @param getCutId - Function to get current cut ID
+ * @param rootNodeId - ID of the root node
+ * @param moveItemFunc - Function to move item in the database
+ * @param moveItemToRootFunc - Function to move item to root in the database
+ * @returns Promise that resolves when the operation is complete
+ */
+export function pasteCutItemIntoTarget(
+  cutId: string,
+  targetId: string,
+  nodes: NodeMap,
+  setNodes: Setter<NodeMap>,
+  setCutId: Setter<string>,
+  getCutId: () => string,
+  rootNodeId: string,
+  moveItemFunc: (nodeId: string, targetId: string) => Promise<DbResponse>,
+  moveItemToRootFunc: (nodeId: string) => Promise<DbResponse>,
+): Promise<boolean> {
+  return moveNodeWithinTree(
+    cutId,
+    targetId,
+    nodes,
+    setNodes,
+    setCutId,
+    getCutId,
+    rootNodeId,
+    moveItemFunc,
+    moveItemToRootFunc,
+  );
 }

@@ -285,6 +285,7 @@ export function Tree(props: TreeProps) {
     }
   });
 
+  // TODO this is a candidate to refactor
   function pasteCutItemIntoFocusedItem(): void {
     const cutId = getCutId();
     const targetId = focusedId();
@@ -317,7 +318,6 @@ export function Tree(props: TreeProps) {
     moveItem,
     moveItemToRoot,
     deleteItem,
-    pasteCutItemIntoFocusedItem,
   );
 
   // Function to handle showing context menu by keyboard
@@ -458,7 +458,6 @@ export function Tree(props: TreeProps) {
     props.collection.rootNode.id,
     navigate,
     getVisibleNodes,
-    pasteCutItemIntoFocusedItem,
   );
 
   // Render tree
