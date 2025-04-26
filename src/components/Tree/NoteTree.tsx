@@ -11,26 +11,18 @@ import {
   Show,
 } from "solid-js";
 import { isServer, Portal } from "solid-js/web";
-import type { ContextMenuItem } from "~/components/ContextMenu";
 import { ContextMenu } from "~/components/ContextMenu";
 import "./NoteTree.css";
 import { Node } from "~/components/treeCollection";
-import { deleteItem, moveItem, promoteItem } from "~/lib/utils/folders";
-import { createNewNote } from "~/lib/db-notes";
 import { moveItemToRoot } from "~/lib/utils/folders";
-import {
-  insertItemIntoTree,
-  moveNodeWithinTree,
-  removeNodeFromUI,
-  promoteTreeItem,
-  type NodeMap,
-} from "./utils/insert_item";
+import { moveNodeWithinTree, type NodeMap } from "./utils/insert_item";
 import {
   isFolder,
   toggleNode,
   getStoredExpanded,
   saveExpanded,
 } from "./utils/expand_and_collapse_item";
+import { generateContextMenuItems } from "./utils/generate_context_items";
 
 // Types
 interface TreeNode extends Node {
@@ -88,165 +80,18 @@ export function Tree(props: TreeProps) {
   });
 
   // Context menu items
-  const contextMenuItems: ContextMenuItem[] = [
-    {
-      label: "Open",
-      action: (nodeId) => {
-        if (isFolder(nodes()[nodeId])) {
-          console.log(`Toggle ${nodeId}`);
-          toggleNode(nodeId, nodes(), setNodes, focusedId(), setFocusedId);
-        } else {
-          console.log(`Navigate ${nodeId}`);
-          navigate(`/note/${nodeId}`);
-        }
-      },
-    },
-    {
-      label: "New Note",
-      action: async (nodeId) => {
-        // Create a new note in the selected folder
-        const defaultTitle = "New Note";
-        const result = await createNewNote(defaultTitle, nodeId);
-
-        if (result.success) {
-          // Create a copy of the current nodes
-          const nodeMap = nodes();
-          const newNodes = { ...nodeMap };
-
-          // Get the parent folder node
-          const parentNode = nodeMap[nodeId];
-
-          if (parentNode) {
-            // Create a new tree node for the note
-            const newNoteNode: TreeNode = {
-              id: result.id,
-              name: defaultTitle,
-              type: "file",
-              parent: nodeId,
-              depth: (parentNode.depth || 0) + 1,
-            };
-
-            // Insert the new note into the tree
-            insertItemIntoTree(parentNode, newNodes, newNoteNode);
-
-            // Update the tree
-            setNodes(newNodes);
-
-            // Set focus to the new note
-            setFocusedId(result.id);
-
-            // Navigate to the new note
-            navigate(`/note/${result.id}`);
-          } else {
-            // Just navigate if we can't update the tree
-            navigate(`/note/${result.id}`);
-          }
-        } else {
-          console.error(`Failed to create note: ${result.message}`);
-        }
-      },
-      separator: true,
-    },
-    {
-      label: "Promote",
-      action: (nodeId) => {
-        console.log("Starting promotion");
-        promoteTreeItem(
-          nodeId,
-          nodes(),
-          setNodes,
-          setCutId,
-          getCutId,
-          props.collection.rootNode.id,
-          moveItem,
-          moveItemToRoot,
-          promoteItem,
-        ).then((success) => {
-          if (success) {
-            console.log("Promotion complete");
-          } else {
-            console.error("Promotion failed");
-          }
-        });
-      },
-    },
-    {
-      label: "Cut",
-      action: (nodeId) => {
-        setCutId(nodeId);
-      },
-    },
-    {
-      label: "Paste",
-      action: (nodeId) => {
-        // TODO Need to refactor the handlePasteEvent function to call something else that
-        // only depends on nodeId
-        pasteCutItemIntoFocusedItem();
-      },
-    },
-    {
-      label: "Rename",
-      action: (nodeId) => {
-        console.log(`Rename ${nodeId}`);
-      },
-    },
-    {
-      label: "Move to Root",
-      action: (nodeId) => {
-        moveNodeWithinTree(
-          nodeId,
-          "",
-          nodes(),
-          setNodes,
-          setCutId,
-          getCutId,
-          props.collection.rootNode.id,
-          moveItem,
-          moveItemToRoot,
-          true,
-        ).then((success) => {
-          if (!success) {
-            console.error(`Failed to move item ${nodeId} to root`);
-          }
-        });
-      },
-    },
-    {
-      label: "Delete",
-      action: (nodeId) => {
-        if (confirm(`Are you sure you want to delete this item?`)) {
-          removeNodeFromUI(
-            nodeId,
-            nodes(),
-            setNodes,
-            setCutId,
-            getCutId,
-            focusedId(),
-            setFocusedId,
-            getVisibleNodes,
-            deleteItem,
-          ).then((success) => {
-            if (!success) {
-              console.error(`Failed to delete item ${nodeId}`);
-            }
-          });
-        }
-      },
-      separator: true,
-    },
-    {
-      label: "Copy Link",
-      action: (nodeId) => {
-        const url = `/note/${nodeId}`;
-        if (isServer) return;
-        navigator.clipboard
-          .writeText(window.location.origin + url)
-          .then(() => console.log("URL copied to clipboard"))
-          .catch((err) => console.error("Failed to copy URL", err));
-      },
-      isNote: true,
-    },
-  ];
+  const contextMenuItems = generateContextMenuItems(
+    nodes,
+    setNodes,
+    focusedId,
+    setFocusedId,
+    setCutId,
+    getCutId,
+    props.collection.rootNode.id,
+    navigate,
+    getVisibleNodes,
+    pasteCutItemIntoFocusedItem,
+  );
 
   // Handle right-click on node
   function handleNodeRightClick(id: string, e: MouseEvent): void {
