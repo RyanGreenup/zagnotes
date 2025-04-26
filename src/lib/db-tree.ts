@@ -194,6 +194,24 @@ function cleanTree(node: any): TreeNode {
  * @param parentId Parent folder ID (optional)
  * @returns The ID of the created folder
  */
+/**
+ * Generate a UUID in the format used by the system
+ * Creates a 32-character hexadecimal string without dashes
+ * @returns A UUID string
+ */
+function generateUuid(): string {
+  // Implementation of a simple UUID generator without external dependencies
+  const hex = '0123456789abcdef';
+  let uuid = '';
+  
+  // Generate 32 hex characters (128 bits)
+  for (let i = 0; i < 32; i++) {
+    uuid += hex[Math.floor(Math.random() * 16)];
+  }
+  
+  return uuid;
+}
+
 export async function createFolder(
   title: string,
   parentId?: string
@@ -201,8 +219,8 @@ export async function createFolder(
   const db = await getDbConnection();
 
   try {
-    // Generate a unique ID for the folder
-    const id = `folder_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+    // Generate a UUID in the same format as notes
+    const id = generateUuid();
 
     db.prepare(
       `INSERT INTO folders (id, title, parent_id, created_time, updated_time) VALUES (?, ?, ?, strftime('%s', CURRENT_TIMESTAMP), strftime('%s', CURRENT_TIMESTAMP))`

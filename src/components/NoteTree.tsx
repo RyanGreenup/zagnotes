@@ -113,8 +113,9 @@ export async function createNewNote(
 ): Promise<{ id: string } & DbResponse> {
   "use server";
   try {
-    // Import createNote function from the library
-    const { createNote, isFolder } = await import("~/lib");
+    // Import the necessary functions from the correct modules
+    const { createNote } = await import("~/lib");
+    const { isFolder } = await import("~/lib/db-folder");
 
     // Validate parent folder exists if provided
     if (parentId) {
@@ -186,6 +187,43 @@ export async function moveItemToRoot(id: string): Promise<DbResponse> {
   }
 }
 
+/**
+ * Delete a note or folder from the database
+ * @param id The ID of the item to delete
+ * @returns Success status
+ */
+export async function deleteItem(id: string): Promise<DbResponse> {
+  "use server";
+  try {
+    // Import required functions
+    const { deleteFolder, isFolder, isNote } = await import("~/lib/db-folder");
+    const { deleteNote } = await import("~/lib");
+
+    // Check item type and delete accordingly
+    if (await isFolder(id)) {
+      return await deleteFolder(id, false); // Non-recursive by default
+    } else if (await isNote(id)) {
+      return await deleteNote(id);
+    }
+
+    return {
+      success: false,
+      message: "Item not found or is neither a note nor a folder",
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    // Log the error for debugging
+    console.error(`Error deleting item ${id}: ${errorMessage}`);
+
+    return {
+      success: false,
+      message: `Error deleting item: ${errorMessage}`,
+    };
+  }
+}
+
 // Main Tree Component
 export function Tree(props: TreeProps) {
   // Core state
@@ -233,9 +271,38 @@ export function Tree(props: TreeProps) {
         const result = await createNewNote(defaultTitle, nodeId);
 
         if (result.success) {
-          // Update the tree to show the new note
-          // For now, we'll just navigate to the new note
-          navigate(`/note/${result.id}`);
+          // Create a copy of the current nodes
+          const nodeMap = nodes();
+          const newNodes = { ...nodeMap };
+          
+          // Get the parent folder node
+          const parentNode = nodeMap[nodeId];
+          
+          if (parentNode) {
+            // Create a new tree node for the note
+            const newNoteNode: TreeNode = {
+              id: result.id,
+              name: defaultTitle,
+              type: "file",
+              parent: nodeId,
+              depth: (parentNode.depth || 0) + 1
+            };
+            
+            // Insert the new note into the tree
+            insertItemIntoTree(parentNode, newNodes, newNoteNode);
+            
+            // Update the tree
+            setNodes(newNodes);
+            
+            // Set focus to the new note
+            setFocusedId(result.id);
+            
+            // Navigate to the new note
+            navigate(`/note/${result.id}`);
+          } else {
+            // Just navigate if we can't update the tree
+            navigate(`/note/${result.id}`);
+          }
         } else {
           console.error(`Failed to create note: ${result.message}`);
         }
@@ -276,7 +343,14 @@ export function Tree(props: TreeProps) {
     {
       label: "Delete",
       action: (nodeId) => {
-        console.log(`Delete ${nodeId}`);
+        if (confirm(`Are you sure you want to delete this item?`)) {
+          removeNodeFromUI(nodeId)
+            .then(success => {
+              if (!success) {
+                console.error(`Failed to delete item ${nodeId}`);
+              }
+            });
+        }
       },
       separator: true,
     },
@@ -593,22 +667,46 @@ export function Tree(props: TreeProps) {
    *
    * @param parent_id - The ID of the parent node containing the node to remove
    * @param newNodes - The working copy of the node map being modified
-   * @param cutId - The ID of the node to remove from its parent
+   * @param nodeId - The ID of the node to remove from its parent
    */
-  function removeNodeFromTree(
+  function removeNodeFromParent(
     parent_id: string | undefined,
     newNodes: { [x: string]: TreeNode },
-    cutId: string,
+    nodeId: string,
   ) {
     if (parent_id) {
       const parentNode = newNodes[parent_id];
       if (parentNode && parentNode.children) {
         parentNode.children = parentNode.children.filter(
-          (child) => child.id !== cutId,
+          (child) => child.id !== nodeId,
         );
         newNodes[parent_id] = parentNode;
       }
     }
+  }
+  
+  /**
+   * Common function to update the tree UI when nodes are modified
+   * @param operation Function that modifies the node map
+   * @param nodeId Node ID to check for clearing cut state
+   * @returns Updated node map
+   */
+  function updateTreeNodes(
+    operation: (nodes: NodeMap) => NodeMap,
+    nodeId?: string
+  ): NodeMap {
+    const currentNodes = nodes();
+    const newNodes = operation(currentNodes);
+    
+    // Update the tree state
+    setNodes(newNodes);
+    
+    // Clear cut ID if needed and matches
+    if (nodeId && getCutId() === nodeId) {
+      setCutId("");
+    }
+    
+    return newNodes;
   }
 
   function insertItemIntoTree(
@@ -693,48 +791,106 @@ export function Tree(props: TreeProps) {
           return false;
         }
 
-        // 1. Remove node from its parent's children
-        removeNodeFromTree(sourceNode.parent, newNodes, nodeId);
+        // Update the tree using our common function
+        updateTreeNodes((nodeMap) => {
+          const newNodes = { ...nodeMap };
+          
+          // 1. Remove node from its parent's children
+          removeNodeFromParent(sourceNode.parent, newNodes, nodeId);
 
-        // 2. Add node to new location
-        if (moveToRoot) {
-          // Add to root - we have to get the root node
-          const rootNodeId = props.collection.rootNode.id;
-          const rootNode = nodeMap[rootNodeId];
+          // 2. Add node to new location
+          if (moveToRoot) {
+            // Add to root - we have to get the root node
+            const rootNodeId = props.collection.rootNode.id;
+            const rootNode = nodeMap[rootNodeId];
 
-          if (rootNode) {
-            // Update parent reference
-            sourceNode.parent = rootNodeId;
-            sourceNode.depth = 1; // Root level
+            if (rootNode) {
+              // Update parent reference
+              sourceNode.parent = rootNodeId;
+              sourceNode.depth = 1; // Root level
 
-            // Add to root children
-            if (!rootNode.children) rootNode.children = [];
-            rootNode.children.push(sourceNode);
-            newNodes[rootNodeId] = rootNode;
+              // Add to root children
+              if (!rootNode.children) rootNode.children = [];
+              rootNode.children.push(sourceNode);
+              newNodes[rootNodeId] = rootNode;
+            }
+          } else {
+            // Add to target
+            const targetNode = nodeMap[targetId];
+            if (targetNode) {
+              insertItemIntoTree(targetNode, newNodes, sourceNode);
+            }
           }
-        } else {
-          // Add to target
-          const targetNode = nodeMap[targetId];
-          if (targetNode) {
-            insertItemIntoTree(targetNode, newNodes, sourceNode);
-          }
-        }
 
-        // Update the node in the map
-        newNodes[nodeId] = sourceNode;
-
-        // Update the tree
-        setNodes(newNodes);
-
-        // Clear cut ID if it matches
-        if (getCutId() === nodeId) {
-          setCutId("");
-        }
+          // Update the node in the map
+          newNodes[nodeId] = sourceNode;
+          
+          return newNodes;
+        }, nodeId);
 
         return true;
       })
       .catch((error) => {
         console.error("Error moving node:", error);
+        return false;
+      });
+  }
+  
+  /**
+   * Removes a node from the tree UI after it's been deleted from the database
+   * @param nodeId - ID of the node to remove
+   * @returns Promise that resolves when the operation is complete
+   */
+  function removeNodeFromUI(nodeId: string): Promise<boolean> {
+    const nodeMap = nodes();
+    const nodeToDelete = nodeMap[nodeId];
+    
+    if (!nodeToDelete) {
+      return Promise.resolve(false);
+    }
+    
+    // First delete from database
+    return deleteItem(nodeId)
+      .then(result => {
+        if (!result.success) {
+          console.error(`Failed to delete item: ${result.message}`);
+          return false;
+        }
+        
+        // Update the tree using our common function
+        const newNodes = updateTreeNodes((nodeMap) => {
+          const newNodes = { ...nodeMap };
+          
+          // Remove node from its parent's children
+          removeNodeFromParent(nodeToDelete.parent, newNodes, nodeId);
+          
+          // Remove the node itself from the map
+          delete newNodes[nodeId];
+          
+          return newNodes;
+        }, nodeId);
+        
+        // If the deleted node was focused, move focus to parent or first available node
+        if (focusedId() === nodeId) {
+          if (nodeToDelete.parent && newNodes[nodeToDelete.parent]) {
+            setFocusedId(nodeToDelete.parent);
+          } else {
+            const visibleNodes = getVisibleNodes();
+            if (visibleNodes.length > 0) {
+              setFocusedId(visibleNodes[0]);
+            }
+          }
+        }
+        
+        // Clear cut ID if it matches
+        if (getCutId() === nodeId) {
+          setCutId("");
+        }
+        
+        return true;
+      })
+      .catch(error => {
+        console.error("Error deleting node:", error);
         return false;
       });
   }
@@ -840,8 +996,26 @@ export function Tree(props: TreeProps) {
         node,
       });
     }
+    
+    function handleDeleteKeyEvent(e: KeyboardEvent): void {
+      e.preventDefault();
+      const nodeId = focusedId();
+      if (!nodeId) return;
+      
+      if (confirm(`Are you sure you want to delete this item?`)) {
+        removeNodeFromUI(nodeId)
+          .then(success => {
+            if (!success) {
+              console.error(`Failed to delete item ${nodeId}`);
+            }
+          });
+      }
+    }
 
     switch (e.key) {
+      case "Delete":
+        handleDeleteKeyEvent(e);
+        break;
       case "0":
         moveNodeWithinTree(focusedId(), "", true).then((success) => {
           if (!success) {
