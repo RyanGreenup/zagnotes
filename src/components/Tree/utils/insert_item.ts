@@ -74,7 +74,7 @@ export function removeNodeFromParent(
 
 /**
  * Moves a node within the tree and updates the UI
- * 
+ *
  * @param nodeId - ID of the node to move
  * @param targetId - ID of the target node or location
  * @param nodeMap - Current node map
@@ -131,8 +131,8 @@ export function moveNodeWithinTree(
 
       // Update the tree using our common function
       updateTreeNodes(
-        nodeMap, 
-        setNodes, 
+        nodeMap,
+        setNodes,
         (nodeMap) => {
           const newNodes = { ...nodeMap };
 
@@ -169,7 +169,7 @@ export function moveNodeWithinTree(
         },
         setCutId,
         getCutId(),
-        nodeId
+        nodeId,
       );
 
       return true;

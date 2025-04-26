@@ -179,7 +179,18 @@ export function Tree(props: TreeProps) {
     {
       label: "Move to Root",
       action: (nodeId) => {
-        moveNodeWithinTree(nodeId, "", nodes(), setNodes, setCutId, getCutId, props.collection.rootNode.id, moveItem, moveItemToRoot, true).then((success) => {
+        moveNodeWithinTree(
+          nodeId,
+          "",
+          nodes(),
+          setNodes,
+          setCutId,
+          getCutId,
+          props.collection.rootNode.id,
+          moveItem,
+          moveItemToRoot,
+          true,
+        ).then((success) => {
           if (!success) {
             console.error(`Failed to move item ${nodeId} to root`);
           }
@@ -506,8 +517,6 @@ export function Tree(props: TreeProps) {
     setFocusedId(currentFocused);
   }
 
-
-
   /**
    * Removes a node from the tree UI after it's been deleted from the database
    * @param nodeId - ID of the node to remove
@@ -578,7 +587,17 @@ export function Tree(props: TreeProps) {
     const cutId = getCutId();
     const targetId = focusedId();
 
-    moveNodeWithinTree(cutId, targetId, nodes(), setNodes, setCutId, getCutId, props.collection.rootNode.id, moveItem, moveItemToRoot);
+    moveNodeWithinTree(
+      cutId,
+      targetId,
+      nodes(),
+      setNodes,
+      setCutId,
+      getCutId,
+      props.collection.rootNode.id,
+      moveItem,
+      moveItemToRoot,
+    );
   }
 
   async function promoteTreeItem(id: string) {
@@ -588,7 +607,18 @@ export function Tree(props: TreeProps) {
       const parent_id = promotion_result.parent_id;
       if (parent_id) {
         console.log("Parent ID Itentified");
-        moveNodeWithinTree(id, parent_id, nodes(), setNodes, setCutId, getCutId, props.collection.rootNode.id, moveItem, moveItemToRoot, false);
+        moveNodeWithinTree(
+          id,
+          parent_id,
+          nodes(),
+          setNodes,
+          setCutId,
+          getCutId,
+          props.collection.rootNode.id,
+          moveItem,
+          moveItemToRoot,
+          false,
+        );
       } else {
         console.log("No Parent ID Returned");
       }
@@ -711,7 +741,18 @@ export function Tree(props: TreeProps) {
         handleDeleteKeyEvent(e);
         break;
       case "0":
-        moveNodeWithinTree(focusedId(), "", nodes(), setNodes, setCutId, getCutId, props.collection.rootNode.id, moveItem, moveItemToRoot, true).then((success) => {
+        moveNodeWithinTree(
+          focusedId(),
+          "",
+          nodes(),
+          setNodes,
+          setCutId,
+          getCutId,
+          props.collection.rootNode.id,
+          moveItem,
+          moveItemToRoot,
+          true,
+        ).then((success) => {
           if (!success) {
             console.error(`Failed to move item ${focusedId()} to root`);
           }
