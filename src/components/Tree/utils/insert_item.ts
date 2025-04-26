@@ -11,7 +11,7 @@ export type NodeMap = Record<string, TreeNode>;
  * @param node - The TreeNode to check.
  * @returns true if the node is a folder (has children), false otherwise.
  */
-export function isFolder(node: TreeNode): boolean {
+export function hasChildren(node: TreeNode): boolean {
   return Boolean(node.children && node.children.length > 0);
 }
 
@@ -186,7 +186,7 @@ export function insertItemIntoTree(
   cutNode: TreeNode,
 ) {
   const targetId = targetNode.id;
-  if (isFolder(targetNode)) {
+  if (hasChildren(targetNode)) {
     // If target is a folder, add as a child
     if (!targetNode.children) targetNode.children = [];
     targetNode.children.push(cutNode);
