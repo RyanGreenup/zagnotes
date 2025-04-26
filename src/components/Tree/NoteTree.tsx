@@ -1,6 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import { ChevronRight, ScissorsIcon } from "lucide-solid";
 import {
+    Accessor,
   createEffect,
   createMemo,
   createSignal,
@@ -27,6 +28,7 @@ import {
   saveExpanded,
 } from "./utils/expand_and_collapse_item";
 import { generateContextMenuItems } from "./utils/generate_context_items";
+import RotatingChevronIcon from "./components/Chevron";
 
 // Types
 interface TreeNode extends Node {
@@ -82,20 +84,6 @@ export function Tree(props: TreeProps) {
     nodeId: "",
     node: {} as TreeNode,
   });
-
-  // Context menu items
-  const contextMenuItems = generateContextMenuItems(
-    nodes,
-    setNodes,
-    focusedId,
-    setFocusedId,
-    setCutId,
-    getCutId,
-    props.collection.rootNode.id,
-    navigate,
-    getVisibleNodes,
-    pasteCutItemIntoFocusedItem,
-  );
 
   // Handle right-click on node
   function handleNodeRightClick(id: string, e: MouseEvent): void {
@@ -258,7 +246,7 @@ export function Tree(props: TreeProps) {
 
         // Expand all parent nodes to reveal the selected node
         // This only happens on initial load or when URL changes
-        setTimeout(() => expandParents(selectedId), 0); // Using setTimeout to ensure nodes state is set
+        setTimeout(() => expandParents(selectedId, nodes), 0); // Using setTimeout to ensure nodes state is set
       } else {
         const visible = getVisibleNodes();
         if (visible.length > 0) {
@@ -272,7 +260,7 @@ export function Tree(props: TreeProps) {
 
   // Expand all parent nodes of a given node
   // This only expands parent folders, without modifying the target node itself
-  function expandParents(nodeId: string): void {
+  function expandParents(nodeId: string, nodes: Accessor<NodeMap>): void {
     const nodeMap = nodes();
     let currentNode = nodeMap[nodeId];
 
@@ -329,7 +317,7 @@ export function Tree(props: TreeProps) {
       // Only expand parents when the selection changes due to URL params
       // This prevents re-expansion after user manually collapses folders
       if (prevSelectedId() !== selectedId) {
-        expandParents(selectedId);
+        expandParents(selectedId, nodes);
         setPrevSelectedId(selectedId);
       }
     }
@@ -592,6 +580,9 @@ export function Tree(props: TreeProps) {
     }
   });
 
+  /**
+   * The indentation width of the tree
+   */
   const HORIZONTAL_WIDTH_REM = 1;
 
   // Render vertical indent lines for tree nodes
@@ -607,23 +598,6 @@ export function Tree(props: TreeProps) {
           />
         )}
       </For>
-    );
-  }
-
-  interface RotatingChevronProps {
-    isExpanded: () => boolean;
-  }
-  function RotatingChevronIcon(props: RotatingChevronProps) {
-    return (
-      <span
-        class="mr-1 inline-flex justify-center items-center w-4 h-4 transition-transform duration-150"
-        style={{
-          transform: props.isExpanded() ? "rotate(90deg)" : "rotate(0deg)",
-        }}
-        data-part="branch-indicator"
-      >
-        <ChevronRight class="w-4 h-4" />
-      </span>
     );
   }
 
@@ -656,6 +630,20 @@ export function Tree(props: TreeProps) {
       </span>
     );
   }
+
+  // Context menu items
+  const contextMenuItems = generateContextMenuItems(
+    nodes,
+    setNodes,
+    focusedId,
+    setFocusedId,
+    setCutId,
+    getCutId,
+    props.collection.rootNode.id,
+    navigate,
+    getVisibleNodes,
+    pasteCutItemIntoFocusedItem,
+  );
 
   // Render tree
   return (
