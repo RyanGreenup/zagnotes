@@ -45,6 +45,63 @@ export function saveExpanded(expanded: Record<string, boolean>): void {
 }
 
 /**
+ * Expand all parent nodes of a given node
+ * This only expands parent folders, without modifying the target node itself
+ * 
+ * @param nodeId - ID of the node whose parents should be expanded
+ * @param nodes - Current node map accessor
+ * @param rootNodeId - ID of the root node to stop at
+ * @returns void
+ */
+export function expandParents(
+  nodeId: string, 
+  nodes: Accessor<NodeMap>,
+  setNodes: Setter<NodeMap>,
+  rootNodeId: string
+): void {
+  const nodeMap = nodes();
+  let currentNode = nodeMap[nodeId];
+
+  // Skip if node doesn't exist
+  if (!currentNode) return;
+
+  // Get current expanded state
+  const expanded = getStoredExpanded();
+  let hasChanges = false;
+
+  // Traverse up the tree and expand all parent nodes
+  while (
+    currentNode &&
+    currentNode.parent &&
+    currentNode.parent !== rootNodeId
+  ) {
+    const parentId = currentNode.parent;
+    const parentNode = nodeMap[parentId];
+
+    // If parent exists and is not expanded, expand it
+    if (parentNode && !parentNode.isExpanded) {
+      // Update node in the map
+      setNodes({
+        ...nodes(),
+        [parentId]: { ...parentNode, isExpanded: true },
+      });
+
+      // Update expanded state for persistence
+      expanded[parentId] = true;
+      hasChanges = true;
+    }
+
+    // Move up to the next parent
+    currentNode = parentNode;
+  }
+
+  // Save expanded state if changes were made
+  if (hasChanges) {
+    saveExpanded(expanded);
+  }
+}
+
+/**
  * Toggle node expansion - central function for all expansion operations
  *
  * @param id - ID of the node to toggle

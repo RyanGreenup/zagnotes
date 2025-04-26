@@ -26,6 +26,7 @@ import {
   toggleNode,
   getStoredExpanded,
   saveExpanded,
+  expandParents,
 } from "./utils/expand_and_collapse_item";
 import { generateContextMenuItems } from "./utils/generate_context_items";
 import RotatingChevronIcon from "./components/Chevron";
@@ -246,7 +247,7 @@ export function Tree(props: TreeProps) {
 
         // Expand all parent nodes to reveal the selected node
         // This only happens on initial load or when URL changes
-        setTimeout(() => expandParents(selectedId, nodes), 0); // Using setTimeout to ensure nodes state is set
+        setTimeout(() => expandParents(selectedId, nodes, setNodes, props.collection.rootNode.id), 0); // Using setTimeout to ensure nodes state is set
       } else {
         const visible = getVisibleNodes();
         if (visible.length > 0) {
@@ -258,50 +259,6 @@ export function Tree(props: TreeProps) {
     }
   });
 
-  // Expand all parent nodes of a given node
-  // This only expands parent folders, without modifying the target node itself
-  function expandParents(nodeId: string, nodes: Accessor<NodeMap>): void {
-    const nodeMap = nodes();
-    let currentNode = nodeMap[nodeId];
-
-    // Skip if node doesn't exist
-    if (!currentNode) return;
-
-    // Get current expanded state
-    const expanded = getStoredExpanded();
-    let hasChanges = false;
-
-    // Traverse up the tree and expand all parent nodes
-    while (
-      currentNode &&
-      currentNode.parent &&
-      currentNode.parent !== props.collection.rootNode.id
-    ) {
-      const parentId = currentNode.parent;
-      const parentNode = nodeMap[parentId];
-
-      // If parent exists and is not expanded, expand it
-      if (parentNode && !parentNode.isExpanded) {
-        // Update node in the map
-        setNodes({
-          ...nodes(),
-          [parentId]: { ...parentNode, isExpanded: true },
-        });
-
-        // Update expanded state for persistence
-        expanded[parentId] = true;
-        hasChanges = true;
-      }
-
-      // Move up to the next parent
-      currentNode = parentNode;
-    }
-
-    // Save expanded state if changes were made
-    if (hasChanges) {
-      saveExpanded(expanded);
-    }
-  }
 
   // Track the previous selected ID to detect changes from URL params
   const [prevSelectedId, setPrevSelectedId] = createSignal<string>("");
@@ -317,7 +274,7 @@ export function Tree(props: TreeProps) {
       // Only expand parents when the selection changes due to URL params
       // This prevents re-expansion after user manually collapses folders
       if (prevSelectedId() !== selectedId) {
-        expandParents(selectedId, nodes);
+        expandParents(selectedId, nodes, setNodes, props.collection.rootNode.id);
         setPrevSelectedId(selectedId);
       }
     }
