@@ -31,6 +31,7 @@ import {
   removeNodeFromParent,
   moveNodeWithinTree,
   removeNodeFromUI,
+  promoteTreeItem,
   type NodeMap,
 } from "./Tree/utils/insert_item";
 
@@ -152,9 +153,24 @@ export function Tree(props: TreeProps) {
     {
       label: "Promote",
       action: (nodeId) => {
-        console.log("Staring promotion");
-        promoteTreeItem(nodeId);
-        console.log("Promotion complete");
+        console.log("Starting promotion");
+        promoteTreeItem(
+          nodeId,
+          nodes(),
+          setNodes,
+          setCutId,
+          getCutId,
+          props.collection.rootNode.id,
+          moveItem,
+          moveItemToRoot,
+          promoteItem,
+        ).then((success) => {
+          if (success) {
+            console.log("Promotion complete");
+          } else {
+            console.error("Promotion failed");
+          }
+        });
       },
     },
     {
@@ -543,33 +559,6 @@ export function Tree(props: TreeProps) {
       moveItem,
       moveItemToRoot,
     );
-  }
-
-  async function promoteTreeItem(id: string) {
-    const promotion_result = await promoteItem(id);
-    if (promotion_result.success) {
-      console.log("DB Promotion successfull");
-      const parent_id = promotion_result.parent_id;
-      if (parent_id) {
-        console.log("Parent ID Itentified");
-        moveNodeWithinTree(
-          id,
-          parent_id,
-          nodes(),
-          setNodes,
-          setCutId,
-          getCutId,
-          props.collection.rootNode.id,
-          moveItem,
-          moveItemToRoot,
-          false,
-        );
-      } else {
-        console.log("No Parent ID Returned");
-      }
-    } else {
-      console.error(promotion_result.message);
-    }
   }
 
   // Handle keyboard navigation

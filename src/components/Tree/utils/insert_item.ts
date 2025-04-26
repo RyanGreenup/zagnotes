@@ -265,6 +265,62 @@ export function removeNodeFromUI(
     });
 }
 
+/**
+ * Promotes a node in the tree hierarchy - moving it to its parent's level
+ *
+ * @param id - ID of the node to promote
+ * @param nodes - Current node map
+ * @param setNodes - Function to update node state
+ * @param setCutId - Function to update cut ID state
+ * @param getCutId - Function to get current cut ID
+ * @param rootNodeId - ID of the root node
+ * @param moveItemFunc - Function to move item in the database
+ * @param moveItemToRootFunc - Function to move item to root in the database
+ * @param promoteItemFunc - Function to promote item in the database hierarchy
+ * @returns Promise that resolves when the operation is complete
+ */
+export async function promoteTreeItem(
+  id: string,
+  nodes: NodeMap,
+  setNodes: Setter<NodeMap>,
+  setCutId: Setter<string>,
+  getCutId: () => string,
+  rootNodeId: string,
+  moveItemFunc: (nodeId: string, targetId: string) => Promise<DbResponse>,
+  moveItemToRootFunc: (nodeId: string) => Promise<DbResponse>,
+  promoteItemFunc: (id: string) => Promise<DbResponse & { parent_id?: string }>,
+): Promise<boolean> {
+  // Call the database promotion function
+  const promotion_result = await promoteItemFunc(id);
+  if (promotion_result.success) {
+    console.log("DB Promotion successful");
+    const parent_id = promotion_result.parent_id;
+
+    if (parent_id) {
+      console.log("Parent ID Identified");
+      // Move the node to its new position in the tree
+      return moveNodeWithinTree(
+        id,
+        parent_id,
+        nodes,
+        setNodes,
+        setCutId,
+        getCutId,
+        rootNodeId,
+        moveItemFunc,
+        moveItemToRootFunc,
+        false,
+      );
+    } else {
+      console.log("No Parent ID Returned");
+      return true;
+    }
+  } else {
+    console.error(promotion_result.message);
+    return false;
+  }
+}
+
 export function insertItemIntoTree(
   targetNode: TreeNode,
   newNodes: { [x: string]: TreeNode },
