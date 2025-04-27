@@ -179,7 +179,7 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
               size="md"
               rounded="md"
               ariaLabel="Toggle sidebar"
-              class="md:hidden"
+              //class="md:hidden"
             />
           </div>
           <div class="flex items-center gap-1">
