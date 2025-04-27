@@ -1,5 +1,7 @@
 .editor-preview-container {
   min-height: calc(100vh - var(--navbar-height));
+  width: 100%;
+  max-width: none;
 }
 
 /* Add smooth transitions for resizing */

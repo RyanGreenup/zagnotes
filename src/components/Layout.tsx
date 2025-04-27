@@ -127,12 +127,10 @@ export default function Layout(props: { children: JSX.Element }) {
         </Show>
 
         {/* Main content */}
-        <div class={`flex-1 overflow-auto bg-[color:var(--color-base-100)] w-full ${
+        <div class={`flex-1 overflow-auto bg-[color:var(--color-base-100)] w-full h-full ${
           sidebarOpen() ? "md:pl-[var(--sidebar-width)]" : ""
         }`}>
-          <div class="container mx-auto p-0 h-full">
-            {props.children}
-          </div>
+          {props.children}
         </div>
       </div>
     </div>

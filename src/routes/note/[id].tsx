@@ -150,14 +150,13 @@ export default function DynamicIdPage() {
 
   return (
     <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
-      <main class="w-full h-full">
-        <div class="flex flex-col h-full">
-          <NoteToolbar />
-          <EditorWithPreview 
-            content={editableContent}
-            setContent={setEditableContent}
-          />
-        </div>
+      <main class="w-full h-full flex flex-col">
+        <NoteToolbar />
+        <EditorWithPreview 
+          content={editableContent}
+          setContent={setEditableContent}
+          class="flex-1"
+        />
       </main>
     </Show>
   );

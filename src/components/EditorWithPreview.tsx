@@ -8,6 +8,7 @@ const STORAGE_KEY = "editorSplitPosition";
 export default function EditorWithPreview(props: {
   content: Accessor<string | undefined>;
   setContent: Setter<string>;
+  class?: string;
 }) {
   // Load initial split position from localStorage or use default
   const [splitPosition, setSplitPosition] = createSignal(
@@ -81,7 +82,7 @@ export default function EditorWithPreview(props: {
   });
 
   return (
-    <div class="editor-preview-container flex flex-1 h-full relative">
+    <div class={`editor-preview-container flex flex-1 h-full relative ${props.class || ''}`}>
       {/* Editor */}
       <Show when={viewMode() !== 'preview'}>
         <div 
