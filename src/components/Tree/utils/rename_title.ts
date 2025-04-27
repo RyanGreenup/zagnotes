@@ -57,22 +57,22 @@ export async function renameItemTitle(
  */
 export async function promptAndRenameItem(
   nodeId: string,
-  nodes: NodeMap | Accessor<NodeMap>,
+  nodes:  Accessor<NodeMap>,
   setNodes: Setter<NodeMap>
 ): Promise<boolean> {
   // Get the node from the map (handle both regular objects and accessors)
-  const nodeMap = typeof nodes === 'function' ? nodes() : nodes;
+  const nodeMap =  nodes();
   const currentNode = nodeMap[nodeId];
-  
+
   if (!currentNode) return false;
-  
+
   const currentName = currentNode.name;
   const newTitle = prompt("Enter new title:", currentName);
-  
+
   // Only proceed if a valid, different title was provided
   if (newTitle && newTitle !== currentName) {
     return await renameItemTitle(nodeId, newTitle, nodeMap, setNodes);
   }
-  
+
   return false;
 }

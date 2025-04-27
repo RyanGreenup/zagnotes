@@ -1,4 +1,5 @@
-"use server";
+// TODO "use server"; breaks this
+// NOTE I think functions need use server not file according to the vinxi output
 /**
  * Folder operations module
  * Provides functions for working with folders
@@ -22,6 +23,7 @@ export interface Folder {
  * @returns Array of all folders
  */
 export async function getAllFolders(): Promise<Folder[]> {
+  "use server";
   const db = await getDbConnection({ readonly: true });
 
   try {
@@ -43,6 +45,7 @@ export async function getAllFolders(): Promise<Folder[]> {
  * @returns Folder object or null if not found
  */
 export async function getFolder(id: string): Promise<Folder | null> {
+  // TODO the use server is broken in this function I think.
   const db = await getDbConnection({ readonly: true });
 
   try {
@@ -85,7 +88,7 @@ export async function updateFolder(
     return { success: true, message: "Folder updated successfully" };
   } catch (error) {
     console.error(`Error updating folder ${id}:`, error);
-    return formatErrorResponse(error, 'updating folder');
+    return formatErrorResponse(error, "updating folder");
   }
 }
 
@@ -121,7 +124,7 @@ export async function moveFolder(
       `Error updating folder ${id} to parent id of ${target_parent_folder_id}:`,
       error,
     );
-    return formatErrorResponse(error, 'updating folder');
+    return formatErrorResponse(error, "updating folder");
   }
 }
 
@@ -157,7 +160,7 @@ export async function moveNote(
       `Error updating note ${id} to parent id of ${target_parent_folder_id}:`,
       error,
     );
-    return formatErrorResponse(error, 'updating note');
+    return formatErrorResponse(error, "updating note");
   }
 }
 
@@ -273,6 +276,6 @@ export async function deleteFolder(
     return { success: true, message: "Folder deleted successfully" };
   } catch (error) {
     console.error(`Error deleting folder ${id}:`, error);
-    return formatErrorResponse(error, 'deleting folder');
+    return formatErrorResponse(error, "deleting folder");
   }
 }
