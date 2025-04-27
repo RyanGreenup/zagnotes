@@ -151,6 +151,44 @@ export async function promoteItem(id: string): Promise<PromotionResult> {
 }
 
 /**
+ * Update the title of a note or folder
+ * @param id The ID of the item to update
+ * @param title The new title for the item
+ * @returns Success status
+ */
+export async function updateItemTitle(id: string, title: string): Promise<DbResponse> {
+  "use server";
+  try {
+    // Import required functions
+    const { updateFolder, isFolder, isNote } = await import("~/lib/db-folder");
+    const { updateNoteTitle } = await import("~/lib/db-notes");
+
+    // Check item type and update accordingly
+    if (await isFolder(id)) {
+      return await updateFolder(id, title);
+    } else if (await isNote(id)) {
+      return await updateNoteTitle(id, title);
+    }
+
+    return {
+      success: false,
+      message: "Item not found or is neither a note nor a folder",
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    // Log the error for debugging
+    console.error(`Error updating title for item ${id}: ${errorMessage}`);
+
+    return {
+      success: false,
+      message: `Error updating item title: ${errorMessage}`,
+    };
+  }
+}
+
+/**
  * Delete a note or folder from the database
  * @param id The ID of the item to delete
  * @returns Success status
