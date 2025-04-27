@@ -184,8 +184,8 @@ export default function DynamicIdPage() {
   return (
     <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
       <main class="container mx-w-full px-2 py-1 max-w-7xl">
-        {/* Mobile Tabs - Hidden on desktop */}
-        <div class="flex sm:hidden gap-2 mb-4 border-b border-base-300">
+        {/* Mobile Tabs - Hidden on tablet/desktop (md and up) */}
+        <div class="flex md:hidden gap-2 mb-4 border-b border-base-300">
           <button
             class={`px-4 py-2 font-medium text-sm ${
               activeMobileTab() === "editor"
@@ -208,8 +208,8 @@ export default function DynamicIdPage() {
           </button>
         </div>
 
-        {/* Desktop Split View - Hidden on mobile */}
-        <div class="hidden sm:grid grid-cols-1 lg:grid-cols-2 h-[calc(100vh-8rem)]">
+        {/* Tablet/Desktop Split View - Hidden on mobile (below md) */}
+        <div class="hidden md:grid grid-cols-2 h-[calc(100vh-8rem)]">
           {/* Editor Panel */}
           <div class="flex flex-col shadow-md overflow-hidden border border-base-300">
             <NoteToolbar />
@@ -238,8 +238,8 @@ export default function DynamicIdPage() {
           </div>
         </div>
 
-        {/* Mobile Content - Hidden on desktop */}
-        <div class="sm:hidden">
+        {/* Mobile Content - Hidden on tablet/desktop (md and up) */}
+        <div class="md:hidden">
           <Show when={activeMobileTab() === "editor"}>
             <div class="flex flex-col shadow-md overflow-hidden border border-base-300 h-[calc(100vh-12rem)]">
               <NoteToolbar />
