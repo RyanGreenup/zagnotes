@@ -52,19 +52,47 @@ const configureMarked = () => {
       {
         name: 'resourceImage',
         level: 'inline',
-        // Match markdown images with :/ prefix
+        // Match markdown images with either :/ prefix or without
+        // DEVELOPMENT CHOICE: Support both formats like ![alt](:/id) and ![alt](id)
         start(src) {
-          return src.match(/!\[.*?\]\(\s*:\//)?.index;
+          // Look for image markdown syntax
+          const markdownImage = src.match(/!\[.*?\]\(\s*/)?.index;
+          if (markdownImage === undefined) return undefined;
+          
+          // Check what follows the image prefix
+          const afterPrefix = src.substring(markdownImage);
+          
+          // If it's an absolute URL with http/https, it's not a resource image
+          if (afterPrefix.match(/!\[.*?\]\(\s*https?:\/\//)) {
+            return undefined;
+          }
+          
+          return markdownImage;
         },
         tokenizer(src) {
-          const rule = /^!\[(.*?)\]\(\s*:\/([^\s\)]+)(?:\s+"([^"]+)")?\s*\)/;
+          // DEVELOPMENT CHOICE 1: Handle both formats with/without :/ prefix
+          // DEVELOPMENT CHOICE 2: Handle IDs with/without file extension
+          // Match formats:
+          // - ![alt](:/id)
+          // - ![alt](id)
+          // - ![alt](:/id.ext)
+          // - ![alt](id.ext)
+          // where id is not a URL
+          const rule = /^!\[(.*?)\]\(\s*(?::\/)?([a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)?)(?:\s+"([^"]+)")?\s*\)/;
           const match = rule.exec(src);
+          
           if (match) {
+            // Explicitly check that this isn't a URL (no http/https)
+            const potentialId = match[2];
+            if (potentialId.match(/^https?:\/\//)) {
+              return undefined;
+            }
+            
             return {
               type: 'resourceImage',
               raw: match[0],
               text: match[1],
-              resourceId: match[2],
+              resourceId: potentialId, // This could be with or without :/ prefix and with/without extension
               title: match[3]
             };
           }
@@ -126,9 +154,11 @@ async function renderMarkdownClient(source_content: string): Promise<string> {
  * This helps with content that might already be in HTML format
  */
 function processResourceImagesInHtml(html: string): string {
-  // Replace <img src=":/resourceId" ...> with the appropriate API path
-  return html.replace(
-    /<img\s+[^>]*src=":\/([\w\d]+)"[^>]*>/g, 
+  // DEVELOPMENT CHOICE 1: Handle both formats with/without :/ prefix
+  // DEVELOPMENT CHOICE 2: Handle IDs with/without file extension
+  // First, replace <img src=":/resourceId" ...> format, with optional file extension
+  html = html.replace(
+    /<img\s+[^>]*src=":\/([\w\d]+(?:\.[a-zA-Z0-9]+)?)"[^>]*>/g, 
     (match, resourceId) => {
       // Extract the alt attribute if it exists
       const altMatch = match.match(/alt="([^"]*)"/);
@@ -138,6 +168,28 @@ function processResourceImagesInHtml(html: string): string {
       return `<img src="/api/resources/${resourceId}" alt="${alt}">`;
     }
   );
+  
+  // DEVELOPMENT CHOICE 2: Handle IDs with or without file extension
+  // This regex matches resource IDs with optional file extensions
+  // It excludes URLs with http/https and already processed /api/resources/ paths
+  html = html.replace(
+    /<img\s+[^>]*src="([\w\d]+(?:\.[a-zA-Z0-9]+)?)"[^>]*>/g,
+    (match, potentialId) => {
+      // Skip if this looks like a URL or already processed path
+      if (potentialId.match(/^(https?:\/\/|\/api\/resources\/)/)) {
+        return match; // Return unchanged if it's a URL or already processed
+      }
+      
+      // Extract the alt attribute if it exists
+      const altMatch = match.match(/alt="([^"]*)"/);
+      const alt = altMatch ? altMatch[1] : '';
+      
+      // Create the new img tag with the API path
+      return `<img src="/api/resources/${potentialId}" alt="${alt}">`;
+    }
+  );
+  
+  return html;
 }
 
 /**
