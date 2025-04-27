@@ -1,0 +1,30 @@
+.editor-preview-container {
+  min-height: calc(100vh - var(--navbar-height));
+}
+
+/* Add smooth transitions for resizing */
+.editor-preview-container > div {
+  transition: width 0.2s ease;
+}
+
+/* Style the preview to match editor height */
+.markdown-preview {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .editor-preview-container {
+    flex-direction: column;
+  }
+  .editor-preview-container > div {
+    width: 100% !important;
+    height: 50% !important;
+  }
+  .editor-preview-container .splitter {
+    width: 100%;
+    height: 8px;
+    cursor: row-resize;
+  }
+}

@@ -130,7 +130,7 @@ export default function Layout(props: { children: JSX.Element }) {
         <div class={`flex-1 overflow-auto bg-[color:var(--color-base-100)] w-full ${
           sidebarOpen() ? "md:pl-[var(--sidebar-width)]" : ""
         }`}>
-          <div class="container mx-auto p-4">
+          <div class="container mx-auto p-0 h-full">
             {props.children}
           </div>
         </div>
