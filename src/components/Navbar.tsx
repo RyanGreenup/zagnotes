@@ -147,7 +147,7 @@ function EditButton() {
  */
 import { ChevronLeft } from "lucide-solid";
 
-export default function Navbar(props: { 
+export default function Navbar(props: {
   toggleSidebar: () => void;
   isSidebarOpen: boolean;
 }) {
@@ -188,32 +188,13 @@ export default function Navbar(props: {
             />
           </div>
           <div class="flex items-center gap-1">
-            <NavButton icon={MoreVertical} rounded="full" size="md" />
             <NavButton icon={Users} rounded="full" size="md" />
+            <EditButton />
+            <NavButton icon={MoreVertical} rounded="full" size="md" />
           </div>
         </div>
       </nav>
 
-      {/* Bottom Navbar */}
-      <nav
-        class="fixed bottom-0 w-full z-10"
-        style={{
-          "background-color": "var(--color-base-100)",
-          "border-top": "var(--border) solid var(--color-base-300)",
-        }}
-      >
-        <div
-          class="h-full flex items-center justify-end md:px-4"
-          style={{
-            height: "var(--navbar-height)",
-            padding: "0 var(--navbar-padding-x)",
-          }}
-        >
-          <div class="flex items-center gap-1">
-            <EditButton />
-          </div>
-        </div>
-      </nav>
     </>
   );
 }
