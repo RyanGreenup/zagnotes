@@ -77,7 +77,10 @@ export default function Layout(props: { children: JSX.Element }) {
 
   return (
     <div class="flex flex-col h-screen bg-[color:var(--color-base-100)] text-[color:var(--color-base-content)]">
-      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen())} />
+      <Navbar 
+        toggleSidebar={() => setSidebarOpen(!sidebarOpen())}
+        isSidebarOpen={sidebarOpen()}
+      />
 
       <div class="flex flex-1 pt-[var(--navbar-height)]">
         {/* Mobile sidebar overlay */}
@@ -97,25 +100,41 @@ export default function Layout(props: { children: JSX.Element }) {
           <Sidebar />
         </div>
 
-        {/* Desktop sidebar - resizable */}
-        <div
-          class="hidden md:block fixed h-screen bg-[color:var(--color-base-200)] border-r border-[color:var(--color-base-300)] overflow-auto"
-          style={{
-            width: `${sidebarWidth()}px`,
-            minWidth: `${SIDEBAR_MIN_WIDTH}px`,
-          }}
-        >
-          <Sidebar />
-
-          {/* Resize handle */}
+        {/* Desktop sidebar - resizable when open */}
+        <Show when={sidebarOpen()}>
           <div
-            class="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-[color:var(--color-primary)] opacity-30 hover:opacity-70 transition-opacity"
-            onMouseDown={startResizing}
-          />
-        </div>
+            class="hidden md:block fixed h-screen bg-[color:var(--color-base-200)] border-r border-[color:var(--color-base-300)] overflow-auto"
+            style={{
+              width: `${sidebarWidth()}px`,
+              minWidth: `${SIDEBAR_MIN_WIDTH}px`,
+            }}
+          >
+            <Sidebar />
+
+            {/* Close button */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              class="absolute top-2 right-2 p-1 rounded-full hover:bg-[color:var(--color-base-300)] transition-colors"
+              aria-label="Close sidebar"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+            {/* Resize handle */}
+            <div
+              class="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-[color:var(--color-primary)] opacity-30 hover:opacity-70 transition-opacity"
+              onMouseDown={startResizing}
+            />
+          </div>
+        </Show>
 
         {/* Main content */}
-        <div class="flex-1 overflow-auto bg-[color:var(--color-base-100)] w-full md:pl-[var(--sidebar-width)]">
+        <div class={`flex-1 overflow-auto bg-[color:var(--color-base-100)] w-full ${
+          sidebarOpen() ? "md:pl-[var(--sidebar-width)]" : ""
+        }`}>
           <div class="container mx-auto p-4">
             {props.children}
           </div>

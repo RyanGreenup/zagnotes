@@ -145,7 +145,12 @@ function EditButton() {
  * @param props Component properties
  * @returns Navbar component
  */
-export default function Navbar(props: { toggleSidebar: () => void }) {
+import { ChevronLeft } from "lucide-solid";
+
+export default function Navbar(props: { 
+  toggleSidebar: () => void;
+  isSidebarOpen: boolean;
+}) {
   const [searchQuery, setSearchQuery] = createSignal("");
 
   const handleSearchInput = (
@@ -175,11 +180,11 @@ export default function Navbar(props: { toggleSidebar: () => void }) {
           <div class="flex items-center gap-1">
             <NavButton
               onClick={props.toggleSidebar}
-              icon={Menu}
+              icon={props.isSidebarOpen ? ChevronLeft : Menu}
               size="md"
               rounded="md"
-              ariaLabel="Toggle sidebar"
-              //class="md:hidden"
+              ariaLabel={props.isSidebarOpen ? "Close sidebar" : "Open sidebar"}
+              class="transition-transform duration-200 hover:scale-110"
             />
           </div>
           <div class="flex items-center gap-1">
