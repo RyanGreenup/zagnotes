@@ -9,6 +9,8 @@ export default function EditorWithPreview(props: {
   content: Accessor<string | undefined>;
   setContent: Setter<string>;
   class?: string;
+  viewMode?: "split" | "editor" | "preview";
+  onViewModeChange?: (mode: "split" | "editor" | "preview") => void;
 }) {
   // Load initial split position from localStorage or use default
   const [splitPosition, setSplitPosition] = createSignal(
@@ -82,7 +84,7 @@ export default function EditorWithPreview(props: {
   });
 
   return (
-    <div class={`editor-preview-container flex flex-1 h-full relative ${props.class || ''}`}>
+    <div class={`editor-preview-container flex flex-1 h-full ${props.class || ''}`}>
       {/* Editor */}
       <Show when={viewMode() !== 'preview'}>
         <div 
@@ -122,34 +124,6 @@ export default function EditorWithPreview(props: {
           </div>
         </div>
       </Show>
-
-      {/* View mode toggle buttons */}
-      <div class="absolute bottom-4 right-4 flex gap-2 z-20">
-        <button
-          class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300"
-          onClick={() => setViewMode('editor')}
-          classList={{ 'bg-blue-500 text-white': viewMode() === 'editor' }}
-          title="Editor Only (Ctrl+\\)"
-        >
-          Editor
-        </button>
-        <button
-          class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300"
-          onClick={() => setViewMode('split')}
-          classList={{ 'bg-blue-500 text-white': viewMode() === 'split' }}
-          title="Split View (Ctrl+\\)"
-        >
-          Split
-        </button>
-        <button
-          class="px-3 py-1 bg-gray-200 rounded-md hover:bg-gray-300"
-          onClick={() => setViewMode('preview')}
-          classList={{ 'bg-blue-500 text-white': viewMode() === 'preview' }}
-          title="Preview Only (Ctrl+\\)"
-        >
-          Preview
-        </button>
-      </div>
     </div>
   );
 }

@@ -103,6 +103,25 @@ export default function DynamicIdPage() {
    * Toolbar component for note editing actions
    */
   const NoteToolbar = () => {
+    const [viewMode, setViewMode] = createSignal<"split" | "editor" | "preview">("split");
+
+    // Keyboard shortcuts for view modes
+    onMount(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.key === '\\') {
+          e.preventDefault();
+          setViewMode(prev => {
+            if (prev === 'split') return 'editor';
+            if (prev === 'editor') return 'preview';
+            return 'split';
+          });
+        }
+      };
+
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    });
+
     return (
       <div class="bg-base-200 px-3 py-2 border-b border-base-300 flex justify-between items-center">
         <div class="flex items-center space-x-2">
@@ -112,6 +131,32 @@ export default function DynamicIdPage() {
           <ToolbarButton onClick={saveChanges}>
             <Save class="w-4 h-4" />
           </ToolbarButton>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button
+            class="px-3 py-1 text-sm rounded-md hover:bg-base-300"
+            onClick={() => setViewMode('editor')}
+            classList={{ 'bg-primary text-primary-content': viewMode() === 'editor' }}
+            title="Editor Only (Ctrl+\\)"
+          >
+            Editor
+          </button>
+          <button
+            class="px-3 py-1 text-sm rounded-md hover:bg-base-300"
+            onClick={() => setViewMode('split')}
+            classList={{ 'bg-primary text-primary-content': viewMode() === 'split' }}
+            title="Split View (Ctrl+\\)"
+          >
+            Split
+          </button>
+          <button
+            class="px-3 py-1 text-sm rounded-md hover:bg-base-300"
+            onClick={() => setViewMode('preview')}
+            classList={{ 'bg-primary text-primary-content': viewMode() === 'preview' }}
+            title="Preview Only (Ctrl+\\)"
+          >
+            Preview
+          </button>
         </div>
         <div class="text-xs text-base-content/70">Editing: {params.id}</div>
       </div>
