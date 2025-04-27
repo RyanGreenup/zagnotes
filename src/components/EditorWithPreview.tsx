@@ -17,7 +17,11 @@ export default function EditorWithPreview(props: {
     Number(localStorage.getItem(STORAGE_KEY)) || 50
   );
   const [isDragging, setIsDragging] = createSignal(false);
-  const [viewMode, setViewMode] = createSignal<"split" | "editor" | "preview">("split");
+  const [internalViewMode, setInternalViewMode] = createSignal<"split" | "editor" | "preview">(props.viewMode || "split");
+  
+  // Use the passed viewMode if provided, otherwise use internal state
+  const viewMode = props.viewMode !== undefined ? () => props.viewMode! : internalViewMode;
+  const setViewMode = props.onViewModeChange || setInternalViewMode;
 
   // Save split position to localStorage when it changes
   createEffect(() => {

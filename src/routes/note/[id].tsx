@@ -103,25 +103,26 @@ export default function DynamicIdPage() {
   /**
    * Toolbar component for note editing actions
    */
+  const [viewMode, setViewMode] = createSignal<"split" | "editor" | "preview">("split");
+
+  // Keyboard shortcuts for view modes
+  onMount(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === '\\') {
+        e.preventDefault();
+        setViewMode(prev => {
+          if (prev === 'split') return 'editor';
+          if (prev === 'editor') return 'preview';
+          return 'split';
+        });
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  });
+
   const NoteToolbar = () => {
-    const [viewMode, setViewMode] = createSignal<"split" | "editor" | "preview">("split");
-
-    // Keyboard shortcuts for view modes
-    onMount(() => {
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.ctrlKey && e.key === '\\') {
-          e.preventDefault();
-          setViewMode(prev => {
-            if (prev === 'split') return 'editor';
-            if (prev === 'editor') return 'preview';
-            return 'split';
-          });
-        }
-      };
-
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    });
 
     return (
       <div class="bg-base-200 px-3 py-2 border-b border-base-300 flex justify-between items-center">
@@ -201,6 +202,8 @@ export default function DynamicIdPage() {
           content={editableContent}
           setContent={setEditableContent}
           class="flex-1"
+          viewMode={viewMode()}
+          onViewModeChange={setViewMode}
         />
       </main>
     </Show>
