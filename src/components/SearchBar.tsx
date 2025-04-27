@@ -1,4 +1,4 @@
-import { createSignal, mergeProps, Show } from "solid-js";
+import { Accessor, createSignal, mergeProps, Show } from "solid-js";
 import type { SearchResult } from "~/lib/db-notes";
 import { searchNotes } from "~/lib/db-notes";
 import SearchChart from "./SearchChart";
@@ -41,6 +41,15 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
     number | undefined
   >(undefined);
   const mergedProps = mergeProps({ showChart: true }, props);
+
+  const handleRebuildIndex = (callback: () => void) => {
+    /*
+      TODO: Implement re-indexing functionality
+      This would trigger the re-creation or updating of vector embeddings
+      for semantic search
+    */
+    callback();
+  };
 
   const performSearch = async (
     searchQuery: string,
@@ -124,42 +133,23 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
         <div class="search-mode-selector flex justify-between items-center">
           <div class="search-toggle flex rounded-md overflow-hidden">
             {SEARCH_MODES.map((mode) => (
-              <button
-                type="button"
-                class="px-3 py-1 text-xs transition-colors"
-                classList={{
-                  "bg-primary text-primary-content": searchMode() === mode.id,
-                  "bg-base-200 text-base-content hover:bg-base-300":
-                    searchMode() !== mode.id,
-                }}
-                onClick={() => handleModeChange(mode.id)}
-                title={mode.description}
-              >
-                {mode.label}
-              </button>
+              <SearchTypeButton
+                searchMode={searchMode}
+                mode={mode}
+                handleModeChange={handleModeChange}
+              />
             ))}
           </div>
 
           {/* Re-indexing button for semantic search */}
           <Show when={searchMode() === "semantic"}>
-            <button
-              type="button"
-              class="text-xs px-2 py-0.5 rounded-md bg-base-200 hover:bg-base-300 text-base-content flex items-center gap-1"
-              title="Re-index the semantic search database"
-              onClick={() => {
-                /*
-                  TODO: Implement re-indexing functionality
-                  This would trigger the re-creation or updating of vector embeddings
-                  for semantic search
-                */
+            <ReindexButton
+              callback={() => {
                 alert(
                   "Re-indexing semantic search not yet implemented. Use the Rust CLI Instead",
                 );
               }}
-            >
-              <RefreshCw class="w-3 h-3" />
-              Rebuild
-            </button>
+            />
           </Show>
         </div>
       </div>
@@ -173,5 +163,47 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
         </Show>
       </Show>
     </div>
+  );
+}
+
+interface SearchTypeButtonProps {
+  searchMode: Accessor<SearchMode>;
+  mode: SearchModeOption;
+  handleModeChange: (mode: SearchMode) => void;
+}
+
+function SearchTypeButton(props: SearchTypeButtonProps) {
+  return (
+    <button
+      type="button"
+      class="px-3 py-1 text-xs transition-colors"
+      classList={{
+        "bg-primary text-primary-content": props.searchMode() === props.mode.id,
+        "bg-base-200 text-base-content hover:bg-base-300":
+          props.searchMode() !== props.mode.id,
+      }}
+      onClick={() => props.handleModeChange(props.mode.id)}
+      title={props.mode.description}
+    >
+      {props.mode.label}
+    </button>
+  );
+}
+
+interface ReindexButtonProps {
+  callback: () => void;
+}
+
+function ReindexButton(props: ReindexButtonProps) {
+  return (
+    <button
+      type="button"
+      class="text-xs px-2 py-0.5 rounded-md bg-base-200 hover:bg-base-300 text-base-content flex items-center gap-1"
+      title="Re-index the semantic search database"
+      onClick={props.callback}
+    >
+      <RefreshCw class="w-3 h-3" />
+      Rebuild
+    </button>
   );
 }
