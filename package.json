@@ -18,6 +18,7 @@
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.1.0",
     "better-sqlite3": "^11.9.1",
+    "chart.js": "^4.4.9",
     "codemirror": "^6.0.1",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.22",

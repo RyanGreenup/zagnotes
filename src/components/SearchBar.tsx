@@ -1,14 +1,19 @@
-import { createSignal, createEffect } from "solid-js";
+import { createSignal, createEffect, Show } from "solid-js";
 import SectionHeader from "./SectionHeader";
 import SearchResults from "./SearchResults";
+import SearchChart from "./SearchChart";
+import SearchInsights from "./SearchInsights";
 import { searchNotes } from "~/lib/db-notes";
 import type { SearchResult } from "~/lib/db-notes";
+import Card from "./Card";
 
 export default function SearchBar() {
   const [query, setQuery] = createSignal("");
   const [results, setResults] = createSignal<SearchResult[]>([]);
   const [isLoading, setIsLoading] = createSignal(false);
-  const [debounceTimeout, setDebounceTimeout] = createSignal<number | undefined>(undefined);
+  const [debounceTimeout, setDebounceTimeout] = createSignal<
+    number | undefined
+  >(undefined);
 
   // Debounce search input to prevent excessive API calls
   const handleSearch = (value: string) => {
@@ -37,7 +42,7 @@ export default function SearchBar() {
         } finally {
           setIsLoading(false);
         }
-      }, 300)
+      }, 300),
     );
   };
 
@@ -55,10 +60,15 @@ export default function SearchBar() {
         />
       </div>
 
-      <SearchResults
-        results={results()}
-        isLoading={isLoading()}
-      />
+      <SearchResults results={results()} isLoading={isLoading()} />
+
+      <Show when={results().length > 0}>
+        <SearchInsights results={results()} />
+
+        <Card variant="bordered">
+            <SearchChart results={results()} />{" "}
+            </Card>
+      </Show>
     </div>
   );
 }
