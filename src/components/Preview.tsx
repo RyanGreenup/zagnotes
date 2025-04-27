@@ -1,4 +1,4 @@
-import { Accessor, createResource, Resource, Suspense } from "solid-js";
+import { Accessor, createEffect, createResource, createSignal, Resource, Suspense } from "solid-js";
 import { Marked } from "marked";
 import markedAlert from "marked-alert";
 import markedFootnote from "marked-footnote";
@@ -221,11 +221,29 @@ export default function Preview(props: PreviewProps) {
     ? renderMarkdownServer
     : renderMarkdownClient;
 
-  const [html] = createResource(
-    () =>
-      typeof props.content === "function" ? props.content() : props.content,
-    renderFunction,
-  );
+  // Create a debounced signal to avoid frequent re-renders
+  const [debouncedContent, setDebouncedContent] = createSignal<string>("");
+  let debounceTimeout: number | undefined;
+  
+  // Set up debounce effect for content updates
+  createEffect(() => {
+    const currentContent = typeof props.content === "function" 
+      ? props.content() 
+      : props.content;
+    
+    // Clear previous timeout
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+    
+    // Set a new timeout
+    debounceTimeout = window.setTimeout(() => {
+      setDebouncedContent(currentContent);
+    }, 300); // 300ms debounce delay
+  });
+
+  // Create resource with debounced content
+  const [html] = createResource(debouncedContent, renderFunction);
 
   return (
     <div
