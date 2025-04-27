@@ -1,3 +1,4 @@
+import { RefreshCw } from "lucide-solid";
 import { Accessor, createSignal, mergeProps, Show } from "solid-js";
 import type { SearchResult } from "~/lib/db-notes";
 import { searchNotes } from "~/lib/db-notes";
@@ -5,7 +6,6 @@ import SearchChart from "./SearchChart";
 import SearchInsights from "./SearchInsights";
 import SearchResults from "./SearchResults";
 import SectionHeader from "./SectionHeader";
-import { RefreshCw } from "lucide-solid";
 
 type SearchMode = "sqlite" | "semantic";
 
@@ -130,28 +130,11 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
           />
         </div>
 
-        <div class="search-mode-selector flex justify-between items-center">
-          <div class="search-toggle flex rounded-md overflow-hidden">
-            {SEARCH_MODES.map((mode) => (
-              <SearchTypeButton
-                searchMode={searchMode}
-                mode={mode}
-                handleModeChange={handleModeChange}
-              />
-            ))}
-          </div>
-
-          {/* Re-indexing button for semantic search */}
-          <Show when={searchMode() === "semantic"}>
-            <ReindexButton
-              callback={() => {
-                alert(
-                  "Re-indexing semantic search not yet implemented. Use the Rust CLI Instead",
-                );
-              }}
-            />
-          </Show>
-        </div>
+        <SearchSelector
+          searchMode={searchMode}
+          searchModes={SEARCH_MODES}
+          handleModeChange={handleModeChange}
+        />
       </div>
 
       <SearchResults results={results()} isLoading={isLoading()} />
@@ -170,6 +153,39 @@ interface SearchTypeButtonProps {
   searchMode: Accessor<SearchMode>;
   mode: SearchModeOption;
   handleModeChange: (mode: SearchMode) => void;
+}
+
+interface SearchSelectorProps {
+  searchModes: SearchModeOption[];
+  searchMode: Accessor<SearchMode>;
+  handleModeChange: (mode: SearchMode) => void;
+}
+
+function SearchSelector(props: SearchSelectorProps) {
+  return (
+    <div class="search-mode-selector flex justify-between items-center">
+      <div class="search-toggle flex rounded-md overflow-hidden">
+        {props.searchModes.map((mode) => (
+          <SearchTypeButton
+            searchMode={props.searchMode}
+            mode={mode}
+            handleModeChange={props.handleModeChange}
+          />
+        ))}
+      </div>
+
+      {/* Re-indexing button for semantic search */}
+      <Show when={props.searchMode() === "semantic"}>
+        <ReindexButton
+          callback={() => {
+            alert(
+              "Re-indexing semantic search not yet implemented. Use the Rust CLI Instead",
+            );
+          }}
+        />
+      </Show>
+    </div>
+  );
 }
 
 function SearchTypeButton(props: SearchTypeButtonProps) {
