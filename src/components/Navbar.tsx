@@ -159,6 +159,8 @@ export default function Navbar(props: {
     setSearchQuery(e.currentTarget.value);
   };
 
+  const params = useParams();
+
   return (
     <>
       {/* Top Navbar */}
@@ -186,6 +188,14 @@ export default function Navbar(props: {
               ariaLabel={props.isSidebarOpen ? "Close sidebar" : "Open sidebar"}
               class="transition-transform duration-200 hover:scale-110"
             />
+            <Show when={params.id}>
+              <span 
+                class="ml-2 text-sm font-medium"
+                style={{ color: "var(--color-base-content)" }}
+              >
+                ID: {params.id}
+              </span>
+            </Show>
           </div>
           <div class="flex items-center gap-1">
             <NavButton icon={Users} rounded="full" size="md" />
