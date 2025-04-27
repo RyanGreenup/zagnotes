@@ -6,6 +6,7 @@ import {
   createSignal,
   Show,
   Suspense,
+  onMount,
 } from "solid-js";
 import Card from "~/components/Card";
 import EditorWithPreview from "~/components/EditorWithPreview";
