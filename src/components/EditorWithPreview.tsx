@@ -102,7 +102,7 @@ export default function EditorWithPreview(props: {
       {/* Splitter - only shown in split view */}
       <Show when={viewMode() === 'split'}>
         <div
-          class="w-2 h-full bg-gray-200 hover:bg-blue-500 active:bg-blue-600 cursor-col-resize transition-colors z-10"
+          class="w-2 h-full bg-[color:var(--color-base-200)] hover:bg-[color:var(--color-primary)] active:bg-[color:var(--color-primary)] cursor-col-resize transition-colors z-10 opacity-0 hover:opacity-100"
           onMouseDown={startDrag}
           onTouchStart={startDrag}
         />
