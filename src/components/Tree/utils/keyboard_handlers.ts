@@ -7,6 +7,7 @@ import {
   pasteCutItemIntoTarget,
   removeNodeFromUI,
 } from "./insert_item";
+import { renameItemTitle } from "./rename_title";
 import { NodeMap } from "./types";
 
 /**
@@ -54,6 +55,10 @@ export function createKeyboardHandlers(
     switch (e.key) {
       case "Delete":
         handleDeleteKeyEvent(e);
+        break;
+      case "F2":
+      case "r":
+        handleRenameEvent(e);
         break;
       case "0":
         moveNodeToRoot(e);
@@ -248,6 +253,30 @@ export function createKeyboardHandlers(
           console.error(`Failed to delete item ${nodeId}`);
         }
       });
+    }
+  }
+
+  /**
+   * Rename the currently focused node
+   */
+  function handleRenameEvent(e: KeyboardEvent): void {
+    e.preventDefault();
+    const nodeId = focusedId();
+    if (!nodeId) return;
+    
+    const currentNode = nodes()[nodeId];
+    if (!currentNode) return;
+    
+    const currentName = currentNode.name;
+    const newTitle = prompt("Enter new title:", currentName);
+    
+    if (newTitle && newTitle !== currentName) {
+      renameItemTitle(nodeId, newTitle, nodes(), setNodes)
+        .then((success) => {
+          if (!success) {
+            console.error(`Failed to rename item ${nodeId}`);
+          }
+        });
     }
   }
 
