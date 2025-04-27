@@ -58,7 +58,9 @@ export {
 // Note operations
 export {
   type Note,
+  type SearchResult,
   createNote,
   getFullNote,
-  deleteNote
+  deleteNote,
+  searchNotes
 } from './db-notes';
