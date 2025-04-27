@@ -9,6 +9,7 @@ import {
 } from "solid-js";
 import Card from "~/components/Card";
 import EditorWithPreview from "~/components/EditorWithPreview";
+import Preview from "~/components/Preview";
 import ToolbarButton from "~/components/ToolbarButton";
 
 /**
@@ -138,9 +139,7 @@ export default function DynamicIdPage() {
     return (
       <main class="container mx-auto px-4 py-6 w-full h-full">
         <Suspense fallback={<div class="p-4 animate-pulse">Loading preview...</div>}>
-          <div class="markdown-preview prose max-w-none">
-            {noteBody()}
-          </div>
+          <Preview content={noteBody} renderOnServer={true} />
         </Suspense>
       </main>
     );

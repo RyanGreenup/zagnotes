@@ -117,7 +117,9 @@ export default function EditorWithPreview(props: {
             display: viewMode() === 'editor' ? 'none' : 'block'
           }}
         >
-          <Preview content={() => props.content() || ''} />
+          <div class="h-full overflow-auto">
+            <Preview content={() => props.content() || ''} renderOnServer={false} />
+          </div>
         </div>
       </Show>
 
