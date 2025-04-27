@@ -43,13 +43,29 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
   >(undefined);
   const mergedProps = mergeProps({ showChart: true }, props);
 
-  const handleRebuildIndex = (callback: () => void) => {
-    /*
-      TODO: Implement re-indexing functionality
-      This would trigger the re-creation or updating of vector embeddings
-      for semantic search
-    */
-    callback();
+  const handleRebuildIndex = async (callback: () => void) => {
+    try {
+      setIsLoading(true);
+
+      // Import the rebuildSemanticSearchIndex function
+      const { rebuildSemanticSearchIndex } = await import("~/lib/embeddings");
+
+      // Start the rebuild process
+      const result = await rebuildSemanticSearchIndex();
+
+      // Show the result to the user
+      if (result.success) {
+        alert(`Semantic search index rebuilt successfully!\n${result.message}`);
+      } else {
+        alert(`Semantic search index rebuild had issues.\n${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error rebuilding index:", error);
+      alert(`Failed to rebuild semantic search index: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsLoading(false);
+      callback();
+    }
   };
 
   const performSearch = async (
@@ -192,9 +208,11 @@ function SearchSelector(props: SearchSelectorProps) {
       <Show when={props.searchMode() === "semantic"}>
         <ReindexButton
           callback={() => {
-            alert(
-              "Re-indexing semantic search not yet implemented. Use the Rust CLI Instead",
-            );
+            if (confirm("Are you sure you want to rebuild the semantic search index? This may take some time. (It is recommended to use the Rust CLI instead)")) {
+              handleRebuildIndex(() => {
+                console.log("Rebuild index operation completed");
+              });
+            }
           }}
         />
       </Show>
