@@ -263,7 +263,7 @@ export function createKeyboardHandlers(
     e.preventDefault();
     const nodeId = focusedId();
     if (!nodeId) return;
-    
+
     promptAndRenameItem(nodeId, nodes, setNodes)
       .then((success) => {
         if (!success) {
