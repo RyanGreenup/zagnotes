@@ -62,12 +62,26 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
       // Standard SQLite search
       return await searchNotes(searchQuery, limit);
     } else if (currentMode === "semantic") {
-      // Call semantic search function which will generate and log embeddings
-      await semanticSearch(searchQuery);
-      
-      // For now, still return regular search results
-      console.log("Using standard search results as fallback");
-      return await searchNotes(searchQuery, limit);
+      try {
+        // Use semantic search with the query
+        const results = await semanticSearch(searchQuery, limit);
+        console.log(results);
+
+        // If we got results, return them
+        if (results && results.length > 0) {
+          return results;
+        } else {
+          // If no semantic results, fall back to regular search
+          console.log("No semantic search results, falling back to standard search");
+          return await searchNotes(searchQuery, limit);
+        }
+      } catch (error) {
+        console.error("Semantic search failed:", error);
+
+        // // Fall back to regular search on error
+        console.log("Using standard search results as fallback");
+        return await searchNotes(searchQuery, limit);
+      }
     }
 
     // Default fallback
