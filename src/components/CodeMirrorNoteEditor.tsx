@@ -102,6 +102,7 @@ export default function CodeMirrorNoteEditor(props: CodeMirrorNoteEditorProps) {
     drawSelection(),
     lineNumbers(),
     foldGutter(),
+    EditorView.lineWrapping,
     EditorState.allowMultipleSelections.of(true),
     keymap.of([...defaultKeymap, ...historyKeymap]),
     markdown({
