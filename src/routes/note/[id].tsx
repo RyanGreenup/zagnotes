@@ -182,10 +182,10 @@ export default function DynamicIdPage() {
 
   return (
     <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
-      <main class="container mx-auto px-4 py-3 max-w-7xl">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-8rem)]">
+      <main class="container mx-auto px-2 py-2 max-w-7xl">
+        <div class="grid grid-cols-1 lg:grid-cols-2 h-[calc(100vh-8rem)]">
           {/* Editor Panel */}
-          <div class="flex flex-col rounded-lg shadow-md overflow-hidden border border-base-300">
+          <div class="flex flex-col shadow-md overflow-hidden border border-base-300">
             <NoteToolbar />
             <div class="flex-grow bg-base-200 overflow-hidden">
               <Suspense
@@ -199,7 +199,7 @@ export default function DynamicIdPage() {
           </div>
 
           {/* Preview Panel */}
-          <div class="bg-base-200 rounded-lg shadow-md overflow-hidden border border-base-300">
+          <div class="bg-base-200 shadow-md overflow-hidden border border-base-300">
             <div class="h-full overflow-auto">
               <Suspense
                 fallback={
