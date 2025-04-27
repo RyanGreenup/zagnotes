@@ -8,6 +8,7 @@ import {
   FileEdit,
   Edit,
   NotebookIcon,
+  Home
 } from "lucide-solid";
 import IconWrapper from "./IconWrapper";
 import Button from "./Button";
@@ -188,15 +189,16 @@ export default function Navbar(props: {
               ariaLabel={props.isSidebarOpen ? "Close sidebar" : "Open sidebar"}
               class="transition-transform duration-200 hover:scale-110"
             />
-            <A 
-              href="/" 
+            <A
+              href="/"
               class="ml-2 p-1 rounded-md hover:bg-base-200 transition-colors"
               aria-label="Go to home"
             >
-              <IconWrapper icon={NotebookIcon} size="sm" />
+              <IconWrapper icon={Home} size="sm" />
             </A>
+            {/*PLACEHOLDER for the breadcrumbs/trace*/}
             <Show when={params.id}>
-              <span 
+              <span
                 class="ml-2 text-sm font-medium"
                 style={{ color: "var(--color-base-content)" }}
               >

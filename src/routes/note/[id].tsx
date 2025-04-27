@@ -168,7 +168,7 @@ export default function DynamicIdPage() {
 
   const ServerSidePreview = () => {
     return (
-      <main class="container mx-auto px-4 py-6 w-full">
+      <main class="container mx-auto px-4 py-6 w-full h-full">
         <Suspense
           fallback={<div class="p-4 animate-pulse">Loading preview...</div>}
         >
