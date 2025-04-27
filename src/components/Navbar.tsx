@@ -188,6 +188,13 @@ export default function Navbar(props: {
               ariaLabel={props.isSidebarOpen ? "Close sidebar" : "Open sidebar"}
               class="transition-transform duration-200 hover:scale-110"
             />
+            <A 
+              href="/" 
+              class="ml-2 p-1 rounded-md hover:bg-base-200 transition-colors"
+              aria-label="Go to home"
+            >
+              <IconWrapper icon={NotebookIcon} size="sm" />
+            </A>
             <Show when={params.id}>
               <span 
                 class="ml-2 text-sm font-medium"
