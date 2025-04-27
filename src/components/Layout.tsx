@@ -29,7 +29,7 @@ export default function Layout(props: { children: JSX.Element }) {
   };
 
   // Handle sidebar resizing
-  const startResizing = (e: MouseEvent) => {
+  const startResizing = (e: MouseEvent | TouchEvent) => {
     if (typeof document === 'undefined') return;
 
     setIsResizing(true);
@@ -37,10 +37,11 @@ export default function Layout(props: { children: JSX.Element }) {
     document.body.style.userSelect = 'none';
   };
 
-  const updateResizing = (e: MouseEvent) => {
+  const updateResizing = (e: MouseEvent | TouchEvent) => {
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     if (!isResizing() || typeof document === 'undefined') return;
 
-    const newWidth = e.clientX;
+    const newWidth = clientX;
     const maxWidth = getMaxWidth();
 
     if (newWidth >= SIDEBAR_MIN_WIDTH && newWidth <= maxWidth) {
@@ -55,6 +56,7 @@ export default function Layout(props: { children: JSX.Element }) {
     setIsResizing(false);
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
+    document.body.style.touchAction = '';
   };
 
   // Setup and cleanup resize event listeners
@@ -62,6 +64,9 @@ export default function Layout(props: { children: JSX.Element }) {
     if (typeof document !== 'undefined') {
       document.addEventListener('mousemove', updateResizing);
       document.addEventListener('mouseup', stopResizing);
+
+      document.addEventListener('touchmove', updateResizing);
+      document.addEventListener('touchend', stopResizing);
 
       // Initialize sidebar width CSS variable
       document.documentElement.style.setProperty('--sidebar-width', `${SIDEBAR_DEFAULT_WIDTH}px`);
@@ -116,6 +121,7 @@ export default function Layout(props: { children: JSX.Element }) {
             <div
               class="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-[color:var(--color-primary)] opacity-30 hover:opacity-70 transition-opacity"
               onMouseDown={startResizing}
+              onTouchStart={startResizing}
             />
           </div>
         </Show>
