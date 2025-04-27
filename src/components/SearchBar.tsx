@@ -2,6 +2,7 @@ import { RefreshCw } from "lucide-solid";
 import { Accessor, createSignal, mergeProps, Show } from "solid-js";
 import type { SearchResult } from "~/lib/db-notes";
 import { searchNotes } from "~/lib/db-notes";
+import { semanticSearch } from "~/lib/embeddings";
 import SearchChart from "./SearchChart";
 import SearchInsights from "./SearchInsights";
 import SearchResults from "./SearchResults";
@@ -61,12 +62,11 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
       // Standard SQLite search
       return await searchNotes(searchQuery, limit);
     } else if (currentMode === "semantic") {
-      // TODO: Implement semantic search
-      // This would call a different search function that uses semantic/vector search
-      // For now, we'll just use the standard search as a placeholder
-      console.log(
-        "Semantic search not yet implemented, using standard search instead",
-      );
+      // Call semantic search function which will generate and log embeddings
+      await semanticSearch(searchQuery);
+      
+      // For now, still return regular search results
+      console.log("Using standard search results as fallback");
       return await searchNotes(searchQuery, limit);
     }
 

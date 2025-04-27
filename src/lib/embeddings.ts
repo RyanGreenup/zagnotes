@@ -54,3 +54,21 @@ export async function getEmbeddings(note: Note): Promise<number[]> {
 export async function getTextEmbeddings(text: string): Promise<number[]> {
   return generateEmbedding(text);
 }
+
+/**
+ * Performs semantic search using the given query text
+ * @param query Search query to find semantically similar content
+ * @returns Currently just logs the embeddings, will return search results in the future
+ */
+export async function semanticSearch(query: string): Promise<void> {
+    console.log("Beginning Semantic Search");
+  try {
+    const embeddings = await generateEmbedding(query);
+    console.log('Query embeddings:', embeddings);
+    // TODO: Implement actual semantic search using these embeddings
+    return;
+  } catch (error) {
+    console.error('Semantic search error:', error);
+    throw error;
+  }
+}
