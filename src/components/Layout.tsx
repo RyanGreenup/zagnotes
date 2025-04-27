@@ -77,7 +77,7 @@ export default function Layout(props: { children: JSX.Element }) {
 
   return (
     <div class="flex flex-col h-screen bg-[color:var(--color-base-100)] text-[color:var(--color-base-content)]">
-      <Navbar 
+      <Navbar
         toggleSidebar={() => setSidebarOpen(!sidebarOpen())}
         isSidebarOpen={sidebarOpen()}
       />
@@ -111,17 +111,6 @@ export default function Layout(props: { children: JSX.Element }) {
           >
             <Sidebar />
 
-            {/* Close button */}
-            <button
-              onClick={() => setSidebarOpen(false)}
-              class="absolute top-2 right-2 p-1 rounded-full hover:bg-[color:var(--color-base-300)] transition-colors"
-              aria-label="Close sidebar"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
 
             {/* Resize handle */}
             <div
