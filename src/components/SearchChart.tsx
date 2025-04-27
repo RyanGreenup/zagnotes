@@ -2,6 +2,7 @@ import { createEffect, onCleanup, onMount } from "solid-js";
 import Chart from "chart.js/auto";
 import type { SearchResult } from "~/lib/db-notes";
 import { generateChartColors, getSearchAnalytics } from "~/lib/chart-utils";
+import Card from "./Card";
 
 interface SearchChartProps {
   results: SearchResult[];
@@ -85,11 +86,19 @@ export default function SearchChart(props: SearchChartProps) {
   });
 
   return (
-    <div class="mt-4" style={{ display: props.results.length > 0 ? "block" : "none" }}>
-      <canvas
-        ref={chartContainer}
-        style={{ height: `${Math.min(props.results.length * 30, 300)}px` }}
-      />
-    </div>
+    <Card
+      variant="insights"
+      padding="sm"
+      title="Search Visualization"
+      class="mt-4"
+      style={{ display: props.results.length > 0 ? "block" : "none" }}
+    >
+      <div>
+        <canvas
+          ref={chartContainer}
+          style={{ height: `${Math.min(props.results.length * 30, 300)}px` }}
+        />
+      </div>
+    </Card>
   );
 }

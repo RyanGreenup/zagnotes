@@ -1,7 +1,6 @@
 import { createSignal, mergeProps, Show } from "solid-js";
 import type { SearchResult } from "~/lib/db-notes";
 import { searchNotes } from "~/lib/db-notes";
-import Card from "./Card";
 import SearchChart from "./SearchChart";
 import SearchInsights from "./SearchInsights";
 import SearchResults from "./SearchResults";
@@ -71,10 +70,7 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
       <Show when={mergedProps.showChart}>
         <Show when={results().length > 0}>
           <SearchInsights results={results()} />
-
-          <Card variant="bordered">
-            <SearchChart results={results()} />{" "}
-          </Card>
+          <SearchChart results={results()} />{" "}
         </Show>
       </Show>
     </div>
