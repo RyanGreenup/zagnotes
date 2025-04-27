@@ -2,6 +2,7 @@ import { FileStack } from "lucide-solid";
 import { useNavigate } from "@solidjs/router";
 import type { SearchResult } from "~/lib/db-notes";
 import { GenericList } from "./GenericList";
+import { calculateRelevancePercentage } from "~/lib/chart-utils";
 
 interface SearchResultsProps {
   results: SearchResult[];
@@ -35,7 +36,7 @@ export default function SearchResults(props: SearchResultsProps) {
           class="text-xs text-neutral"
           style={{ color: "var(--color-neutral)" }}
         >
-          {Math.round((1 / note.score) * 100)}%
+          {calculateRelevancePercentage(note.score)}%
         </span>
       </div>
     );
