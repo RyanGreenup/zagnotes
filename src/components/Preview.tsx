@@ -19,35 +19,66 @@ interface PreviewProps {
 const configureMarked = () => {
   const marked = new Marked();
   
-  // Add a custom extension to handle the special link format
+  // Add custom extensions to handle the special link and image formats
   marked.use({
-    extensions: [{
-      name: 'noteLink',
-      level: 'inline',
-      // Only match markdown links that start with :/
-      start(src) { 
-        return src.match(/\[.*?\]\(\s*:\//)?.index;
-      },
-      tokenizer(src) {
-        const rule = /^\[(.*?)\]\(\s*:\/([^\s\)]+)(?:\s+"([^"]+)")?\s*\)/;
-        const match = rule.exec(src);
-        if (match) {
-          return {
-            type: 'noteLink',
-            raw: match[0],
-            text: match[1],
-            noteId: match[2],
-            title: match[3]
-          };
+    extensions: [
+      {
+        name: 'noteLink',
+        level: 'inline',
+        // Only match markdown links that start with :/
+        start(src) { 
+          return src.match(/\[.*?\]\(\s*:\//)?.index;
+        },
+        tokenizer(src) {
+          const rule = /^\[(.*?)\]\(\s*:\/([^\s\)]+)(?:\s+"([^"]+)")?\s*\)/;
+          const match = rule.exec(src);
+          if (match) {
+            return {
+              type: 'noteLink',
+              raw: match[0],
+              text: match[1],
+              noteId: match[2],
+              title: match[3]
+            };
+          }
+          return undefined;
+        },
+        renderer(token) {
+          const href = `/${ROUTES.NOTE_BASE_PATH}${token.noteId}`;
+          const title = token.title ? ` title="${token.title}"` : '';
+          return `<a href="${href}"${title}>${token.text}</a>`;
         }
-        return undefined;
       },
-      renderer(token) {
-        const href = `/${ROUTES.NOTE_BASE_PATH}${token.noteId}`;
-        const title = token.title ? ` title="${token.title}"` : '';
-        return `<a href="${href}"${title}>${token.text}</a>`;
+      {
+        name: 'resourceImage',
+        level: 'inline',
+        // Match markdown images with :/ prefix
+        start(src) {
+          return src.match(/!\[.*?\]\(\s*:\//)?.index;
+        },
+        tokenizer(src) {
+          const rule = /^!\[(.*?)\]\(\s*:\/([^\s\)]+)(?:\s+"([^"]+)")?\s*\)/;
+          const match = rule.exec(src);
+          if (match) {
+            return {
+              type: 'resourceImage',
+              raw: match[0],
+              text: match[1],
+              resourceId: match[2],
+              title: match[3]
+            };
+          }
+          return undefined;
+        },
+        renderer(token) {
+          // Construct the resource path relative to the API
+          const resourcePath = `/api/resources/${token.resourceId}`;
+          const alt = token.text || '';
+          const title = token.title ? ` title="${token.title}"` : '';
+          return `<img src="${resourcePath}" alt="${alt}"${title}>`;
+        }
       }
-    }]
+    ]
   });
   
   return marked
@@ -78,11 +109,35 @@ const configureMarked = () => {
 async function renderMarkdownClient(source_content: string): Promise<string> {
   try {
     const marked_converter = configureMarked();
-    return await marked_converter.parse(source_content);
+    let html = await marked_converter.parse(source_content);
+    
+    // Process any direct HTML image tags with resource format
+    html = processResourceImagesInHtml(html);
+    
+    return html;
   } catch (error) {
     console.error("Error rendering markdown on client:", error);
     return `<p class="text-red-500">Error rendering content</p>`;
   }
+}
+
+/**
+ * Process HTML directly to handle resource image tags
+ * This helps with content that might already be in HTML format
+ */
+function processResourceImagesInHtml(html: string): string {
+  // Replace <img src=":/resourceId" ...> with the appropriate API path
+  return html.replace(
+    /<img\s+[^>]*src=":\/([\w\d]+)"[^>]*>/g, 
+    (match, resourceId) => {
+      // Extract the alt attribute if it exists
+      const altMatch = match.match(/alt="([^"]*)"/);
+      const alt = altMatch ? altMatch[1] : '';
+      
+      // Create the new img tag with the API path
+      return `<img src="/api/resources/${resourceId}" alt="${alt}">`;
+    }
+  );
 }
 
 /**
@@ -96,7 +151,12 @@ async function renderMarkdownServer(source_content: string): Promise<string> {
     // await new Promise(resolve => setTimeout(resolve, 500));
 
     const marked_converter = configureMarked();
-    return await marked_converter.parse(source_content);
+    let html = await marked_converter.parse(source_content);
+    
+    // Process any direct HTML image tags with resource format
+    html = processResourceImagesInHtml(html);
+    
+    return html;
   } catch (error) {
     console.error("Error rendering markdown on server:", error);
     return `<p class="text-red-500">Error rendering content on server</p>`;
