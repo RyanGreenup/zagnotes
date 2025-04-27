@@ -7,7 +7,7 @@ import {
   pasteCutItemIntoTarget,
   removeNodeFromUI,
 } from "./insert_item";
-import { renameItemTitle } from "./rename_title";
+import { promptAndRenameItem } from "./rename_title";
 import { NodeMap } from "./types";
 
 /**
@@ -264,20 +264,12 @@ export function createKeyboardHandlers(
     const nodeId = focusedId();
     if (!nodeId) return;
     
-    const currentNode = nodes()[nodeId];
-    if (!currentNode) return;
-    
-    const currentName = currentNode.name;
-    const newTitle = prompt("Enter new title:", currentName);
-    
-    if (newTitle && newTitle !== currentName) {
-      renameItemTitle(nodeId, newTitle, nodes(), setNodes)
-        .then((success) => {
-          if (!success) {
-            console.error(`Failed to rename item ${nodeId}`);
-          }
-        });
-    }
+    promptAndRenameItem(nodeId, nodes, setNodes)
+      .then((success) => {
+        if (!success) {
+          console.error(`Failed to rename item ${nodeId}`);
+        }
+      });
   }
 
   /**

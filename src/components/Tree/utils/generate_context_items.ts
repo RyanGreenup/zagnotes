@@ -17,7 +17,7 @@ import {
   moveItemToRoot,
   promoteItem,
 } from "~/lib/utils/folders";
-import { renameItemTitle } from "./rename_title";
+import { promptAndRenameItem } from "./rename_title";
 import { Accessor, Setter } from "solid-js";
 
 export function generateContextMenuItems(
@@ -138,20 +138,12 @@ export function generateContextMenuItems(
     {
       label: "Rename",
       action: (nodeId) => {
-        const currentNode = nodes()[nodeId];
-        if (!currentNode) return;
-        
-        const currentName = currentNode.name;
-        const newTitle = prompt("Enter new title:", currentName);
-        
-        if (newTitle && newTitle !== currentName) {
-          renameItemTitle(nodeId, newTitle, nodes(), setNodes)
-            .then((success) => {
-              if (!success) {
-                console.error(`Failed to rename item ${nodeId}`);
-              }
-            });
-        }
+        promptAndRenameItem(nodeId, nodes, setNodes)
+          .then((success) => {
+            if (!success) {
+              console.error(`Failed to rename item ${nodeId}`);
+            }
+          });
       },
     },
     {
