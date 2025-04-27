@@ -6,7 +6,7 @@ interface CardProps {
   subtitle?: JSX.Element;
   footer?: JSX.Element;
   class?: string;
-  variant?: "default" | "bordered" | "elevated";
+  variant?: "default" | "bordered" | "elevated" | "insights";
   padding?: "none" | "sm" | "md" | "lg";
   onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>;
 }
@@ -58,6 +58,11 @@ export default function Card(props: CardProps) {
       border: "none",
       boxShadow:
         "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+    },
+    insights: {
+      backgroundColor: "var(--color-base-200)",
+      border: "none",
+      boxShadow: "none",
     },
   };
 
