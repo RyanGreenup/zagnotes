@@ -31,6 +31,7 @@
     "marked-highlight": "^2.2.1",
     "marked-katex-extension": "^5.1.4",
     "solid-js": "^1.9.5",
+    "sqlite-vec": "0.1.7-alpha.2",
     "vinxi": "^0.5.3"
   },
   "devDependencies": {
