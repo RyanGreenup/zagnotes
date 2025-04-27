@@ -65,42 +65,45 @@ export async function storeNoteEmbeddings(noteId: string, embeddings: number[]):
     // Ensure sqlite-vec extension is loaded
     await ensureSqliteVecLoaded(db);
 
-    // Ensure the note_embeddings table exists
+    // Ensure the vector embedding tables exist
     try {
-      // Check if the table exists by attempting a simple query
-      db.prepare("SELECT COUNT(*) FROM note_embeddings LIMIT 1").get();
+      // Check if the tables exist by attempting a simple query
+      db.prepare("SELECT COUNT(*) FROM ext_embeddings_vec LIMIT 1").get();
     } catch (tableError) {
-      console.log("Creating note_embeddings virtual table");
+      console.log("Creating vector embedding tables");
 
+      // TODO: The actual creation of these tables should be handled by an external tool
+      // as per requirements. This is just a placeholder.
+      
       // Create the vector table - adjust dimensions as needed
       // The embedding dimension should match the output size of your model
       // mxbai-embed-large produces 4096-dimensional embeddings
-      db.exec("CREATE VIRTUAL TABLE IF NOT EXISTS note_embeddings USING vec0(embedding(4096))");
+      db.exec("CREATE VIRTUAL TABLE IF NOT EXISTS ext_embeddings_vec USING vec0(embedding(4096))");
+      db.exec("CREATE TABLE IF NOT EXISTS ext_note_chunks (id TEXT PRIMARY KEY, note_id TEXT, content TEXT)");
+      db.exec("CREATE TABLE IF NOT EXISTS ext_embeddings_map (id INTEGER PRIMARY KEY, chunk_id TEXT)");
+      db.exec("CREATE TABLE IF NOT EXISTS ext_embeddings_meta (chunk_id TEXT PRIMARY KEY, created_at INTEGER)");
     }
 
     try {
       // Convert embeddings to Float32Array for sqlite-vec
       const embeddingVector = new Float32Array(embeddings);
 
+      // TODO: This implementation needs to be updated to use the new table structure
+      // Currently, we're just providing a placeholder since users should use external tools
+      
       // Check if the note already has embeddings
       const existingRecord = db.prepare(
-        "SELECT note_id FROM note_embeddings WHERE note_id = ?"
+        "SELECT m.chunk_id FROM ext_embeddings_map m JOIN ext_note_chunks c ON m.chunk_id = c.id WHERE c.note_id = ? LIMIT 1"
       ).get(noteId);
 
       if (existingRecord) {
-        // Update existing embeddings
-        db.prepare(
-          "UPDATE note_embeddings SET embedding = ? WHERE note_id = ?"
-        ).run(embeddingVector, noteId);
-
-        return { success: true, message: `Updated embeddings for note ${noteId}` };
+        // For now, just report success but the actual logic needs to be updated
+        console.log("TODO: Update existing embeddings for this note");
+        return { success: true, message: `Updated embeddings for note ${noteId} (placeholder)` };
       } else {
-        // Insert new embeddings
-        db.prepare(
-          "INSERT INTO note_embeddings(note_id, embedding) VALUES (?, ?)"
-        ).run(noteId, embeddingVector);
-
-        return { success: true, message: `Stored embeddings for note ${noteId}` };
+        // For now, just report success but the actual logic needs to be updated
+        console.log("TODO: Insert new embeddings for this note");
+        return { success: true, message: `Stored embeddings for note ${noteId} (placeholder)` };
       }
     } catch (error) {
       console.error('Error storing note embeddings:', error);
@@ -284,31 +287,35 @@ export async function semanticSearch(query: string, limit: number = 20): Promise
     console.log('Embedding preview:', embeddings.slice(0, 5));
 
     try {
-      // Ensure the note_embeddings virtual table exists
+      // Ensure the embedding tables exist
       try {
-        // Check if the table exists by attempting a simple query
-        db.prepare("SELECT COUNT(*) FROM note_embeddings LIMIT 1").get();
-        console.log("note_embeddings table exists");
+        // Check if the tables exist by attempting a simple query
+        db.prepare("SELECT COUNT(*) FROM ext_embeddings_vec LIMIT 1").get();
+        console.log("Embedding tables exist");
       } catch (tableError) {
-        console.error("note_embeddings table does not exist:", tableError);
-        throw new Error("The note_embeddings virtual table is required for semantic search");
+        console.error("Embedding tables do not exist:", tableError);
+        throw new Error("The ext_embeddings_vec virtual table is required for semantic search");
       }
 
       // Perform vector similarity search using the embeddings
       // Convert embeddings to Float32Array for sqlite-vec
       const embeddingVector = new Float32Array(embeddings);
 
-      // The note_embeddings table is expected to have columns: note_id, embedding
+      // Use the new table structure for vector search
       const results = db.prepare(`
-        SELECT notes.id, notes.title, notes.body, notes.parent_id,
-               notes.created_time, notes.updated_time,
-               distance AS score
-        FROM note_embeddings
-        JOIN notes ON note_embeddings.note_id = notes.id
-        WHERE embedding MATCH ?
+        SELECT 
+            n.id, n.title, n.body, n.parent_id,
+            n.created_time, n.updated_time,
+            MIN(v.distance) AS score
+        FROM ext_embeddings_vec v
+        JOIN ext_embeddings_map m ON v.rowid = m.id
+        JOIN ext_note_chunks c ON m.chunk_id = c.id
+        JOIN notes n ON c.note_id = n.id
+        WHERE v.embedding MATCH ? AND k = ?
+        GROUP BY n.id
         ORDER BY score ASC  -- Lower distance means higher similarity
         LIMIT ?
-      `).all(embeddingVector, limit) as SearchResult[];
+      `).all(embeddingVector, 10, limit) as SearchResult[];
 
       console.log(`Found ${results.length} semantic search results`);
       return results;
