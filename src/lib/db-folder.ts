@@ -1,3 +1,4 @@
+"use server";
 /**
  * Folder operations module
  * Provides functions for working with folders

@@ -7,6 +7,7 @@ import {
   pasteCutItemIntoTarget,
   removeNodeFromUI,
 } from "./insert_item";
+import { promptAndRenameItem } from "./rename_title";
 import { NodeMap } from "./types";
 
 /**
@@ -54,6 +55,10 @@ export function createKeyboardHandlers(
     switch (e.key) {
       case "Delete":
         handleDeleteKeyEvent(e);
+        break;
+      case "F2":
+      case "r":
+        handleRenameEvent(e);
         break;
       case "0":
         moveNodeToRoot(e);
@@ -249,6 +254,22 @@ export function createKeyboardHandlers(
         }
       });
     }
+  }
+
+  /**
+   * Rename the currently focused node
+   */
+  function handleRenameEvent(e: KeyboardEvent): void {
+    e.preventDefault();
+    const nodeId = focusedId();
+    if (!nodeId) return;
+    
+    promptAndRenameItem(nodeId, nodes, setNodes)
+      .then((success) => {
+        if (!success) {
+          console.error(`Failed to rename item ${nodeId}`);
+        }
+      });
   }
 
   /**
