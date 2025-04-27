@@ -8,8 +8,7 @@ import {
   Suspense,
 } from "solid-js";
 import Card from "~/components/Card";
-import CodeMirrorNoteEditor from "~/components/CodeMirrorNoteEditor";
-import Preview from "~/components/Preview";
+import EditorWithPreview from "~/components/EditorWithPreview";
 import ToolbarButton from "~/components/ToolbarButton";
 
 /**
@@ -135,139 +134,29 @@ export default function DynamicIdPage() {
     );
   };
 
-  const SupsenseNoteEditor = () => {
-    /*
-       NOTE: Below CodeMirrorNoteEditor is used
-       This can be Changed to `<NoteEditor` freely in order
-       to fall back to a simpler `<textarea` component.
-    */
-    return (
-      <Suspense
-        fallback={<p class="text-neutral-500">Loading note content...</p>}
-      >
-        <CodeMirrorNoteEditor
-          content={editableContent}
-          setContent={setEditableContent}
-          placeholder=""
-        />
-        {/*
-          * This isn't needed, just refresh.
-        <ResetButton/>
-        */}
-      </Suspense>
-    );
-  };
-
-  const LivePreview = () => {
-    return (
-      <Suspense fallback={<p>Loading Preview</p>}>
-        <Preview content={editableContent} />
-      </Suspense>
-    );
-  };
-
   const ServerSidePreview = () => {
     return (
       <main class="container mx-auto px-4 py-6 w-full h-full">
-        <Suspense
-          fallback={<div class="p-4 animate-pulse">Loading preview...</div>}
-        >
-          <Preview content={noteBody} renderOnServer={true} />
+        <Suspense fallback={<div class="p-4 animate-pulse">Loading preview...</div>}>
+          <div class="markdown-preview prose max-w-none">
+            {noteBody()}
+          </div>
         </Suspense>
       </main>
     );
   };
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [activeMobileTab, setActiveMobileTab] = createSignal<"editor" | "preview">("editor");
+  const [searchParams] = useSearchParams();
 
   return (
     <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
-      <main class="container mx-auto px-2 py-1 w-full h-full">
-        {/* Mobile Tabs - Hidden on tablet/desktop (md and up) */}
-        <div class="flex md:hidden gap-2 mb-4 border-b border-base-300">
-          <button
-            class={`px-4 py-2 font-medium text-sm ${
-              activeMobileTab() === "editor"
-                ? "text-primary border-b-2 border-primary"
-                : "text-base-content/70"
-            }`}
-            onClick={() => setActiveMobileTab("editor")}
-          >
-            Editor
-          </button>
-          <button
-            class={`px-4 py-2 font-medium text-sm ${
-              activeMobileTab() === "preview"
-                ? "text-primary border-b-2 border-primary"
-                : "text-base-content/70"
-            }`}
-            onClick={() => setActiveMobileTab("preview")}
-          >
-            Preview
-          </button>
-        </div>
-
-        {/* Tablet/Desktop Split View - Hidden on mobile (below md) */}
-        <div class="hidden md:grid grid-cols-2 h-full w-full">
-          {/* Editor Panel */}
-          <div class="flex flex-col shadow-md overflow-hidden border border-base-300 w-full h-full">
-            <NoteToolbar />
-            <div class="flex-grow bg-base-200 overflow-hidden">
-              <Suspense
-                fallback={
-                  <div class="p-4 animate-pulse">Loading editor...</div>
-                }
-              >
-                <SupsenseNoteEditor />
-              </Suspense>
-            </div>
-          </div>
-
-          {/* Preview Panel */}
-          <div class="bg-base-200 shadow-md overflow-hidden border border-base-300 w-full h-full">
-            <div class="h-full overflow-auto">
-              <Suspense
-                fallback={
-                  <div class="p-4 animate-pulse">Rendering preview...</div>
-                }
-              >
-                <LivePreview />
-              </Suspense>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Content - Hidden on tablet/desktop (md and up) */}
-        <div class="md:hidden">
-          <Show when={activeMobileTab() === "editor"}>
-            <div class="flex flex-col shadow-md overflow-hidden border border-base-300 h-[calc(100vh-12rem)]">
-              <NoteToolbar />
-              <div class="flex-grow bg-base-200 overflow-hidden">
-                <Suspense
-                  fallback={
-                    <div class="p-4 animate-pulse">Loading editor...</div>
-                  }
-                >
-                  <SupsenseNoteEditor />
-                </Suspense>
-              </div>
-            </div>
-          </Show>
-
-          <Show when={activeMobileTab() === "preview"}>
-            <div class="bg-base-200 shadow-md overflow-hidden border border-base-300 h-[calc(100vh-12rem)]">
-              <div class="h-full overflow-auto">
-                <Suspense
-                  fallback={
-                    <div class="p-4 animate-pulse">Rendering preview...</div>
-                  }
-                >
-                  <LivePreview />
-                </Suspense>
-              </div>
-            </div>
-          </Show>
+      <main class="w-full h-full">
+        <div class="flex flex-col h-full">
+          <NoteToolbar />
+          <EditorWithPreview 
+            content={editableContent}
+            setContent={setEditableContent}
+          />
         </div>
       </main>
     </Show>
