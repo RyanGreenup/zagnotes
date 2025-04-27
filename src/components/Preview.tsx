@@ -18,14 +18,14 @@ interface PreviewProps {
 // Configure marked converter (shared between client and server)
 const configureMarked = () => {
   const marked = new Marked();
-  
+
   // Add a custom extension to handle the special link format
   marked.use({
     extensions: [{
       name: 'noteLink',
       level: 'inline',
       // Only match markdown links that start with :/
-      start(src) { 
+      start(src) {
         return src.match(/\[.*?\]\(\s*:\//)?.index;
       },
       tokenizer(src) {
@@ -49,7 +49,7 @@ const configureMarked = () => {
       }
     }]
   });
-  
+
   return marked
     .use(markedAlert())
     .use(extendedTables())
@@ -117,7 +117,7 @@ export default function Preview(props: PreviewProps) {
 
   return (
     <div
-      class="markdown-preview prose max-w-none h-full overflow-auto p-4 rounded-md bg-base-100 shadow-sm"
+      class="markdown-preview prose max-w-none h-full overflow-auto p-4 bg-base-100 shadow-sm"
       style={{
         "font-size": "var(--font-size-base)",
         "line-height": "var(--line-height-base)",

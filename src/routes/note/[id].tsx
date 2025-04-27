@@ -104,7 +104,7 @@ export default function DynamicIdPage() {
    */
   const NoteToolbar = () => {
     return (
-      <div class="bg-base-200 px-3 py-2 rounded-t-lg border-b border-base-300 flex justify-between items-center">
+      <div class="bg-base-200 px-3 py-2 border-b border-base-300 flex justify-between items-center">
         <div class="flex items-center space-x-2">
           <ToolbarButton onClick={resetTextBox}>
             <Undo class="w-4 h-4" />
@@ -182,7 +182,7 @@ export default function DynamicIdPage() {
 
   return (
     <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
-      <main class="container mx-auto px-2 py-2 max-w-7xl">
+      <main class="container mx-w-full px-2 py-1 max-w-7xl">
         <div class="grid grid-cols-1 lg:grid-cols-2 h-[calc(100vh-8rem)]">
           {/* Editor Panel */}
           <div class="flex flex-col shadow-md overflow-hidden border border-base-300">
