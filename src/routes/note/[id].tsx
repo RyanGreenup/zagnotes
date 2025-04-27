@@ -168,7 +168,7 @@ export default function DynamicIdPage() {
 
   const ServerSidePreview = () => {
     return (
-      <main class="container mx-auto px-4 py-6 max-w-7xl">
+      <main class="container mx-auto px-4 py-6 w-full">
         <Suspense
           fallback={<div class="p-4 animate-pulse">Loading preview...</div>}
         >
@@ -183,7 +183,7 @@ export default function DynamicIdPage() {
 
   return (
     <Show when={searchParams.edit} fallback={<ServerSidePreview />}>
-      <main class="container mx-w-full px-2 py-1 max-w-7xl">
+      <main class="container mx-auto px-2 py-1 w-full h-full">
         {/* Mobile Tabs - Hidden on tablet/desktop (md and up) */}
         <div class="flex md:hidden gap-2 mb-4 border-b border-base-300">
           <button
@@ -209,9 +209,9 @@ export default function DynamicIdPage() {
         </div>
 
         {/* Tablet/Desktop Split View - Hidden on mobile (below md) */}
-        <div class="hidden md:grid grid-cols-2 h-[calc(100vh-8rem)]">
+        <div class="hidden md:grid grid-cols-2 h-full w-full">
           {/* Editor Panel */}
-          <div class="flex flex-col shadow-md overflow-hidden border border-base-300">
+          <div class="flex flex-col shadow-md overflow-hidden border border-base-300 w-full h-full">
             <NoteToolbar />
             <div class="flex-grow bg-base-200 overflow-hidden">
               <Suspense
@@ -225,7 +225,7 @@ export default function DynamicIdPage() {
           </div>
 
           {/* Preview Panel */}
-          <div class="bg-base-200 shadow-md overflow-hidden border border-base-300">
+          <div class="bg-base-200 shadow-md overflow-hidden border border-base-300 w-full h-full">
             <div class="h-full overflow-auto">
               <Suspense
                 fallback={
