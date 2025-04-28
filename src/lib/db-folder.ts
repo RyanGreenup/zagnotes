@@ -6,6 +6,9 @@
  */
 import { getDbConnection } from "./db-connection";
 import { DbResponse, formatErrorResponse } from "./index";
+// server-side code
+import { createLogger } from "vite";
+const logger = createLogger();
 
 /**
  * Folder interface
@@ -31,9 +34,9 @@ export async function getAllFolders(): Promise<Folder[]> {
         "SELECT id, title, parent_id, created_time, updated_time FROM folders",
       )
       .all();
-    return folders;
+    return folders as Folder[];
   } catch (error) {
-    console.error("Error fetching folders:", error);
+    logger.error(`Error fetching folders: ${error}`);
     return [];
   }
 }
@@ -56,7 +59,7 @@ export async function getFolder(id: string): Promise<Folder | null> {
 
     return (folder as Folder) || null;
   } catch (error) {
-    console.error(`Error fetching folder ${id}:`, error);
+    logger.error(`Error fetching folder ${id}: ${error}`);
     return null;
   }
 }
@@ -86,7 +89,7 @@ export async function updateFolder(
 
     return { success: true, message: "Folder updated successfully" };
   } catch (error) {
-    console.error(`Error updating folder ${id}:`, error);
+    logger.error(`Error updating folder ${id}: ${error}`);
     return formatErrorResponse(error, "updating folder");
   }
 }
@@ -119,9 +122,8 @@ export async function moveFolder(
 
     return { success: true, message: "Folder updated successfully" };
   } catch (error) {
-    console.error(
-      `Error updating folder ${id} to parent id of ${target_parent_folder_id}:`,
-      error,
+    logger.error(
+      `Error updating folder ${id} to parent id of ${target_parent_folder_id}: ${error}`,
     );
     return formatErrorResponse(error, "updating folder");
   }
@@ -155,9 +157,8 @@ export async function moveNote(
 
     return { success: true, message: "Note Parent updated successfully" };
   } catch (error) {
-    console.error(
-      `Error updating note ${id} to parent id of ${target_parent_folder_id}:`,
-      error,
+    logger.error(
+      `Error updating note ${id} to parent id of ${target_parent_folder_id}: ${error}`,
     );
     return formatErrorResponse(error, "updating note");
   }
@@ -176,9 +177,14 @@ export async function isFolder(id: string): Promise<boolean> {
       .prepare("SELECT COUNT(id) as count FROM folders WHERE id = ?")
       .get(id);
 
-    return result && result.count === 1;
+    return (
+      result !== null &&
+      typeof result === "object" &&
+      "count" in result &&
+      result.count === 1
+    );
   } catch (error) {
-    console.error(`Error checking if ${id} is a folder:`, error);
+    logger.error(`Error checking if ${id} is a folder: ${error}`);
     return false;
   }
 }
@@ -196,9 +202,14 @@ export async function isNote(id: string): Promise<boolean> {
       .prepare("SELECT COUNT(id) as count FROM notes WHERE id = ?")
       .get(id);
 
-    return result && result.count === 1;
+    return (
+      result !== null &&
+      typeof result === "object" &&
+      "count" in result &&
+      result.count === 1
+    );
   } catch (error) {
-    console.error(`Error checking if ${id} is a note:`, error);
+    logger.error(`Error checking if ${id} is a note: ${error}`);
     return false;
   }
 }
@@ -246,14 +257,14 @@ export async function deleteFolder(
         // Recursively delete child folders
         const deleteChildFolders = db
           .prepare("SELECT id FROM folders WHERE parent_id = ?")
-          .all(id);
+          .all(id) as Array<{ id: string }>;
         for (const childFolder of deleteChildFolders) {
           // This is a simplification; a more robust implementation would use a CTE
           // to delete the entire subtree in one query
           const deleteRecursive = db.transaction((folderId) => {
             const grandchildren = db
               .prepare("SELECT id FROM folders WHERE parent_id = ?")
-              .all(folderId);
+              .all(folderId) as Array<{ id: string }>;
             db.prepare("DELETE FROM notes WHERE parent_id = ?").run(folderId);
             for (const grandchild of grandchildren) {
               deleteRecursive(grandchild.id);
@@ -274,7 +285,7 @@ export async function deleteFolder(
 
     return { success: true, message: "Folder deleted successfully" };
   } catch (error) {
-    console.error(`Error deleting folder ${id}:`, error);
+    logger.error(`Error deleting folder ${id}: ${error}`);
     return formatErrorResponse(error, "deleting folder");
   }
 }
