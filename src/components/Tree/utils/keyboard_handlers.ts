@@ -7,6 +7,7 @@ import {
   pasteCutItemIntoTarget,
   removeNodeFromUI,
   createNewNoteInTree,
+  createNewFolderInTree,
 } from "./insert_item";
 import { promptAndRenameItem } from "./rename_title";
 import { NodeMap } from "./types";
@@ -74,7 +75,14 @@ export function createKeyboardHandlers(
         handlePasteEvent(e);
         break;
       case "n":
-        handleNewNoteEvent(e);
+        if (e.shiftKey) {
+          handleNewFolderEvent(e);
+        } else {
+          handleNewNoteEvent(e);
+        }
+        break;
+      case "f":
+        handleNewFolderEvent(e);
         break;
       case "ArrowDown":
       case "j":
@@ -111,6 +119,22 @@ export function createKeyboardHandlers(
       .then((success) => {
         if (!success) {
           console.error(`Failed to create new note in ${nodeId}`);
+        }
+      });
+  }
+
+  /**
+   * Create a new folder in the focused folder
+   */
+  function handleNewFolderEvent(e: KeyboardEvent): void {
+    e.preventDefault();
+    const nodeId = focusedId();
+    if (!nodeId) return;
+
+    createNewFolderInTree(nodeId, nodes(), setNodes, setFocusedId)
+      .then((success) => {
+        if (!success) {
+          console.error(`Failed to create new folder in ${nodeId}`);
         }
       });
   }

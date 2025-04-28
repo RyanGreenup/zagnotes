@@ -1,9 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import type { ContextMenuItem } from "~/components/ContextMenu";
 import { isServer } from "solid-js/web";
-import { isFolder, toggleNode, getStoredExpanded, saveExpanded } from "./expand_and_collapse_item";
-import { createNewNote } from "~/lib/db-notes";
-import { createFolder } from "~/lib/db-folder";
+import { isFolder, toggleNode } from "./expand_and_collapse_item";
 import {
   insertItemIntoTree,
   moveNodeWithinTree,
@@ -12,6 +10,7 @@ import {
   type NodeMap,
   pasteCutItemIntoTarget,
   createNewNoteInTree,
+  createNewFolderInTree,
 } from "./insert_item";
 import {
   deleteItem,
@@ -55,57 +54,7 @@ export function generateContextMenuItems(
     {
       label: "New Folder",
       action: async (nodeId) => {
-        // Create a new folder in the selected folder
-        const defaultTitle = "New Folder";
-        const result = await createFolder(defaultTitle, nodeId);
-
-        if (result.success && result.folder) {
-          // Create a copy of the current nodes
-          const nodeMap = nodes();
-          const newNodes = { ...nodeMap };
-
-          // Get the parent folder node
-          const parentNode = nodeMap[nodeId];
-
-          if (parentNode) {
-            // Make sure parent is expanded
-            if (!parentNode.isExpanded) {
-              parentNode.isExpanded = true;
-              
-              // Update expanded state in localStorage
-              const expanded = getStoredExpanded();
-              expanded[nodeId] = true;
-              saveExpanded(expanded);
-            }
-
-            // Create a new tree node for the folder
-            const newFolderNode = {
-              id: result.folder.id,
-              name: defaultTitle,
-              type: "folder",
-              parent: nodeId,
-              depth: (parentNode.depth || 0) + 1,
-              children: [],
-              isExpanded: true  // New folders start expanded
-            };
-
-            // Insert the new folder into the tree
-            insertItemIntoTree(parentNode, newNodes, newFolderNode);
-
-            // Update the tree
-            setNodes(newNodes);
-
-            // Set focus to the new folder
-            setFocusedId(result.folder.id);
-            
-            // Make the new folder expanded by default
-            const expanded = getStoredExpanded();
-            expanded[result.folder.id] = true;
-            saveExpanded(expanded);
-          }
-        } else {
-          console.error(`Failed to create folder: ${result.message}`);
-        }
+        createNewFolderInTree(nodeId, nodes(), setNodes, setFocusedId);
       },
       separator: true,
     },
