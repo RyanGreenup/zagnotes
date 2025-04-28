@@ -23,7 +23,6 @@ export interface Folder {
  * @returns Array of all folders
  */
 export async function getAllFolders(): Promise<Folder[]> {
-  "use server";
   const db = await getDbConnection({ readonly: true });
 
   try {
