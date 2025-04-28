@@ -4,6 +4,8 @@
  */
 import { getDbConnection } from "./db-connection";
 import { DbResponse, formatErrorResponse } from "./index";
+// Import the necessary functions from the correct modules
+import { isFolder, isNote } from "~/lib/db-folder";
 
 /**
  * Note interface
@@ -204,10 +206,6 @@ export async function createNewNote(
 ): Promise<{ id: string } & DbResponse> {
   "use server";
   try {
-    // Import the necessary functions from the correct modules
-    const { createNote } = await import("~/lib/db-notes");
-    const { isFolder, isNote } = await import("~/lib/db-folder");
-
     // Determine the effective parent folder
     let effectiveParentId = parentId;
 
