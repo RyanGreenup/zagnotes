@@ -188,56 +188,36 @@ function cleanTree(node: any): TreeNode {
   }
 }
 
-/**
- * Create a new folder
- * @param title Folder title
- * @param parentId Parent folder ID (optional)
- * @returns The ID of the created folder
- */
-/**
- * Generate a UUID in the format used by the system
- * Creates a 32-character hexadecimal string without dashes
- * @returns A UUID string
- */
-function generateUuid(): string {
-  // Implementation of a simple UUID generator without external dependencies
-  const hex = '0123456789abcdef';
-  let uuid = '';
-  
-  // Generate 32 hex characters (128 bits)
-  for (let i = 0; i < 32; i++) {
-    uuid += hex[Math.floor(Math.random() * 16)];
-  }
-  
-  return uuid;
-}
+// NOTE: createFolder has been moved to db-folder.ts
+// Import it from there when needed
+import { createFolder as importedCreateFolder } from './db-folder';
 
+/**
+ * Re-export createFolder from db-folder for backward compatibility
+ * This ensures existing code doesn't break, but we should update references over time
+ * 
+ * @deprecated Use createFolder from db-folder.ts instead
+ */
 export async function createFolder(
   title: string,
   parentId?: string
 ): Promise<{ id: string } & DbResponse> {
-  const db = await getDbConnection();
-
-  try {
-    // Generate a UUID in the same format as notes
-    const id = generateUuid();
-
-    db.prepare(
-      `INSERT INTO folders (id, title, parent_id, created_time, updated_time) VALUES (?, ?, ?, strftime('%s', CURRENT_TIMESTAMP), strftime('%s', CURRENT_TIMESTAMP))`
-    ).run(id, title, parentId || null);
-
+  const result = await importedCreateFolder(title, parentId);
+  
+  // Convert the response format to match the old API
+  if (result.success && result.folder) {
     return {
-      id,
+      id: result.folder.id,
       success: true,
-      message: "Folder created successfully"
-    };
-  } catch (error) {
-    console.error('Error creating folder:', error);
-    return {
-      id: '',
-      ...formatErrorResponse(error, 'creating folder')
+      message: result.message
     };
   }
+  
+  return {
+    id: '',
+    success: false,
+    message: result.message
+  };
 }
 
 /**

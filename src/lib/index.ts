@@ -44,14 +44,14 @@ export {
   getAllFolders,
   getFolder,
   updateFolder,
-  deleteFolder
+  deleteFolder,
+  createFolder
 } from './db-folder';
 
 // Tree operations
 export {
   type TreeNode,
   getNoteTree,
-  createFolder,
   moveItem
 } from './db-tree';
 
