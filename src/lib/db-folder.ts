@@ -55,7 +55,7 @@ export async function getFolder(id: string): Promise<Folder | null> {
       )
       .get(id);
 
-    return folder || null;
+    return (folder as Folder) || null;
   } catch (error) {
     console.error(`Error fetching folder ${id}:`, error);
     return null;
