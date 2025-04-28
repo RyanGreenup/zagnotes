@@ -1,6 +1,7 @@
 import { Setter } from "solid-js";
 import type { DbResponse } from "~/lib";
 import { TreeNode, NodeMap } from "./types";
+import { createNewNote } from "~/lib/db-notes";
 
 export type SetterFunction<T> = (value: T) => void;
 
@@ -316,6 +317,69 @@ export async function promoteTreeItem(
     }
   } else {
     console.error(promotion_result.message);
+    return false;
+  }
+}
+
+/**
+ * Creates a new note in the specified folder and updates the tree UI
+ * 
+ * @param nodeId - ID of the parent folder
+ * @param nodes - Current node map
+ * @param setNodes - Function to update node state
+ * @param setFocusedId - Function to update the focused node
+ * @param navigate - Function to navigate to the new note
+ * @returns Promise that resolves to true if successful, false otherwise
+ */
+export async function createNewNoteInTree(
+  nodeId: string,
+  nodes: NodeMap,
+  setNodes: Setter<NodeMap>,
+  setFocusedId: Setter<string>,
+  navigate: (route: string) => void,
+): Promise<boolean> {
+  // Create a new note in the selected folder
+  const defaultTitle = "New Note";
+  const result = await createNewNote(defaultTitle, nodeId);
+
+  if (result.success) {
+    // Create a copy of the current nodes
+    const nodeMap = nodes;
+    const newNodes = { ...nodeMap };
+
+    // Get the parent folder node
+    const parentNode = nodeMap[nodeId];
+
+    if (parentNode) {
+      // Create a new tree node for the note
+      const newNoteNode = {
+        id: result.id,
+        name: defaultTitle,
+        type: "file",
+        parent: nodeId,
+        depth: (parentNode.depth || 0) + 1,
+      };
+
+      // Insert the new note into the tree
+      insertItemIntoTree(parentNode, newNodes, newNoteNode);
+
+      // Update the tree
+      setNodes(newNodes);
+
+      // Set focus to the new note
+      setFocusedId(result.id);
+
+      // Navigate to the new note
+      navigate(`/note/${result.id}`);
+      
+      return true;
+    } else {
+      // Just navigate if we can't update the tree
+      navigate(`/note/${result.id}`);
+      return true;
+    }
+  } else {
+    console.error(`Failed to create note: ${result.message}`);
     return false;
   }
 }
