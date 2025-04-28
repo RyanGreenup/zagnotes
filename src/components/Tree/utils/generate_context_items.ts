@@ -1,7 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import type { ContextMenuItem } from "~/components/ContextMenu";
 import { isServer } from "solid-js/web";
-import { isFolder, toggleNode } from "./expand_and_collapse_item";
+import { isFolder, toggleNode, getStoredExpanded, saveExpanded } from "./expand_and_collapse_item";
 import { createNewNote } from "~/lib/db-notes";
 import { createFolder } from "~/lib/db-folder";
 import {
@@ -106,6 +106,16 @@ export function generateContextMenuItems(
           const parentNode = nodeMap[nodeId];
 
           if (parentNode) {
+            // Make sure parent is expanded
+            if (!parentNode.isExpanded) {
+              parentNode.isExpanded = true;
+              
+              // Update expanded state in localStorage
+              const expanded = getStoredExpanded();
+              expanded[nodeId] = true;
+              saveExpanded(expanded);
+            }
+
             // Create a new tree node for the folder
             const newFolderNode = {
               id: result.folder.id,
@@ -113,7 +123,8 @@ export function generateContextMenuItems(
               type: "folder",
               parent: nodeId,
               depth: (parentNode.depth || 0) + 1,
-              children: []
+              children: [],
+              isExpanded: true  // New folders start expanded
             };
 
             // Insert the new folder into the tree
@@ -124,6 +135,11 @@ export function generateContextMenuItems(
 
             // Set focus to the new folder
             setFocusedId(result.folder.id);
+            
+            // Make the new folder expanded by default
+            const expanded = getStoredExpanded();
+            expanded[result.folder.id] = true;
+            saveExpanded(expanded);
           }
         } else {
           console.error(`Failed to create folder: ${result.message}`);

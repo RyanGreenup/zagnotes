@@ -111,7 +111,7 @@ export interface PromotionResult extends DbResponse {
 export async function promoteItem(id: string): Promise<PromotionResult> {
   // Import required functions dynamically to avoid circular dependencies
   const { isFolder, isNote, moveFolder, moveNote } = await import("~/lib/db-folder");
-  
+
   if (await isFolder(id)) {
     const parent_id = await getFolderParent(id);
     if (parent_id === null) {
@@ -205,7 +205,7 @@ export async function deleteItem(id: string): Promise<DbResponse> {
 
     // Check item type and delete accordingly
     if (await isFolder(id)) {
-      return await deleteFolder(id, false); // Non-recursive by default
+      return await deleteFolder(id, true); // Non-recursive by default
     } else if (await isNote(id)) {
       return await deleteNote(id);
     }
