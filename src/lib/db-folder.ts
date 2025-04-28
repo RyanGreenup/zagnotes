@@ -26,6 +26,7 @@ export interface Folder {
  * @returns Array of all folders
  */
 export async function getAllFolders(): Promise<Folder[]> {
+  // NOTE 'use server' here signifincantly slows down application
   const db = await getDbConnection({ readonly: true });
 
   try {
