@@ -1,5 +1,4 @@
 "use server";
-import { isFolder, isNote, moveFolder, moveNote } from "~/lib/db-folder";
 import { DbResponse, getDbConnection } from "..";
 import { getNoteParent } from "../db-notes";
 
@@ -10,6 +9,7 @@ export async function moveItem(
 ): Promise<DbResponse> {
   "use server";
   try {
+    // Import required functions dynamically to avoid circular dependencies
     const { moveNote, moveFolder, isFolder, isNote } = await import(
       "~/lib/db-folder"
     );
@@ -55,7 +55,7 @@ export async function moveItem(
 export async function moveItemToRoot(id: string): Promise<DbResponse> {
   "use server";
   try {
-    // Import required functions
+    // Import required functions dynamically to avoid circular dependencies
     const { moveFolder, isFolder, isNote } = await import("~/lib/db-folder");
 
     // Check item type and move it accordingly
@@ -109,6 +109,9 @@ export interface PromotionResult extends DbResponse {
 }
 
 export async function promoteItem(id: string): Promise<PromotionResult> {
+  // Import required functions dynamically to avoid circular dependencies
+  const { isFolder, isNote, moveFolder, moveNote } = await import("~/lib/db-folder");
+  
   if (await isFolder(id)) {
     const parent_id = await getFolderParent(id);
     if (parent_id === null) {
@@ -159,7 +162,7 @@ export async function promoteItem(id: string): Promise<PromotionResult> {
 export async function updateItemTitle(id: string, title: string): Promise<DbResponse> {
   "use server";
   try {
-    // Import required functions
+    // Import required functions dynamically to avoid circular dependencies
     const { updateFolder, isFolder, isNote } = await import("~/lib/db-folder");
     const { updateNoteTitle } = await import("~/lib/db-notes");
 
@@ -196,9 +199,9 @@ export async function updateItemTitle(id: string, title: string): Promise<DbResp
 export async function deleteItem(id: string): Promise<DbResponse> {
   "use server";
   try {
-    // Import required functions
+    // Import required functions dynamically to avoid circular dependencies
     const { deleteFolder, isFolder, isNote } = await import("~/lib/db-folder");
-    const { deleteNote } = await import("~/lib");
+    const { deleteNote } = await import("~/lib/db-notes");
 
     // Check item type and delete accordingly
     if (await isFolder(id)) {
