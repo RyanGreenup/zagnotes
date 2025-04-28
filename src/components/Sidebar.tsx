@@ -45,7 +45,7 @@ export default function Sidebar() {
         defaultValue={TabEnum.NOTE_TREE}
         class="flex flex-col h-full"
         onValueChange={(details: TabsValueChangeDetails) =>
-          setActiveTab(details.value)
+          setActiveTab(details.value as TabEnum)
         }
       >
         {/* Tabs List */}
@@ -108,7 +108,8 @@ export default function Sidebar() {
             </Show>
           </Tabs.Content>
           <Tabs.Content value={TabEnum.SEARCH}>
-            <Show when={activeTab() === TabEnum.SEARCH}>
+            {/* Always show the search bar otherwise the text and results will be lost*/}
+            <Show when={true}>
               <SearchBar />
             </Show>
           </Tabs.Content>
