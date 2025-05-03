@@ -257,10 +257,6 @@ a[href]:hover {
   background-color: transparent !important; /* Remove hljs background */
 }
 
-
-
-
-
 /* Base alert styles with theme-aware colors */
 .markdown-alert {
   position: relative;
@@ -270,7 +266,10 @@ a[href]:hover {
   border-style: solid;
   border-radius: var(--radius-box);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
   transition: all 0.2s ease;
 }
 
@@ -300,7 +299,11 @@ a[href]:hover {
 /* Note alert - Blue */
 .markdown-alert-note {
   border-color: var(--color-info);
-  background-color: color-mix(in oklab, var(--color-info) 10%, var(--color-base-100));
+  background-color: color-mix(
+    in oklab,
+    var(--color-info) 10%,
+    var(--color-base-100)
+  );
 }
 
 .markdown-alert-note .markdown-alert-title {
@@ -314,11 +317,19 @@ a[href]:hover {
 /* Warning alert - Yellow/Orange */
 .markdown-alert-warning {
   border-color: var(--color-warning);
-  background-color: color-mix(in oklab, var(--color-warning) 10%, var(--color-base-100));
+  background-color: color-mix(
+    in oklab,
+    var(--color-warning) 10%,
+    var(--color-base-100)
+  );
 }
 
 .markdown-alert-warning .markdown-alert-title {
-  color: color-mix(in oklab, var(--color-warning) 90%, var(--color-warning-content));
+  color: color-mix(
+    in oklab,
+    var(--color-warning) 90%,
+    var(--color-warning-content)
+  );
 }
 
 .markdown-alert-warning .octicon {
@@ -328,7 +339,11 @@ a[href]:hover {
 /* Important alert - Red */
 .markdown-alert-important {
   border-color: var(--color-error);
-  background-color: color-mix(in oklab, var(--color-error) 10%, var(--color-base-100));
+  background-color: color-mix(
+    in oklab,
+    var(--color-error) 10%,
+    var(--color-base-100)
+  );
 }
 
 .markdown-alert-important .markdown-alert-title {
@@ -342,7 +357,11 @@ a[href]:hover {
 /* Tip/Success alert - Green */
 .markdown-alert-tip {
   border-color: var(--color-success);
-  background-color: color-mix(in oklab, var(--color-success) 10%, var(--color-base-100));
+  background-color: color-mix(
+    in oklab,
+    var(--color-success) 10%,
+    var(--color-base-100)
+  );
 }
 
 .markdown-alert-tip .markdown-alert-title {
@@ -356,11 +375,19 @@ a[href]:hover {
 /* Caution alert - Orange */
 .markdown-alert-caution {
   border-color: var(--color-warning);
-  background-color: color-mix(in oklab, var(--color-warning) 10%, var(--color-base-100));
+  background-color: color-mix(
+    in oklab,
+    var(--color-warning) 10%,
+    var(--color-base-100)
+  );
 }
 
 .markdown-alert-caution .markdown-alert-title {
-  color: color-mix(in oklab, var(--color-warning) 90%, var(--color-warning-content));
+  color: color-mix(
+    in oklab,
+    var(--color-warning) 90%,
+    var(--color-warning-content)
+  );
 }
 
 .markdown-alert-caution .octicon {
@@ -374,4 +401,3 @@ a[href]:hover {
     margin: 1rem 0;
   }
 }
-

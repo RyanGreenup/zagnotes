@@ -1,4 +1,4 @@
-import { createSignal, JSX, Show, Suspense } from "solid-js";
+import { createSignal, JSX, onMount, Show, Suspense } from "solid-js";
 import { A, useLocation, useParams, useSearchParams } from "@solidjs/router";
 import {
   Menu,
@@ -8,7 +8,8 @@ import {
   FileEdit,
   Edit,
   NotebookIcon,
-  Home
+  Home,
+  SunDim,
 } from "lucide-solid";
 import IconWrapper from "./IconWrapper";
 import Button from "./Button";
@@ -147,6 +148,8 @@ function EditButton() {
  * @returns Navbar component
  */
 import { ChevronLeft } from "lucide-solid";
+import { toggleTheme } from "~/lib/utils/themes";
+
 
 export default function Navbar(props: {
   toggleSidebar: () => void;
@@ -161,6 +164,10 @@ export default function Navbar(props: {
   };
 
   const params = useParams();
+
+
+
+
 
   return (
     <>
@@ -207,13 +214,15 @@ export default function Navbar(props: {
             </Show>
           </div>
           <div class="flex items-center gap-1">
+            <button onclick={toggleTheme}>
+              <SunDim />
+            </button>
             <NavButton icon={Users} rounded="full" size="md" />
             <EditButton />
             <NavButton icon={MoreVertical} rounded="full" size="md" />
           </div>
         </div>
       </nav>
-
     </>
   );
 }
