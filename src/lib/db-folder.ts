@@ -216,6 +216,69 @@ export async function isNote(id: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Checks if an item is a tag
+ * @param id - UUID of item to check
+ * @returns Promise resolving to true if the item is a tag, false otherwise
+ */
+export async function isTag(id: string): Promise<boolean> {
+  const db = await getDbConnection({ readonly: true });
+
+  try {
+    const result = db
+      .prepare("SELECT COUNT(id) as count FROM tags WHERE id = ?")
+      .get(id);
+
+    return (
+      result !== null &&
+      typeof result === "object" &&
+      "count" in result &&
+      result.count === 1
+    );
+  } catch (error) {
+    logger.error(`Error checking if ${id} is a tag: ${error}`);
+    return false;
+  }
+}
+
+export enum DbItemType{
+    FOLDER= "folder",
+    NOTE = "note",
+    TAG = "tag",
+
+
+}
+
+export async function getType(id: string): Promise<DbItemType | null> {
+  try {
+    if (await isFolder(id)) {
+      return DbItemType.FOLDER;
+    }
+  } catch (e) {
+    console.log(`Unable to get type of ${id}: ${e}`);
+  }
+
+  try {
+    if (await isNote(id)) {
+      return DbItemType.NOTE;
+    }
+  } catch (e) {
+    console.log(`Unable to get type of ${id}: ${e}`);
+  }
+
+  try {
+    if (await isTag(id)) {
+      return DbItemType.TAG;
+    }
+  } catch (e) {
+    console.log(`Unable to get type of ${id}: ${e}`);
+  }
+
+  return null;
+
+}
+
 /**
  * Create a new folder
  * @param title Folder title
@@ -224,9 +287,9 @@ export async function isNote(id: string): Promise<boolean> {
  */
 export async function createFolder(
   title: string,
-  parentId?: string | null
+  parentId?: string | null,
 ): Promise<{ folder: Folder | null } & DbResponse> {
-    "use server";
+  "use server";
   const db = await getDbConnection();
 
   try {
@@ -235,7 +298,7 @@ export async function createFolder(
 
     db.prepare(
       `INSERT INTO folders (id, title, parent_id, created_time, updated_time)
-      VALUES (?, ?, ?, strftime('%s', CURRENT_TIMESTAMP), strftime('%s', CURRENT_TIMESTAMP))`
+      VALUES (?, ?, ?, strftime('%s', CURRENT_TIMESTAMP), strftime('%s', CURRENT_TIMESTAMP))`,
     ).run(id, title, parentId || null);
 
     // Return the newly created folder
@@ -244,13 +307,13 @@ export async function createFolder(
     return {
       folder,
       success: true,
-      message: "Folder created successfully"
+      message: "Folder created successfully",
     };
   } catch (error) {
     logger.error(`Error creating folder: ${error}`);
     return {
       folder: null,
-      ...formatErrorResponse(error, "creating folder")
+      ...formatErrorResponse(error, "creating folder"),
     };
   }
 }
@@ -311,22 +374,24 @@ export async function deleteFolder(
           .all(id) as Array<{ id: string }>;
 
         // Extract just the IDs
-        const folderIds = descendantFolders.map(folder => folder.id);
+        const folderIds = descendantFolders.map((folder) => folder.id);
 
         // First delete all notes in any of these folders
         // Create a parameterized query with the right number of placeholders
-        const placeholders = folderIds.map(() => '?').join(',');
+        const placeholders = folderIds.map(() => "?").join(",");
 
         if (folderIds.length > 0) {
           // Delete notes first (foreign key constraint)
-          db.prepare(`DELETE FROM notes WHERE parent_id IN (${placeholders})`)
-            .run(...folderIds);
+          db.prepare(
+            `DELETE FROM notes WHERE parent_id IN (${placeholders})`,
+          ).run(...folderIds);
 
           // Delete folders in reverse hierarchical order (children before parents)
           // The recursive CTE query returns them in an order where parents come before children,
           // so we need to process them in reverse to delete children first
           for (let i = folderIds.length - 1; i >= 0; i--) {
-            if (folderIds[i] !== id) { // Skip the target folder as we'll delete it last
+            if (folderIds[i] !== id) {
+              // Skip the target folder as we'll delete it last
               db.prepare("DELETE FROM folders WHERE id = ?").run(folderIds[i]);
             }
           }
