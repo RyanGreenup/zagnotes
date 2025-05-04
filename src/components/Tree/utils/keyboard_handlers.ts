@@ -1,6 +1,6 @@
 import { TreeNode } from "@ark-ui/solid";
 import { Accessor, Setter } from "solid-js";
-import { DbResponse } from "~/lib";
+import { DbResponse } from "~/lib/db/types/response";
 import { isFolder, toggleNode } from "./expand_and_collapse_item";
 import {
   moveNodeWithinTree,

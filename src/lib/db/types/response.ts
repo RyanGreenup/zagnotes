@@ -1,18 +1,9 @@
-import { Note } from "../notes/db-notes";
-
 /**
  * Standard response format for database operations
  */
 export interface DbResponse {
   success: boolean;
   message: string;
-}
-
-/**
- * Search result interface
- */
-export interface SearchResult extends Note {
-  score: number;
 }
 
 /**
@@ -25,6 +16,13 @@ export interface Note {
   parent_id?: string | null;
   created_time?: string;
   updated_time?: string;
+}
+
+/**
+ * Search result interface
+ */
+export interface SearchResult extends Note {
+  score: number;
 }
 
 

@@ -1,5 +1,5 @@
 import { Setter } from "solid-js";
-import type { DbResponse } from "~/lib";
+import type { DbResponse } from "~/lib/db/types/response";
 import { TreeNode, NodeMap } from "./types";
 import { getStoredExpanded, saveExpanded } from "./expand_and_collapse_item";
 
@@ -340,7 +340,7 @@ export async function createNewNoteInTree(
 ): Promise<boolean> {
   try {
     // Import the createNewNote function dynamically to avoid circular dependencies
-    const { createNewNote } = await import("~/lib/db-notes");
+    const { createNewNote } = await import("~/lib/db/notes/create");
     
     // Create a new note in the selected folder
     const defaultTitle = "New Note";
@@ -409,7 +409,7 @@ export async function createNewFolderInTree(
 ): Promise<boolean> {
   try {
     // Import the createFolder function dynamically to avoid circular dependencies
-    const { createFolder } = await import("~/lib/db-folder");
+    const { createFolder } = await import("~/lib/db/folders/create");
     
     // Create a new folder in the selected folder
     const defaultTitle = "New Folder";

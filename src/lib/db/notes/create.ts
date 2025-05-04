@@ -1,5 +1,5 @@
 import { getDbConnection } from "../db-connection";
-import { isFolder, isNote } from "../folders/db-folder";
+import { isFolder, isNote } from "../utils/check_types";
 import { DbResponse } from "../types/response";
 import { formatErrorResponse } from "../utils/errors";
 import { generateNoteUuid } from "../utils/generate-uuid";

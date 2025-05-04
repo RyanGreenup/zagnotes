@@ -1,5 +1,5 @@
 import { getDbConnection } from "../db-connection";
-import { Note } from "./db-notes";
+import { Note } from "../types/response";
 
 /**
  * Get a note by ID with full metadata

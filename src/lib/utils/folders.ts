@@ -1,6 +1,7 @@
 "use server";
-import { DbResponse, getDbConnection } from "..";
-import { getNoteParent } from "../db-notes";
+import { DbResponse } from "../db/types/response";
+import { getDbConnection } from "../db/db-connection";
+import { getNoteParent } from "../db/notes/read";
 
 // Moves a note or a folder underneath a folder in the database representation
 export async function moveItem(
@@ -10,9 +11,8 @@ export async function moveItem(
   "use server";
   try {
     // Import required functions dynamically to avoid circular dependencies
-    const { moveNote, moveFolder, isFolder, isNote } = await import(
-      "~/lib/db-folder"
-    );
+    const { moveNote, moveFolder } = await import("~/lib/db/folders/update");
+    const { isFolder, isNote } = await import("~/lib/db/utils/check_types");
 
     // Validate that target is a folder
     if (!(await isFolder(targetParentId))) {
@@ -56,7 +56,8 @@ export async function moveItemToRoot(id: string): Promise<DbResponse> {
   "use server";
   try {
     // Import required functions dynamically to avoid circular dependencies
-    const { moveFolder, isFolder, isNote } = await import("~/lib/db-folder");
+    const { moveFolder } = await import("~/lib/db/folders/update");
+    const { isFolder, isNote } = await import("~/lib/db/utils/check_types");
 
     // Check item type and move it accordingly
     if (await isFolder(id)) {
@@ -110,7 +111,8 @@ export interface PromotionResult extends DbResponse {
 
 export async function promoteItem(id: string): Promise<PromotionResult> {
   // Import required functions dynamically to avoid circular dependencies
-  const { isFolder, isNote, moveFolder, moveNote } = await import("~/lib/db-folder");
+  const { moveFolder, moveNote } = await import("~/lib/db/folders/update");
+  const { isFolder, isNote } = await import("~/lib/db/utils/check_types");
 
   if (await isFolder(id)) {
     const parent_id = await getFolderParent(id);
@@ -163,8 +165,9 @@ export async function updateItemTitle(id: string, title: string): Promise<DbResp
   "use server";
   try {
     // Import required functions dynamically to avoid circular dependencies
-    const { updateFolder, isFolder, isNote } = await import("~/lib/db-folder");
-    const { updateNoteTitle } = await import("~/lib/db-notes");
+    const { updateFolder } = await import("~/lib/db/folders/update");
+    const { isFolder, isNote } = await import("~/lib/db/utils/check_types");
+    const { updateNoteTitle } = await import("~/lib/db/notes/update");
 
     // Check item type and update accordingly
     if (await isFolder(id)) {
@@ -200,8 +203,9 @@ export async function deleteItem(id: string): Promise<DbResponse> {
   "use server";
   try {
     // Import required functions dynamically to avoid circular dependencies
-    const { deleteFolder, isFolder, isNote } = await import("~/lib/db-folder");
-    const { deleteNote } = await import("~/lib/db-notes");
+    const { deleteFolder } = await import("~/lib/db/folders/delete");
+    const { isFolder, isNote } = await import("~/lib/db/utils/check_types");
+    const { deleteNote } = await import("~/lib/db/notes/delete");
 
     // Check item type and delete accordingly
     if (await isFolder(id)) {

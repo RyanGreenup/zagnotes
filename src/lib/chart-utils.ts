@@ -1,4 +1,4 @@
-import type { SearchResult } from "./db-notes";
+import type { SearchResult } from "./db/types/response";
 
 /**
  * Generates chart colors with consistent opacity

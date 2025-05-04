@@ -21,7 +21,7 @@ async function getNoteBody(id: string) {
   "use server";
 
   try {
-    const { getNote } = await import("~/lib/db");
+    const { getNote } = await import("~/lib/db/db");
     const note = await getNote(id);
 
     // Return the note body or a default message if not found
@@ -46,7 +46,7 @@ async function saveNoteBody(id: string, content: string) {
   "use server";
 
   try {
-    const { saveNote } = await import("~/lib/db");
+    const { saveNote } = await import("~/lib/db/db");
     return await saveNote(id, content);
   } catch (error) {
     console.error("Error saving note:", error);

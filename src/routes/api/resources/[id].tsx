@@ -1,5 +1,5 @@
 import type { APIEvent } from "@solidjs/start/server";
-import { getResourceFile } from "~/lib/db-resources";
+import { getResourceFile } from "~/lib/db/resources/db-resources";
 
 /**
  * Serve resource files with optimized caching

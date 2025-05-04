@@ -1,6 +1,6 @@
 import { createEffect, onCleanup, onMount } from "solid-js";
 import Chart from "chart.js/auto";
-import type { SearchResult } from "~/lib/db-notes";
+import type { SearchResult } from "~/lib/db/types/response";
 import { generateChartColors, getSearchAnalytics } from "~/lib/chart-utils";
 import Card from "./Card";
 

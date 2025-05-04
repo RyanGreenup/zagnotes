@@ -1,6 +1,6 @@
 import { FileStack } from "lucide-solid";
 import { useNavigate } from "@solidjs/router";
-import type { SearchResult } from "~/lib/db-notes";
+import type { SearchResult } from "~/lib/db/types/response";
 import { GenericList } from "./GenericList";
 import { calculateRelevancePercentage } from "~/lib/chart-utils";
 

@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import type { SearchResult } from "~/lib/db-notes";
+import type { SearchResult } from "~/lib/db/types/response";
 import { getSearchAnalytics } from "~/lib/chart-utils";
 import Card from "./Card";
 

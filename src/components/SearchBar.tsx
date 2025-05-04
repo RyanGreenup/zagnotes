@@ -1,8 +1,8 @@
 import { RefreshCw } from "lucide-solid";
 import { Accessor, createSignal, mergeProps, Setter, Show } from "solid-js";
-import type { SearchResult } from "~/lib/db-notes";
-import { searchNotes } from "~/lib/db-notes";
-import { semanticSearch } from "~/lib/embeddings";
+import type { SearchResult } from "~/lib/db/types/response";
+import { searchNotes } from "~/lib/db/search/search";
+import { semanticSearch } from "~/lib/db/embeddings/search";
 import SearchChart from "./SearchChart";
 import SearchInsights from "./SearchInsights";
 import SearchResults from "./SearchResults";
@@ -41,7 +41,7 @@ async function handleRebuildIndex(
     setIsLoading(true);
 
     // Import the rebuildSemanticSearchIndex function
-    const { rebuildSemanticSearchIndex } = await import("~/lib/embeddings");
+    const { rebuildSemanticSearchIndex } = await import("~/lib/db/embeddings/update");
 
     // Start the rebuild process
     const result = await rebuildSemanticSearchIndex();

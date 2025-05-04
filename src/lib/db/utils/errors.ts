@@ -1,3 +1,4 @@
+import { DbResponse } from "../types/response";
 
 /**
  * Format an error into a standard error response

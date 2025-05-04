@@ -3,7 +3,8 @@
  * Provides functions for interacting with individual notes
  */
 import { getDbConnection } from "./db-connection";
-import { DbResponse, formatErrorResponse } from "../index";
+import { DbResponse } from "./types/response";
+import { formatErrorResponse } from "./utils/errors";
 import { DbNote } from "../types";
 
 /**
