@@ -7,11 +7,11 @@ import {
   moveNodeWithinTree,
   removeNodeFromUI,
   promoteTreeItem,
-  type NodeMap,
   pasteCutItemIntoTarget,
   createNewNoteInTree,
   createNewFolderInTree,
 } from "./insert_item";
+import { NodeMap } from "./types";
 import {
   deleteItem,
   moveItem,
