@@ -4,6 +4,7 @@
  */
 import { getDbConnection } from "./db-connection";
 import { DbResponse, formatErrorResponse } from "./index";
+import { DbNote } from "./types";
 
 /**
  * Get a note by ID
@@ -19,7 +20,7 @@ export async function getNote(
     // Get note content with title if available
     const note = db
       .prepare("SELECT body, title FROM notes WHERE id = ?")
-      .get(id);
+      .get(id) as { body: string; title?: string } | undefined;
     return note || null;
   } catch (error) {
     console.error(`Error fetching note ${id}:`, error);
