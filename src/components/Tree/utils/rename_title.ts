@@ -1,6 +1,6 @@
 
 import { updateItemTitle } from "~/lib/utils/folders";
-import { type NodeMap } from "./insert_item";
+import { type NodeMap } from "./types";
 import { Accessor, Setter } from "solid-js";
 
 /**
