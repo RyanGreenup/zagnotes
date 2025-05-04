@@ -4,6 +4,7 @@
  */
 import { getDbConnection } from './db-connection';
 import { DbResponse, formatErrorResponse } from './index';
+import { DbFolder } from './types';
 
 /**
  * Tree node interface
@@ -259,7 +260,7 @@ export async function moveItem(
           visited.add(currentParentId);
 
           // Get the parent of the current parent
-          const parentFolder = db.prepare('SELECT parent_id FROM folders WHERE id = ?').get(currentParentId);
+          const parentFolder = db.prepare('SELECT parent_id FROM folders WHERE id = ?').get(currentParentId) as DbFolder;
           if (!parentFolder || !parentFolder.parent_id) break;
 
           currentParentId = parentFolder.parent_id;
