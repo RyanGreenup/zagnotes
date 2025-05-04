@@ -8,9 +8,7 @@
 import { getDbConnection } from "./db-connection";
 import { DbResponse, formatErrorResponse } from "./index";
 // server-side code
-import { createLogger } from "vite";
 import crypto from "crypto";
-const logger = createLogger();
 
 /**
  * Folder interface
@@ -39,7 +37,7 @@ export async function getAllFolders(): Promise<Folder[]> {
       .all();
     return folders as Folder[];
   } catch (error) {
-    logger.error(`Error fetching folders: ${error}`);
+    console.error(`Error fetching folders: ${error}`);
     return [];
   }
 }
@@ -62,7 +60,7 @@ export async function getFolder(id: string): Promise<Folder | null> {
 
     return (folder as Folder) || null;
   } catch (error) {
-    logger.error(`Error fetching folder ${id}: ${error}`);
+    console.error(`Error fetching folder ${id}: ${error}`);
     return null;
   }
 }
@@ -92,7 +90,7 @@ export async function updateFolder(
 
     return { success: true, message: "Folder updated successfully" };
   } catch (error) {
-    logger.error(`Error updating folder ${id}: ${error}`);
+    console.error(`Error updating folder ${id}: ${error}`);
     return formatErrorResponse(error, "updating folder");
   }
 }
@@ -125,7 +123,7 @@ export async function moveFolder(
 
     return { success: true, message: "Folder updated successfully" };
   } catch (error) {
-    logger.error(
+    console.error(
       `Error updating folder ${id} to parent id of ${target_parent_folder_id}: ${error}`,
     );
     return formatErrorResponse(error, "updating folder");
@@ -160,7 +158,7 @@ export async function moveNote(
 
     return { success: true, message: "Note Parent updated successfully" };
   } catch (error) {
-    logger.error(
+    console.error(
       `Error updating note ${id} to parent id of ${target_parent_folder_id}: ${error}`,
     );
     return formatErrorResponse(error, "updating note");
@@ -187,7 +185,7 @@ export async function isFolder(id: string): Promise<boolean> {
       result.count === 1
     );
   } catch (error) {
-    logger.error(`Error checking if ${id} is a folder: ${error}`);
+    console.error(`Error checking if ${id} is a folder: ${error}`);
     return false;
   }
 }
