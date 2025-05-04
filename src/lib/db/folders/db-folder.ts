@@ -5,7 +5,7 @@
  * Folder operations module
  * Provides functions for working with folders
  */
-import { getDbConnection } from "./db-connection";
+import { getDbConnection } from "../db-connection";
 import { DbResponse, formatErrorResponse } from "./index";
 // server-side code
 import crypto from "crypto";

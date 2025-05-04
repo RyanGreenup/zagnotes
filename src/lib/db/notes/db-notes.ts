@@ -2,7 +2,7 @@
  * Notes operations module
  * Provides functions for working with notes
  */
-import { getDbConnection } from "./db-connection";
+import { getDbConnection } from "../db-connection";
 import { DbResponse, formatErrorResponse } from "./index";
 // Import the necessary functions from the correct modules
 import { isFolder, isNote } from "~/lib/db-folder";

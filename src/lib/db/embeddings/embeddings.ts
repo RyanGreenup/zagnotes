@@ -1,7 +1,7 @@
 "use server";
-import type { Note } from './db-notes';
-import { getDbConnection } from './db-connection';
-import type { SearchResult } from './db-notes';
+import type { Note } from '../notes/db-notes';
+import { getDbConnection } from '../db-connection';
+import type { SearchResult } from '../notes/db-notes';
 import * as sqliteVec from "sqlite-vec";
 import type { Database } from 'better-sqlite3';
 
@@ -133,7 +133,7 @@ export async function getTextEmbeddings(text: string): Promise<number[]> {
 export async function indexNoteForSemanticSearch(noteId: string): Promise<{ success: boolean; message: string }> {
   try {
     // Get the note from the database
-    const { getNote } = await import("./db");
+    const { getNote } = await import("../db");
     const note = await getNote(noteId);
 
     if (!note) {
@@ -172,7 +172,7 @@ export async function rebuildSemanticSearchIndex(): Promise<{
     console.log("Starting semantic search index rebuild");
     
     // Get all notes from the database
-    const { getAllNotes } = await import("./db-notes");
+    const { getAllNotes } = await import("../notes/db-notes");
     const notes = await getAllNotes();
     
     const totalNotes = notes.length;

@@ -2,9 +2,9 @@
  * Tree operations module
  * Provides functions for working with hierarchical note/folder structure
  */
-import { getDbConnection } from './db-connection';
-import { DbResponse, formatErrorResponse } from './index';
-import { DbFolder } from './types';
+import { getDbConnection } from '../db-connection';
+import { DbResponse, formatErrorResponse } from '../../index';
+import { DbFolder } from '../../types';
 
 /**
  * Tree node interface
@@ -191,7 +191,7 @@ function cleanTree(node: any): TreeNode {
 
 // NOTE: createFolder has been moved to db-folder.ts
 // Import it from there when needed
-import { createFolder as importedCreateFolder } from './db-folder';
+import { createFolder as importedCreateFolder } from '../db-folder';
 
 /**
  * Re-export createFolder from db-folder for backward compatibility

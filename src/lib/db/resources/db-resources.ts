@@ -1,7 +1,7 @@
 /**
  * Database functions for handling resources like images
  */
-import { getDbConnection } from "./db-connection";
+import { getDbConnection } from "../db-connection";
 import fs from "fs";
 import path from "path";
 

@@ -30,7 +30,7 @@ export {
   closeDbConnection, 
   getDbStatus, 
   initializeDbSchema 
-} from './db-connection';
+} from './db/db-connection';
 
 // Note operations
 export { 
@@ -53,7 +53,7 @@ export {
   type TreeNode,
   getNoteTree,
   moveItem
-} from './db-tree';
+} from './db/note-tree/db-tree';
 
 // Note operations
 export {
