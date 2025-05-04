@@ -33,6 +33,36 @@ interface SearchBarProps {
   showChart?: boolean;
 }
 
+async function handleRebuildIndex(
+  callback: () => void,
+  setIsLoading: Setter<boolean>,
+) {
+  try {
+    setIsLoading(true);
+
+    // Import the rebuildSemanticSearchIndex function
+    const { rebuildSemanticSearchIndex } = await import("~/lib/embeddings");
+
+    // Start the rebuild process
+    const result = await rebuildSemanticSearchIndex();
+
+    // Show the result to the user
+    if (result.success) {
+      alert(`Semantic search index rebuilt successfully!\n${result.message}`);
+    } else {
+      alert(`Semantic search index rebuild had issues.\n${result.message}`);
+    }
+  } catch (error) {
+    console.error("Error rebuilding index:", error);
+    alert(
+      `Failed to rebuild semantic search index: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  } finally {
+    setIsLoading(false);
+    callback();
+  }
+}
+
 export default function SearchBar(props: SearchBarProps = { showChart: true }) {
   const [query, setQuery] = createSignal("");
   const [results, setResults] = createSignal<SearchResult[]>([]);
@@ -42,33 +72,6 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
     number | undefined
   >(undefined);
   const mergedProps = mergeProps({ showChart: true }, props);
-
-  const handleRebuildIndex = async (callback: () => void) => {
-    try {
-      setIsLoading(true);
-
-      // Import the rebuildSemanticSearchIndex function
-      const { rebuildSemanticSearchIndex } = await import("~/lib/embeddings");
-
-      // Start the rebuild process
-      const result = await rebuildSemanticSearchIndex();
-
-      // Show the result to the user
-      if (result.success) {
-        alert(`Semantic search index rebuilt successfully!\n${result.message}`);
-      } else {
-        alert(`Semantic search index rebuild had issues.\n${result.message}`);
-      }
-    } catch (error) {
-      console.error("Error rebuilding index:", error);
-      alert(
-        `Failed to rebuild semantic search index: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    } finally {
-      setIsLoading(false);
-      callback();
-    }
-  };
 
   const performSearch = async (
     searchQuery: string,
@@ -168,6 +171,7 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
           searchMode={searchMode}
           searchModes={SEARCH_MODES}
           handleModeChange={handleModeChange}
+          setIsLoading={setIsLoading}
         />
       </div>
 
@@ -193,6 +197,7 @@ interface SearchSelectorProps {
   searchModes: SearchModeOption[];
   searchMode: Accessor<SearchMode>;
   handleModeChange: (mode: SearchMode) => void;
+  setIsLoading: Setter<boolean>;
 }
 
 function SearchSelector(props: SearchSelectorProps) {
@@ -219,7 +224,7 @@ function SearchSelector(props: SearchSelectorProps) {
             ) {
               handleRebuildIndex(() => {
                 console.log("Rebuild index operation completed");
-              });
+              }, props.setIsLoading);
             }
           }}
         />
