@@ -1,3 +1,4 @@
+"use server";
 /**
  * Core database connection module
  * Provides singleton connection management

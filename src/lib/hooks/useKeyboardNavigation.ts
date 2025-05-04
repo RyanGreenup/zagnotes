@@ -1,4 +1,3 @@
-"use client";
 
 import { Accessor, Setter, createEffect, onCleanup, onMount } from "solid-js";
 
@@ -7,32 +6,32 @@ export interface KeyboardNavigationOptions<T> {
    * Array of items that can be navigated
    */
   items: Accessor<T[]>;
-  
+
   /**
    * Current selected index
    */
   selectedIndex: Accessor<number>;
-  
+
   /**
    * Function to set the selected index
    */
   setSelectedIndex: Setter<number>;
-  
+
   /**
    * Optional callback when an item is selected (e.g., via Enter key)
    */
   onSelect?: (item: T, index: number) => void;
-  
+
   /**
    * Element that should receive keyboard events (defaults to document)
    */
   containerRef?: HTMLElement | null;
-  
+
   /**
    * Optional condition to determine if keyboard navigation is active
    */
   isActive?: Accessor<boolean>;
-  
+
   /**
    * Keys that move the selection up/down (defaults to ArrowUp/ArrowDown and k/j)
    */
@@ -41,7 +40,7 @@ export interface KeyboardNavigationOptions<T> {
     down: string[];
     select: string[];
   };
-  
+
   /**
    * Whether to wrap around at the beginning/end of the list
    */
@@ -69,7 +68,7 @@ export function useKeyboardNavigation<T>({
   const handleKeyDown = (e: KeyboardEvent) => {
     // Only handle events when active
     if (!isActive()) return;
-    
+
     // Check if the key matches any navigation keys
     if (navigationKeys.up.includes(e.key)) {
       e.preventDefault();
@@ -86,12 +85,12 @@ export function useKeyboardNavigation<T>({
       }
     }
   };
-  
+
   // Navigate to previous item
   const navigateUp = () => {
     const currentItems = items();
     if (currentItems.length === 0) return;
-    
+
     setSelectedIndex(prev => {
       if (prev <= 0) {
         return wrapAround ? currentItems.length - 1 : 0;
@@ -99,12 +98,12 @@ export function useKeyboardNavigation<T>({
       return prev - 1;
     });
   };
-  
+
   // Navigate to next item
   const navigateDown = () => {
     const currentItems = items();
     if (currentItems.length === 0) return;
-    
+
     setSelectedIndex(prev => {
       if (prev >= currentItems.length - 1) {
         return wrapAround ? 0 : currentItems.length - 1;
@@ -112,17 +111,17 @@ export function useKeyboardNavigation<T>({
       return prev + 1;
     });
   };
-  
+
   // Effect to attach keyboard listeners
   onMount(() => {
     const targetElement = containerRef || document;
     targetElement.addEventListener('keydown', handleKeyDown as EventListener);
-    
+
     onCleanup(() => {
       targetElement.removeEventListener('keydown', handleKeyDown as EventListener);
     });
   });
-  
+
   // Reset selected index if items change
   createEffect(() => {
     const currentItems = items();
@@ -130,7 +129,7 @@ export function useKeyboardNavigation<T>({
       setSelectedIndex(0);
     }
   });
-  
+
   // Return navigation functions for external use
   return {
     navigateUp,
