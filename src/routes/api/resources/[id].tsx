@@ -1,4 +1,4 @@
-import { APIEvent } from "solid-start/api";
+import type { APIEvent } from "@solidjs/start/server";
 import { getResourceFile } from "~/lib/db-resources";
 
 /**
