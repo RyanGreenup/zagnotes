@@ -6,7 +6,7 @@ import { Folder } from "../types/response";
  * @returns Array of all folders
  */
 export async function getAllFolders(): Promise<Folder[]> {
-  // NOTE 'use server' here signifincantly slows down application
+  "use server";
   const db = await getDbConnection({ readonly: true });
 
   try {
@@ -28,7 +28,7 @@ export async function getAllFolders(): Promise<Folder[]> {
  * @returns Folder object or null if not found
  */
 export async function getFolder(id: string): Promise<Folder | null> {
-  // TODO the use server is broken in this function I think.
+  "use server";
   const db = await getDbConnection({ readonly: true });
 
   try {

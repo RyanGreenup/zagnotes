@@ -6,6 +6,7 @@ import { getDbConnection } from "../db-connection";
  * @returns Promise resolving to true if the item is a folder, false otherwise
  */
 export async function isFolder(id: string): Promise<boolean> {
+  "use server";
   const db = await getDbConnection({ readonly: true });
 
   try {
@@ -31,6 +32,7 @@ export async function isFolder(id: string): Promise<boolean> {
  * @returns Promise resolving to true if the item is a note, false otherwise
  */
 export async function isNote(id: string): Promise<boolean> {
+  "use server";
   const db = await getDbConnection({ readonly: true });
 
   try {
@@ -56,6 +58,7 @@ export async function isNote(id: string): Promise<boolean> {
  * @returns Promise resolving to true if the item is a tag, false otherwise
  */
 export async function isTag(id: string): Promise<boolean> {
+  "use server";
   const db = await getDbConnection({ readonly: true });
 
   try {
@@ -84,6 +87,7 @@ export enum DbItemType{
 }
 
 export async function getType(id: string): Promise<DbItemType | null> {
+  "use server";
   try {
     if (await isFolder(id)) {
       return DbItemType.FOLDER;

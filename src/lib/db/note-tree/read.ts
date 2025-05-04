@@ -6,6 +6,7 @@ import { getDbConnection } from "../db-connection";
  * @returns The hierarchical tree structure
  */
 export async function getNoteTree(): Promise<TreeNode> {
+  "use server";
   const db = await getDbConnection({ readonly: true });
 
   try {

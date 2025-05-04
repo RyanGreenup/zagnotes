@@ -1,4 +1,3 @@
-"use server";
 import { DbResponse } from "../db/types/response";
 import { getDbConnection } from "../db/db-connection";
 import { getNoteParent } from "../db/notes/read";
@@ -88,6 +87,7 @@ export async function moveItemToRoot(id: string): Promise<DbResponse> {
 }
 
 export async function getFolderParent(id: string): Promise<string | null> {
+  "use server";
   const db = await getDbConnection({ readonly: true });
 
   try {
@@ -110,6 +110,7 @@ export interface PromotionResult extends DbResponse {
 }
 
 export async function promoteItem(id: string): Promise<PromotionResult> {
+  "use server";
   // Import required functions dynamically to avoid circular dependencies
   const { moveFolder, moveNote } = await import("~/lib/db/folders/update");
   const { isFolder, isNote } = await import("~/lib/db/utils/check_types");
