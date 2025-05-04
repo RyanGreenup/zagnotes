@@ -1,5 +1,5 @@
 import { RefreshCw } from "lucide-solid";
-import { Accessor, createSignal, mergeProps, Show } from "solid-js";
+import { Accessor, createSignal, mergeProps, Setter, Show } from "solid-js";
 import type { SearchResult } from "~/lib/db-notes";
 import { searchNotes } from "~/lib/db-notes";
 import { semanticSearch } from "~/lib/embeddings";
