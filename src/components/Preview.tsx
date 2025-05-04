@@ -245,7 +245,9 @@ export default function Preview(props: PreviewProps) {
 
     // Set a new timeout
     debounceTimeout = window.setTimeout(() => {
-      setDebouncedContent(currentContent);
+      if (currentContent !== undefined) {
+        setDebouncedContent(currentContent);
+      }
     }, 300); // 300ms debounce delay
   });
 
