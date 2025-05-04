@@ -36,7 +36,7 @@ export async function rebuildSemanticSearchIndex(): Promise<{
                 const all_notes = await getAllNotes();
                 for (const note of all_notes) {
                     // Get the embedding
-                    let embedding = await getEmbeddings(note.id);
+                    let embedding = await getEmbeddings({ id: note.id, title: note.title, body: note.body });
                     // Store the embedding
                     await storeNoteEmbeddings(note.id, embedding);
 
