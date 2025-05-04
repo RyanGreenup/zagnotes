@@ -150,7 +150,6 @@ function EditButton() {
 import { ChevronLeft } from "lucide-solid";
 import { toggleTheme } from "~/lib/utils/themes";
 
-
 export default function Navbar(props: {
   toggleSidebar: () => void;
   isSidebarOpen: boolean;
@@ -164,9 +163,6 @@ export default function Navbar(props: {
   };
 
   const params = useParams();
-
-
-
 
   return (
     <>
@@ -187,7 +183,7 @@ export default function Navbar(props: {
           }}
         >
           <div class="flex items-center gap-1">
-              {/* TODO Icon is not reactive */}
+            {/* TODO Icon is not reactive */}
             <NavButton
               onClick={props.toggleSidebar}
               icon={props.isSidebarOpen ? ChevronLeft : Menu}

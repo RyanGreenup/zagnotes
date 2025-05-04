@@ -61,7 +61,9 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
       }
     } catch (error) {
       console.error("Error rebuilding index:", error);
-      alert(`Failed to rebuild semantic search index: ${error instanceof Error ? error.message : String(error)}`);
+      alert(
+        `Failed to rebuild semantic search index: ${error instanceof Error ? error.message : String(error)}`,
+      );
     } finally {
       setIsLoading(false);
       callback();
@@ -88,7 +90,9 @@ export default function SearchBar(props: SearchBarProps = { showChart: true }) {
           return results;
         } else {
           // If no semantic results, fall back to regular search
-          console.log("No semantic search results, falling back to standard search");
+          console.log(
+            "No semantic search results, falling back to standard search",
+          );
           return await searchNotes(searchQuery, limit);
         }
       } catch (error) {
@@ -208,7 +212,11 @@ function SearchSelector(props: SearchSelectorProps) {
       <Show when={props.searchMode() === "semantic"}>
         <ReindexButton
           callback={() => {
-            if (confirm("Are you sure you want to rebuild the semantic search index? This may take some time. (It is recommended to use the Rust CLI instead)")) {
+            if (
+              confirm(
+                "Are you sure you want to rebuild the semantic search index? This may take some time. (It is recommended to use the Rust CLI instead)",
+              )
+            ) {
               handleRebuildIndex(() => {
                 console.log("Rebuild index operation completed");
               });

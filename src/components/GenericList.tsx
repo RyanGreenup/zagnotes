@@ -17,7 +17,7 @@ export function GenericList<T>(props: GenericListProps<T>) {
   const [selectedIndex, setSelectedIndex] = createSignal(-1);
   const [isFocused, setIsFocused] = createSignal(props.isActive || false);
   const containerRef = { current: null as HTMLDivElement | null };
-  
+
   // Reset selection when items change
   createEffect(() => {
     if (props.items.length > 0 && selectedIndex() === -1) {
@@ -26,14 +26,14 @@ export function GenericList<T>(props: GenericListProps<T>) {
       setSelectedIndex(-1);
     }
   });
-  
+
   // Handle item selection
   const handleSelectItem = (item: T) => {
     if (props.onSelectItem) {
       props.onSelectItem(item);
     }
   };
-  
+
   // Set up keyboard navigation
   const { navigateUp, navigateDown } = useKeyboardNavigation({
     items: () => props.items,
@@ -41,20 +41,24 @@ export function GenericList<T>(props: GenericListProps<T>) {
     setSelectedIndex,
     onSelect: handleSelectItem,
     containerRef: containerRef.current,
-    isActive: () => isFocused() && !props.isLoading && props.items.length > 0
+    isActive: () => isFocused() && !props.isLoading && props.items.length > 0,
   });
-  
+
   // Handle container focus/blur
   onMount(() => {
     if (containerRef.current) {
-      containerRef.current.addEventListener("focusin", () => setIsFocused(true));
-      containerRef.current.addEventListener("focusout", () => setIsFocused(false));
+      containerRef.current.addEventListener("focusin", () =>
+        setIsFocused(true),
+      );
+      containerRef.current.addEventListener("focusout", () =>
+        setIsFocused(false),
+      );
     }
   });
-  
+
   return (
-    <div 
-      class="mt-1" 
+    <div
+      class="mt-1"
       ref={(el) => (containerRef.current = el)}
       tabIndex={0}
       data-scope="generic-list"
@@ -80,7 +84,7 @@ export function GenericList<T>(props: GenericListProps<T>) {
         <ul class="space-y-0.5">
           {props.items.map((item, index) => (
             <AnimatedListItem index={index}>
-              <div 
+              <div
                 onClick={() => {
                   setSelectedIndex(index);
                   handleSelectItem(item);

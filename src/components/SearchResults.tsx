@@ -12,20 +12,24 @@ interface SearchResultsProps {
 
 export default function SearchResults(props: SearchResultsProps) {
   const navigate = useNavigate();
-  
+
   // Handle navigation to note
   const handleSelectNote = (result: SearchResult) => {
     navigate(`/note/${result.id}`);
   };
-  
+
   // Render item function for generic list
-  const renderSearchResult = (note: SearchResult, index: number, isSelected: boolean) => {
+  const renderSearchResult = (
+    note: SearchResult,
+    index: number,
+    isSelected: boolean,
+  ) => {
     return (
-      <div 
+      <div
         class="flex items-center justify-between p-1 rounded"
         classList={{
           "bg-[var(--color-base-300)] text-[var(--color-primary)]": isSelected,
-          "hover:bg-[var(--color-base-200)]": !isSelected
+          "hover:bg-[var(--color-base-200)]": !isSelected,
         }}
       >
         <div class="flex items-center">
@@ -41,7 +45,7 @@ export default function SearchResults(props: SearchResultsProps) {
       </div>
     );
   };
-  
+
   return (
     <GenericList
       items={props.results}

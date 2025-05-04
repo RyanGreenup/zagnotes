@@ -1,4 +1,11 @@
-import { Accessor, createEffect, createResource, createSignal, Resource, Suspense } from "solid-js";
+import {
+  Accessor,
+  createEffect,
+  createResource,
+  createSignal,
+  Resource,
+  Suspense,
+} from "solid-js";
 import { Marked } from "marked";
 import markedAlert from "marked-alert";
 import markedFootnote from "marked-footnote";
@@ -23,8 +30,8 @@ const configureMarked = () => {
   marked.use({
     extensions: [
       {
-        name: 'noteLink',
-        level: 'inline',
+        name: "noteLink",
+        level: "inline",
         // Only match markdown links that start with :/
         start(src) {
           return src.match(/\[.*?\]\(\s*:\//)?.index;
@@ -34,24 +41,24 @@ const configureMarked = () => {
           const match = rule.exec(src);
           if (match) {
             return {
-              type: 'noteLink',
+              type: "noteLink",
               raw: match[0],
               text: match[1],
               noteId: match[2],
-              title: match[3]
+              title: match[3],
             };
           }
           return undefined;
         },
         renderer(token) {
           const href = `/${ROUTES.NOTE_BASE_PATH}${token.noteId}`;
-          const title = token.title ? ` title="${token.title}"` : '';
+          const title = token.title ? ` title="${token.title}"` : "";
           return `<a href="${href}"${title}>${token.text}</a>`;
-        }
+        },
       },
       {
-        name: 'resourceImage',
-        level: 'inline',
+        name: "resourceImage",
+        level: "inline",
         // Match markdown images with either :/ prefix or without
         // DEVELOPMENT CHOICE: Support both formats like ![alt](:/id) and ![alt](id)
         start(src) {
@@ -78,7 +85,8 @@ const configureMarked = () => {
           // - ![alt](:/id.ext)
           // - ![alt](id.ext)
           // where id is not a URL
-          const rule = /^!\[(.*?)\]\(\s*(?::\/)?([a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)?)(?:\s+"([^"]+)")?\s*\)/;
+          const rule =
+            /^!\[(.*?)\]\(\s*(?::\/)?([a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)?)(?:\s+"([^"]+)")?\s*\)/;
           const match = rule.exec(src);
 
           if (match) {
@@ -89,11 +97,11 @@ const configureMarked = () => {
             }
 
             return {
-              type: 'resourceImage',
+              type: "resourceImage",
               raw: match[0],
               text: match[1],
               resourceId: potentialId, // This could be with or without :/ prefix and with/without extension
-              title: match[3]
+              title: match[3],
             };
           }
           return undefined;
@@ -101,12 +109,12 @@ const configureMarked = () => {
         renderer(token) {
           // Construct the resource path relative to the API
           const resourcePath = `/api/resources/${token.resourceId}`;
-          const alt = token.text || '';
-          const title = token.title ? ` title="${token.title}"` : '';
+          const alt = token.text || "";
+          const title = token.title ? ` title="${token.title}"` : "";
           return `<img src="${resourcePath}" alt="${alt}"${title}>`;
-        }
-      }
-    ]
+        },
+      },
+    ],
   });
 
   return marked
@@ -162,11 +170,11 @@ function processResourceImagesInHtml(html: string): string {
     (match, resourceId) => {
       // Extract the alt attribute if it exists
       const altMatch = match.match(/alt="([^"]*)"/);
-      const alt = altMatch ? altMatch[1] : '';
+      const alt = altMatch ? altMatch[1] : "";
 
       // Create the new img tag with the API path
       return `<img src="/api/resources/${resourceId}" alt="${alt}">`;
-    }
+    },
   );
 
   // DEVELOPMENT CHOICE 2: Handle IDs with or without file extension
@@ -182,11 +190,11 @@ function processResourceImagesInHtml(html: string): string {
 
       // Extract the alt attribute if it exists
       const altMatch = match.match(/alt="([^"]*)"/);
-      const alt = altMatch ? altMatch[1] : '';
+      const alt = altMatch ? altMatch[1] : "";
 
       // Create the new img tag with the API path
       return `<img src="/api/resources/${potentialId}" alt="${alt}">`;
-    }
+    },
   );
 
   return html;
@@ -227,9 +235,8 @@ export default function Preview(props: PreviewProps) {
 
   // Set up debounce effect for content updates
   createEffect(() => {
-    const currentContent = typeof props.content === "function"
-      ? props.content()
-      : props.content;
+    const currentContent =
+      typeof props.content === "function" ? props.content() : props.content;
 
     // Clear previous timeout
     if (debounceTimeout) {
