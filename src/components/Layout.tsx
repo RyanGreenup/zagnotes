@@ -143,7 +143,7 @@ export default function Layout(props: { children: JSX.Element }) {
             class="hidden md:block fixed h-screen bg-[color:var(--color-base-200)] border-r border-[color:var(--color-base-300)] overflow-auto"
             style={{
               width: `${sidebarWidth()}px`,
-              minWidth: `${SIDEBAR_MIN_WIDTH}px`,
+              "min-width": `${SIDEBAR_MIN_WIDTH}px`,
             }}
           >
             <Sidebar />
