@@ -6,6 +6,7 @@ interface CardProps {
   subtitle?: JSX.Element;
   footer?: JSX.Element;
   class?: string;
+  style?: { [key: string]: string };
   variant?: "default" | "bordered" | "elevated" | "insights";
   padding?: "none" | "sm" | "md" | "lg";
   onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>;
@@ -18,6 +19,7 @@ export default function Card(props: CardProps) {
     "subtitle",
     "footer",
     "class",
+    "style",
     "variant",
     "padding",
     "onClick",
@@ -76,6 +78,7 @@ export default function Card(props: CardProps) {
         "box-shadow": variantStyles[variant].boxShadow,
         "border-radius": "var(--radius-box)",
         color: "var(--color-base-content)",
+        ...local.style,
       }}
       {...others}
     >
