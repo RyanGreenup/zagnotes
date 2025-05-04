@@ -25,7 +25,8 @@ export default function SearchInsights(props: SearchInsightsProps) {
     return "bg-error";
   };
 
-  const analytics = props.results.length > 0 ? getSearchAnalytics(props.results) : null;
+  const analytics =
+    props.results.length > 0 ? getSearchAnalytics(props.results) : null;
 
   return (
     <Show when={props.results.length > 0 && analytics !== null}>

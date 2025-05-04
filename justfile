@@ -6,9 +6,19 @@ run:
     DB_PATH=$HOME/.config/joplin-desktop/database.sqlite \
         pnpm run dev --host
 
-build:
+pnpm_build:
     pnpm run build && \
         DB_PATH=$HOME/.config/joplin-desktop/database.sqlite \
+            PORT=3002 node .output/server/index.mjs
+
+install:
+    deno install --allow-scripts
+
+build:
+    deno run build
+
+run_built:
+    DB_PATH=$HOME/.config/joplin-desktop/database.sqlite \
             PORT=3002 node .output/server/index.mjs
 
 fmt:

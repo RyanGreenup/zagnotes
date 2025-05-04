@@ -41,7 +41,9 @@ async function handleRebuildIndex(
     setIsLoading(true);
 
     // Import the rebuildSemanticSearchIndex function
-    const { rebuildSemanticSearchIndex } = await import("~/lib/db/embeddings/update");
+    const { rebuildSemanticSearchIndex } = await import(
+      "~/lib/db/embeddings/update"
+    );
 
     // Start the rebuild process
     const result = await rebuildSemanticSearchIndex();
