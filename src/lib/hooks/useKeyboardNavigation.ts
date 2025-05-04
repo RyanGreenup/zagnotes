@@ -116,10 +116,10 @@ export function useKeyboardNavigation<T>({
   // Effect to attach keyboard listeners
   onMount(() => {
     const targetElement = containerRef || document;
-    targetElement.addEventListener('keydown', handleKeyDown);
+    targetElement.addEventListener('keydown', handleKeyDown as EventListener);
     
     onCleanup(() => {
-      targetElement.removeEventListener('keydown', handleKeyDown);
+      targetElement.removeEventListener('keydown', handleKeyDown as EventListener);
     });
   });
   
