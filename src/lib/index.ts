@@ -29,8 +29,11 @@ export {
 
 export {
   updateFolder,
-  deleteFolder,
 } from './db/folders/update';
+
+export {
+  deleteFolder,
+} from './db/folders/delete';
 
 export {
   createFolder
