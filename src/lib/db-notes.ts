@@ -297,3 +297,27 @@ export async function searchNotes(
     return [];
   }
 }
+
+/**
+ * Get all notes from the database
+ * @returns An array of all notes
+ */
+export async function getAllNotes(): Promise<Note[]> {
+  "use server";
+  const db = await getDbConnection({ readonly: true });
+
+  try {
+    const notes = db
+      .prepare(
+        `SELECT id, title, body, parent_id, created_time, updated_time 
+         FROM notes
+         ORDER BY updated_time DESC`
+      )
+      .all() as Note[];
+
+    return notes;
+  } catch (error) {
+    console.error("Error fetching all notes:", error);
+    return [];
+  }
+}

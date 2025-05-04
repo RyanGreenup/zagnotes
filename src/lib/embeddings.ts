@@ -1,5 +1,5 @@
 "use server";
-import type { Note } from './db';
+import type { Note } from './db-notes';
 import { getDbConnection } from './db-connection';
 import type { SearchResult } from './db-notes';
 import * as sqliteVec from "sqlite-vec";
@@ -46,9 +46,9 @@ async function generateEmbedding(text: string): Promise<number[]> {
  * @param note Note to embed
  * @returns Array of embedding values
  */
-export async function getEmbeddings(note: Note): Promise<number[]> {
+export async function getEmbeddings(note: { id?: string; title?: string; body: string }): Promise<number[]> {
   // Combine title and body for better semantic representation
-  const textToEmbed = `${note.title}\n${note.body}`;
+  const textToEmbed = `${note.title || ''}\n${note.body}`;
   return generateEmbedding(textToEmbed);
 }
 
@@ -140,8 +140,11 @@ export async function indexNoteForSemanticSearch(noteId: string): Promise<{ succ
       return { success: false, message: `Note with ID ${noteId} not found` };
     }
 
+    // Add the ID to the note object for completeness
+    const noteWithId = { ...note, id: noteId };
+
     // Generate embeddings for the note
-    const embeddings = await getEmbeddings(note);
+    const embeddings = await getEmbeddings(noteWithId);
 
     // Store the embeddings
     return await storeNoteEmbeddings(noteId, embeddings);
@@ -169,7 +172,7 @@ export async function rebuildSemanticSearchIndex(): Promise<{
     console.log("Starting semantic search index rebuild");
     
     // Get all notes from the database
-    const { getAllNotes } = await import("./db");
+    const { getAllNotes } = await import("./db-notes");
     const notes = await getAllNotes();
     
     const totalNotes = notes.length;
