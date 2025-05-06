@@ -1,6 +1,6 @@
-import { createSignal } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import NavLink from "./NavLink";
-import { Tabs } from "@ark-ui/solid/tabs";
+import { Tabs, TabsValueChangeDetails } from "@ark-ui/solid/tabs";
 import SectionHeader from "./SectionHeader";
 import SubSectionHeader from "./SubSectionHeader";
 import AnimatedListItem from "./AnimatedListItem";
@@ -37,18 +37,26 @@ export default function Sidebar() {
     RECENT = "recent",
   }
 
+  const [activeTab, setActiveTab] = createSignal(TabEnum.NOTE_TREE);
+
   return (
     <aside class="h-full flex-shrink-0 flex flex-col relative">
-      <Tabs.Root defaultValue={TabEnum.NOTE_TREE} class="flex flex-col h-full">
+      <Tabs.Root
+        defaultValue={TabEnum.NOTE_TREE}
+        class="flex flex-col h-full"
+        onValueChange={(details: TabsValueChangeDetails) =>
+          setActiveTab(details.value as TabEnum)
+        }
+      >
         {/* Tabs List */}
         <Tabs.List
           class="flex-shrink-0 sticky top-0 z-10 overflow-x-auto scrollbar-thin"
           style={{
-            "height": "var(--navbar-height)",
-            "background-color": "var(--color-base-200)"
+            height: "var(--navbar-height)",
+            "background-color": "var(--color-base-200)",
           }}
         >
-          <Tabs.Trigger value="note_tree" title="Note Tree">
+          <Tabs.Trigger value={TabEnum.NOTE_TREE} title="Note Tree">
             <FolderTree />
             <span class="sr-only">Note Tree</span>
           </Tabs.Trigger>
@@ -56,43 +64,59 @@ export default function Sidebar() {
             <Link2 />
             <span class="sr-only">Backlinks</span>
           </Tabs.Trigger>
-          <Tabs.Trigger value="forward_links" title="Forward Links">
+          <Tabs.Trigger value={TabEnum.FORWARDLINKS} title="Forward Links">
             <ExternalLink />
             <span class="sr-only">Forward Links</span>
           </Tabs.Trigger>
-          <Tabs.Trigger value="similar" title="Similar Notes">
+          <Tabs.Trigger value={TabEnum.SIMILAR} title="Similar Notes">
             <FileStack />
             <span class="sr-only">Similar Notes</span>
           </Tabs.Trigger>
-          <Tabs.Trigger value="search" title="Search">
+          <Tabs.Trigger value={TabEnum.SEARCH} title="Search">
             <Search />
             <span class="sr-only">Search</span>
           </Tabs.Trigger>
-          <Tabs.Trigger value="recent" title="Recent Notes">
+          <Tabs.Trigger value={TabEnum.RECENT} title="Recent Notes">
             <Clock />
             <span class="sr-only">Recent Notes</span>
           </Tabs.Trigger>
         </Tabs.List>
 
         {/* Tab Content */}
-        <div class="flex-grow overflow-auto" style={{"height": "calc(100% - var(--navbar-height))"}}>
-          <Tabs.Content value="note_tree" class="h-full">
-            <NoteTree />
+        <div
+          class="flex-grow overflow-auto"
+          style={{ height: "calc(100% - var(--navbar-height))" }}
+        >
+          <Tabs.Content value={TabEnum.NOTE_TREE} class="h-full">
+            <Show when={activeTab() === TabEnum.NOTE_TREE}>
+              <NoteTree />
+            </Show>
           </Tabs.Content>
-          <Tabs.Content value="backlinks">
-            <Backlinks />
+          <Tabs.Content value={TabEnum.BACKLINKS}>
+            <Show when={activeTab() === TabEnum.BACKLINKS}>
+              <Backlinks />
+            </Show>
           </Tabs.Content>
-          <Tabs.Content value="forward_links">
-            <ForwardLinks />
+          <Tabs.Content value={TabEnum.FORWARDLINKS}>
+            <Show when={activeTab() === TabEnum.FORWARDLINKS}>
+              <ForwardLinks />
+            </Show>
           </Tabs.Content>
-          <Tabs.Content value="similar">
-            <SimilarNotes />
+          <Tabs.Content value={TabEnum.SIMILAR}>
+            <Show when={activeTab() === TabEnum.SIMILAR}>
+              <SimilarNotes />
+            </Show>
           </Tabs.Content>
-          <Tabs.Content value="search">
-            <SearchBar />
+          <Tabs.Content value={TabEnum.SEARCH}>
+            {/* Always show the search bar otherwise the text and results will be lost*/}
+            <Show when={true}>
+              <SearchBar />
+            </Show>
           </Tabs.Content>
-          <Tabs.Content value="recent">
-            <RecentNotes />
+          <Tabs.Content value={TabEnum.RECENT}>
+            <Show when={activeTab() === TabEnum.RECENT}>
+              <RecentNotes />
+            </Show>
           </Tabs.Content>
         </div>
       </Tabs.Root>

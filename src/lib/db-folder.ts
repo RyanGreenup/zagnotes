@@ -1,10 +1,16 @@
 "use server";
+// TODO "use server"; breaks this
+// NOTE I think functions need use server not file according to the vinxi output
 /**
  * Folder operations module
  * Provides functions for working with folders
  */
 import { getDbConnection } from "./db-connection";
 import { DbResponse, formatErrorResponse } from "./index";
+// server-side code
+import { createLogger } from "vite";
+import crypto from "crypto";
+const logger = createLogger();
 
 /**
  * Folder interface
@@ -22,6 +28,7 @@ export interface Folder {
  * @returns Array of all folders
  */
 export async function getAllFolders(): Promise<Folder[]> {
+  // NOTE 'use server' here signifincantly slows down application
   const db = await getDbConnection({ readonly: true });
 
   try {
@@ -30,9 +37,9 @@ export async function getAllFolders(): Promise<Folder[]> {
         "SELECT id, title, parent_id, created_time, updated_time FROM folders",
       )
       .all();
-    return folders;
+    return folders as Folder[];
   } catch (error) {
-    console.error("Error fetching folders:", error);
+    logger.error(`Error fetching folders: ${error}`);
     return [];
   }
 }
@@ -43,6 +50,7 @@ export async function getAllFolders(): Promise<Folder[]> {
  * @returns Folder object or null if not found
  */
 export async function getFolder(id: string): Promise<Folder | null> {
+  // TODO the use server is broken in this function I think.
   const db = await getDbConnection({ readonly: true });
 
   try {
@@ -52,9 +60,9 @@ export async function getFolder(id: string): Promise<Folder | null> {
       )
       .get(id);
 
-    return folder || null;
+    return (folder as Folder) || null;
   } catch (error) {
-    console.error(`Error fetching folder ${id}:`, error);
+    logger.error(`Error fetching folder ${id}: ${error}`);
     return null;
   }
 }
@@ -84,8 +92,8 @@ export async function updateFolder(
 
     return { success: true, message: "Folder updated successfully" };
   } catch (error) {
-    console.error(`Error updating folder ${id}:`, error);
-    return formatErrorResponse(error, 'updating folder');
+    logger.error(`Error updating folder ${id}: ${error}`);
+    return formatErrorResponse(error, "updating folder");
   }
 }
 
@@ -117,11 +125,10 @@ export async function moveFolder(
 
     return { success: true, message: "Folder updated successfully" };
   } catch (error) {
-    console.error(
-      `Error updating folder ${id} to parent id of ${target_parent_folder_id}:`,
-      error,
+    logger.error(
+      `Error updating folder ${id} to parent id of ${target_parent_folder_id}: ${error}`,
     );
-    return formatErrorResponse(error, 'updating folder');
+    return formatErrorResponse(error, "updating folder");
   }
 }
 
@@ -153,11 +160,10 @@ export async function moveNote(
 
     return { success: true, message: "Note Parent updated successfully" };
   } catch (error) {
-    console.error(
-      `Error updating note ${id} to parent id of ${target_parent_folder_id}:`,
-      error,
+    logger.error(
+      `Error updating note ${id} to parent id of ${target_parent_folder_id}: ${error}`,
     );
-    return formatErrorResponse(error, 'updating note');
+    return formatErrorResponse(error, "updating note");
   }
 }
 
@@ -174,9 +180,14 @@ export async function isFolder(id: string): Promise<boolean> {
       .prepare("SELECT COUNT(id) as count FROM folders WHERE id = ?")
       .get(id);
 
-    return result && result.count === 1;
+    return (
+      result !== null &&
+      typeof result === "object" &&
+      "count" in result &&
+      result.count === 1
+    );
   } catch (error) {
-    console.error(`Error checking if ${id} is a folder:`, error);
+    logger.error(`Error checking if ${id} is a folder: ${error}`);
     return false;
   }
 }
@@ -194,13 +205,55 @@ export async function isNote(id: string): Promise<boolean> {
       .prepare("SELECT COUNT(id) as count FROM notes WHERE id = ?")
       .get(id);
 
-    return result && result.count === 1;
+    return (
+      result !== null &&
+      typeof result === "object" &&
+      "count" in result &&
+      result.count === 1
+    );
   } catch (error) {
-    console.error(`Error checking if ${id} is a note:`, error);
+    logger.error(`Error checking if ${id} is a note: ${error}`);
     return false;
   }
 }
 /**
+ * Create a new folder
+ * @param title Folder title
+ * @param parentId Parent folder ID (optional)
+ * @returns The created folder with success status
+ */
+export async function createFolder(
+  title: string,
+  parentId?: string | null
+): Promise<{ folder: Folder | null } & DbResponse> {
+    "use server";
+  const db = await getDbConnection();
+
+  try {
+    // Generate a UUID
+    const id = crypto.randomUUID().replace(/-/g, "");
+
+    db.prepare(
+      `INSERT INTO folders (id, title, parent_id, created_time, updated_time)
+      VALUES (?, ?, ?, strftime('%s', CURRENT_TIMESTAMP), strftime('%s', CURRENT_TIMESTAMP))`
+    ).run(id, title, parentId || null);
+
+    // Return the newly created folder
+    const folder = await getFolder(id);
+
+    return {
+      folder,
+      success: true,
+      message: "Folder created successfully"
+    };
+  } catch (error) {
+    logger.error(`Error creating folder: ${error}`);
+    return {
+      folder: null,
+      ...formatErrorResponse(error, "creating folder")
+    };
+  }
+}
 
 /**
  * Delete a folder
@@ -238,32 +291,49 @@ export async function deleteFolder(
       }
 
       if (recursive) {
-        // Delete child notes
-        db.prepare("DELETE FROM notes WHERE parent_id = ?").run(id);
+        // Use a recursive CTE to identify all descendant folders
+        const descendantFoldersSql = `
+          WITH RECURSIVE folder_descendants AS (
+            -- Base case: the starting folder
+            SELECT id FROM folders WHERE id = ?
+            UNION ALL
+            -- Recursive case: child folders
+            SELECT f.id
+            FROM folders f
+            JOIN folder_descendants fd ON f.parent_id = fd.id
+          )
+          SELECT id FROM folder_descendants
+        `;
 
-        // Recursively delete child folders
-        const deleteChildFolders = db
-          .prepare("SELECT id FROM folders WHERE parent_id = ?")
-          .all(id);
-        for (const childFolder of deleteChildFolders) {
-          // This is a simplification; a more robust implementation would use a CTE
-          // to delete the entire subtree in one query
-          const deleteRecursive = db.transaction((folderId) => {
-            const grandchildren = db
-              .prepare("SELECT id FROM folders WHERE parent_id = ?")
-              .all(folderId);
-            db.prepare("DELETE FROM notes WHERE parent_id = ?").run(folderId);
-            for (const grandchild of grandchildren) {
-              deleteRecursive(grandchild.id);
+        // Get all descendant folder IDs (including the target folder)
+        const descendantFolders = db
+          .prepare(descendantFoldersSql)
+          .all(id) as Array<{ id: string }>;
+
+        // Extract just the IDs
+        const folderIds = descendantFolders.map(folder => folder.id);
+
+        // First delete all notes in any of these folders
+        // Create a parameterized query with the right number of placeholders
+        const placeholders = folderIds.map(() => '?').join(',');
+
+        if (folderIds.length > 0) {
+          // Delete notes first (foreign key constraint)
+          db.prepare(`DELETE FROM notes WHERE parent_id IN (${placeholders})`)
+            .run(...folderIds);
+
+          // Delete folders in reverse hierarchical order (children before parents)
+          // The recursive CTE query returns them in an order where parents come before children,
+          // so we need to process them in reverse to delete children first
+          for (let i = folderIds.length - 1; i >= 0; i--) {
+            if (folderIds[i] !== id) { // Skip the target folder as we'll delete it last
+              db.prepare("DELETE FROM folders WHERE id = ?").run(folderIds[i]);
             }
-            db.prepare("DELETE FROM folders WHERE id = ?").run(folderId);
-          });
-
-          deleteRecursive(childFolder.id);
+          }
         }
       }
 
-      // Delete the folder itself
+      // Delete the target folder itself
       db.prepare("DELETE FROM folders WHERE id = ?").run(id);
     });
 
@@ -272,7 +342,7 @@ export async function deleteFolder(
 
     return { success: true, message: "Folder deleted successfully" };
   } catch (error) {
-    console.error(`Error deleting folder ${id}:`, error);
-    return formatErrorResponse(error, 'deleting folder');
+    logger.error(`Error deleting folder ${id}: ${error}`);
+    return formatErrorResponse(error, "deleting folder");
   }
 }

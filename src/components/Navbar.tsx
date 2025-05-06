@@ -1,4 +1,4 @@
-import { createSignal, JSX, Show, Suspense } from "solid-js";
+import { createSignal, JSX, onMount, Show, Suspense } from "solid-js";
 import { A, useLocation, useParams, useSearchParams } from "@solidjs/router";
 import {
   Menu,
@@ -8,7 +8,8 @@ import {
   FileEdit,
   Edit,
   NotebookIcon,
-  Home
+  Home,
+  SunDim,
 } from "lucide-solid";
 import IconWrapper from "./IconWrapper";
 import Button from "./Button";
@@ -147,6 +148,8 @@ function EditButton() {
  * @returns Navbar component
  */
 import { ChevronLeft } from "lucide-solid";
+import { toggleTheme } from "~/lib/utils/themes";
+
 
 export default function Navbar(props: {
   toggleSidebar: () => void;
@@ -161,6 +164,9 @@ export default function Navbar(props: {
   };
 
   const params = useParams();
+
+
+
 
   return (
     <>
@@ -181,6 +187,7 @@ export default function Navbar(props: {
           }}
         >
           <div class="flex items-center gap-1">
+              {/* TODO Icon is not reactive */}
             <NavButton
               onClick={props.toggleSidebar}
               icon={props.isSidebarOpen ? ChevronLeft : Menu}
@@ -189,6 +196,7 @@ export default function Navbar(props: {
               ariaLabel={props.isSidebarOpen ? "Close sidebar" : "Open sidebar"}
               class="transition-transform duration-200 hover:scale-110"
             />
+
             <A
               href="/"
               class="ml-2 p-1 rounded-md hover:bg-base-200 transition-colors"
@@ -207,13 +215,15 @@ export default function Navbar(props: {
             </Show>
           </div>
           <div class="flex items-center gap-1">
+            <button onclick={toggleTheme}>
+              <SunDim />
+            </button>
             <NavButton icon={Users} rounded="full" size="md" />
             <EditButton />
             <NavButton icon={MoreVertical} rounded="full" size="md" />
           </div>
         </div>
       </nav>
-
     </>
   );
 }

@@ -1,6 +1,7 @@
 import { Setter } from "solid-js";
 import type { DbResponse } from "~/lib";
 import { TreeNode, NodeMap } from "./types";
+import { getStoredExpanded, saveExpanded } from "./expand_and_collapse_item";
 
 export type SetterFunction<T> = (value: T) => void;
 
@@ -316,6 +317,157 @@ export async function promoteTreeItem(
     }
   } else {
     console.error(promotion_result.message);
+    return false;
+  }
+}
+
+/**
+ * Creates a new note in the specified folder and updates the tree UI
+ * 
+ * @param nodeId - ID of the parent folder
+ * @param nodes - Current node map
+ * @param setNodes - Function to update node state
+ * @param setFocusedId - Function to update the focused node
+ * @param navigate - Function to navigate to the new note
+ * @returns Promise that resolves to true if successful, false otherwise
+ */
+export async function createNewNoteInTree(
+  nodeId: string,
+  nodes: NodeMap,
+  setNodes: Setter<NodeMap>,
+  setFocusedId: Setter<string>,
+  navigate: (route: string) => void,
+): Promise<boolean> {
+  try {
+    // Import the createNewNote function dynamically to avoid circular dependencies
+    const { createNewNote } = await import("~/lib/db-notes");
+    
+    // Create a new note in the selected folder
+    const defaultTitle = "New Note";
+    const result = await createNewNote(defaultTitle, nodeId);
+
+    if (result.success) {
+      // Create a copy of the current nodes
+      const nodeMap = nodes;
+      const newNodes = { ...nodeMap };
+
+      // Get the parent folder node
+      const parentNode = nodeMap[nodeId];
+
+      if (parentNode) {
+        // Create a new tree node for the note
+        const newNoteNode = {
+          id: result.id,
+          name: defaultTitle,
+          type: "file",
+          parent: nodeId,
+          depth: (parentNode.depth || 0) + 1,
+        };
+
+        // Insert the new note into the tree
+        insertItemIntoTree(parentNode, newNodes, newNoteNode);
+
+        // Update the tree
+        setNodes(newNodes);
+
+        // Set focus to the new note
+        setFocusedId(result.id);
+
+        // Navigate to the new note
+        navigate(`/note/${result.id}`);
+        
+        return true;
+      } else {
+        // Just navigate if we can't update the tree
+        navigate(`/note/${result.id}`);
+        return true;
+      }
+    } else {
+      console.error(`Failed to create note: ${result.message}`);
+      return false;
+    }
+  } catch (error) {
+    console.error("Error in createNewNoteInTree:", error);
+    return false;
+  }
+}
+
+/**
+ * Creates a new folder in the specified parent folder and updates the tree UI
+ * 
+ * @param nodeId - ID of the parent folder
+ * @param nodes - Current node map
+ * @param setNodes - Function to update node state
+ * @param setFocusedId - Function to update the focused node
+ * @returns Promise that resolves to true if successful, false otherwise
+ */
+export async function createNewFolderInTree(
+  nodeId: string,
+  nodes: NodeMap,
+  setNodes: Setter<NodeMap>,
+  setFocusedId: Setter<string>,
+): Promise<boolean> {
+  try {
+    // Import the createFolder function dynamically to avoid circular dependencies
+    const { createFolder } = await import("~/lib/db-folder");
+    
+    // Create a new folder in the selected folder
+    const defaultTitle = "New Folder";
+    const result = await createFolder(defaultTitle, nodeId);
+
+    if (result.success && result.folder) {
+      // Create a copy of the current nodes
+      const nodeMap = nodes;
+      const newNodes = { ...nodeMap };
+
+      // Get the parent folder node
+      const parentNode = nodeMap[nodeId];
+
+      if (parentNode) {
+        // Make sure parent is expanded
+        if (!parentNode.isExpanded) {
+          parentNode.isExpanded = true;
+          
+          // Update expanded state in localStorage
+          const expanded = getStoredExpanded();
+          expanded[nodeId] = true;
+          saveExpanded(expanded);
+        }
+
+        // Create a new tree node for the folder
+        const newFolderNode = {
+          id: result.folder.id,
+          name: defaultTitle,
+          type: "folder",
+          parent: nodeId,
+          depth: (parentNode.depth || 0) + 1,
+          children: [],
+          isExpanded: true  // New folders start expanded
+        };
+
+        // Insert the new folder into the tree
+        insertItemIntoTree(parentNode, newNodes, newFolderNode);
+
+        // Update the tree
+        setNodes(newNodes);
+
+        // Set focus to the new folder
+        setFocusedId(result.folder.id);
+        
+        // Make the new folder expanded by default
+        const expanded = getStoredExpanded();
+        expanded[result.folder.id] = true;
+        saveExpanded(expanded);
+        
+        return true;
+      }
+      return false;
+    } else {
+      console.error(`Failed to create folder: ${result.message}`);
+      return false;
+    }
+  } catch (error) {
+    console.error("Error in createNewFolderInTree:", error);
     return false;
   }
 }

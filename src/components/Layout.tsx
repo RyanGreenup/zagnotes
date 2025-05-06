@@ -1,6 +1,19 @@
-import { createSignal, JSX, Show, onMount, onCleanup } from "solid-js";
+import {
+  createSignal,
+  JSX,
+  Show,
+  onMount,
+  onCleanup,
+  createEffect,
+} from "solid-js";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
+import {
+  initSidebarState,
+  setSidebarState,
+} from "~/lib/utils/localStorage/sidebarState";
+
+const SIDEBAR_STATE_LS_KEY = "sidebar_open";
 
 /**
  * Layout component for the Notetaking application
@@ -18,65 +31,84 @@ export default function Layout(props: { children: JSX.Element }) {
   // Mobile sidebar state
   const [sidebarOpen, setSidebarOpen] = createSignal(false);
 
+  // Load the State of the Sidebar from localStorage
+  onMount(() => {
+    initSidebarState(setSidebarOpen);
+  });
+
+  // Track the Sidebar State
+  createEffect(() => {
+    setSidebarState(sidebarOpen);
+  });
+
   // Desktop sidebar resizing state
   const [sidebarWidth, setSidebarWidth] = createSignal(SIDEBAR_DEFAULT_WIDTH);
   const [isResizing, setIsResizing] = createSignal(false);
 
   // Calculate max width based on viewport
   const getMaxWidth = () => {
-    if (typeof window === 'undefined') return SIDEBAR_MAX_WIDTH_REM;
-    return Math.max(SIDEBAR_MAX_WIDTH_REM, window.innerWidth * SIDEBAR_MAX_WIDTH_PERCENT);
+    if (typeof window === "undefined") return SIDEBAR_MAX_WIDTH_REM;
+    return Math.max(
+      SIDEBAR_MAX_WIDTH_REM,
+      window.innerWidth * SIDEBAR_MAX_WIDTH_PERCENT,
+    );
   };
 
   // Handle sidebar resizing
   const startResizing = (e: MouseEvent | TouchEvent) => {
-    if (typeof document === 'undefined') return;
+    if (typeof document === "undefined") return;
 
     setIsResizing(true);
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
   };
 
   const updateResizing = (e: MouseEvent | TouchEvent) => {
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    if (!isResizing() || typeof document === 'undefined') return;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    if (!isResizing() || typeof document === "undefined") return;
 
     const newWidth = clientX;
     const maxWidth = getMaxWidth();
 
     if (newWidth >= SIDEBAR_MIN_WIDTH && newWidth <= maxWidth) {
       setSidebarWidth(newWidth);
-      document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
+      document.documentElement.style.setProperty(
+        "--sidebar-width",
+        `${newWidth}px`,
+      );
     }
   };
 
   const stopResizing = () => {
-    if (typeof document === 'undefined') return;
+    if (typeof document === "undefined") return;
 
     setIsResizing(false);
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-    document.body.style.touchAction = '';
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+    document.body.style.touchAction = "";
   };
 
   // Setup and cleanup resize event listeners
   onMount(() => {
-    if (typeof document !== 'undefined') {
-      document.addEventListener('mousemove', updateResizing);
-      document.addEventListener('mouseup', stopResizing);
+    if (typeof document !== "undefined") {
+      document.addEventListener("mousemove", updateResizing);
+      document.addEventListener("mouseup", stopResizing);
 
-      document.addEventListener('touchmove', updateResizing);
-      document.addEventListener('touchend', stopResizing);
+      document.addEventListener("touchmove", updateResizing);
+      document.addEventListener("touchend", stopResizing);
 
       // Initialize sidebar width CSS variable
-      document.documentElement.style.setProperty('--sidebar-width', `${SIDEBAR_DEFAULT_WIDTH}px`);
+      document.documentElement.style.setProperty(
+        "--sidebar-width",
+        `${SIDEBAR_DEFAULT_WIDTH}px`,
+      );
     }
   });
 
   onCleanup(() => {
-    if (typeof document !== 'undefined') {
-      document.removeEventListener('mousemove', updateResizing);
-      document.removeEventListener('mouseup', stopResizing);
+    if (typeof document !== "undefined") {
+      document.removeEventListener("mousemove", updateResizing);
+      document.removeEventListener("mouseup", stopResizing);
     }
   });
 
@@ -127,10 +159,12 @@ export default function Layout(props: { children: JSX.Element }) {
         </Show>
 
         {/* Main content */}
-        <div class={`flex-1 overflow-auto bg-[color:var(--color-base-100)] w-full h-full ${
-          sidebarOpen() ? "md:pl-[var(--sidebar-width)]" : ""
-        }`}>
-          {props.children}
+        <div
+          class={`flex-1 overflow-auto bg-[color:var(--color-base-100)] w-full ${
+            sidebarOpen() ? "md:pl-[var(--sidebar-width)]" : ""
+          }`}
+        >
+          <div class="container mx-auto p-4">{props.children}</div>
         </div>
       </div>
     </div>

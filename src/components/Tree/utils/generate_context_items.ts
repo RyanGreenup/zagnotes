@@ -2,7 +2,6 @@ import { useNavigate } from "@solidjs/router";
 import type { ContextMenuItem } from "~/components/ContextMenu";
 import { isServer } from "solid-js/web";
 import { isFolder, toggleNode } from "./expand_and_collapse_item";
-import { createNewNote } from "~/lib/db-notes";
 import {
   insertItemIntoTree,
   moveNodeWithinTree,
@@ -10,6 +9,8 @@ import {
   promoteTreeItem,
   type NodeMap,
   pasteCutItemIntoTarget,
+  createNewNoteInTree,
+  createNewFolderInTree,
 } from "./insert_item";
 import {
   deleteItem,
@@ -47,46 +48,13 @@ export function generateContextMenuItems(
     {
       label: "New Note",
       action: async (nodeId) => {
-        // Create a new note in the selected folder
-        const defaultTitle = "New Note";
-        const result = await createNewNote(defaultTitle, nodeId);
-
-        if (result.success) {
-          // Create a copy of the current nodes
-          const nodeMap = nodes();
-          const newNodes = { ...nodeMap };
-
-          // Get the parent folder node
-          const parentNode = nodeMap[nodeId];
-
-          if (parentNode) {
-            // Create a new tree node for the note
-            const newNoteNode = {
-              id: result.id,
-              name: defaultTitle,
-              type: "file",
-              parent: nodeId,
-              depth: (parentNode.depth || 0) + 1,
-            };
-
-            // Insert the new note into the tree
-            insertItemIntoTree(parentNode, newNodes, newNoteNode);
-
-            // Update the tree
-            setNodes(newNodes);
-
-            // Set focus to the new note
-            setFocusedId(result.id);
-
-            // Navigate to the new note
-            navigate(`/note/${result.id}`);
-          } else {
-            // Just navigate if we can't update the tree
-            navigate(`/note/${result.id}`);
-          }
-        } else {
-          console.error(`Failed to create note: ${result.message}`);
-        }
+        createNewNoteInTree(nodeId, nodes(), setNodes, setFocusedId, navigate);
+      },
+    },
+    {
+      label: "New Folder",
+      action: async (nodeId) => {
+        createNewFolderInTree(nodeId, nodes(), setNodes, setFocusedId);
       },
       separator: true,
     },

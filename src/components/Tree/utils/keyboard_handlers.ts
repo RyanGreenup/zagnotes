@@ -6,6 +6,8 @@ import {
   moveNodeWithinTree,
   pasteCutItemIntoTarget,
   removeNodeFromUI,
+  createNewNoteInTree,
+  createNewFolderInTree,
 } from "./insert_item";
 import { promptAndRenameItem } from "./rename_title";
 import { NodeMap } from "./types";
@@ -72,6 +74,16 @@ export function createKeyboardHandlers(
       case "p":
         handlePasteEvent(e);
         break;
+      case "n":
+        if (e.shiftKey) {
+          handleNewFolderEvent(e);
+        } else {
+          handleNewNoteEvent(e);
+        }
+        break;
+      case "f":
+        handleNewFolderEvent(e);
+        break;
       case "ArrowDown":
       case "j":
         focusDown(e);
@@ -93,6 +105,38 @@ export function createKeyboardHandlers(
         expandSpaceFocused(e);
         break;
     }
+  }
+
+  /**
+   * Create a new note in the focused folder
+   */
+  function handleNewNoteEvent(e: KeyboardEvent): void {
+    e.preventDefault();
+    const nodeId = focusedId();
+    if (!nodeId) return;
+
+    createNewNoteInTree(nodeId, nodes(), setNodes, setFocusedId, navigate)
+      .then((success) => {
+        if (!success) {
+          console.error(`Failed to create new note in ${nodeId}`);
+        }
+      });
+  }
+
+  /**
+   * Create a new folder in the focused folder
+   */
+  function handleNewFolderEvent(e: KeyboardEvent): void {
+    e.preventDefault();
+    const nodeId = focusedId();
+    if (!nodeId) return;
+
+    createNewFolderInTree(nodeId, nodes(), setNodes, setFocusedId)
+      .then((success) => {
+        if (!success) {
+          console.error(`Failed to create new folder in ${nodeId}`);
+        }
+      });
   }
 
   /**
@@ -263,7 +307,7 @@ export function createKeyboardHandlers(
     e.preventDefault();
     const nodeId = focusedId();
     if (!nodeId) return;
-    
+
     promptAndRenameItem(nodeId, nodes, setNodes)
       .then((success) => {
         if (!success) {
